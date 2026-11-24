@@ -10,11 +10,6 @@
 :root[data-theme="dark"]{--bg:#1b1c1f;--panel:#26282c;--ink:#f0f0f0;--line:#3a3d43;--acc:#6b9bff;--grid:#2a2c31}
 html,body{position:fixed;inset:0;width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overscroll-behavior:none}
 body{display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-#nav{display:flex;gap:4px;align-items:stretch;justify-content:space-around;padding:5px 6px calc(env(safe-area-inset-bottom,0px) + 4px);background:var(--panel);border-top:1px solid var(--line);flex:none;z-index:4}
-#nav button{flex:1;min-width:50px;height:56px;border:0;background:transparent;color:var(--ink);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;padding:2px 4px;opacity:.62}
-#nav button .ic{font-size:20px;line-height:1}
-#nav button.on{background:var(--acc);color:#fff;opacity:1;font-weight:600}
-#nav button:active{opacity:1}
 #bar{display:flex;gap:8px;align-items:center;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto;flex:none;z-index:2}
 #bar button,#bar label{min-width:46px;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 10px;flex:none}
 #bar button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
@@ -47,6 +42,10 @@ svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:b
 #menuPanel{position:absolute;left:8px;top:calc(env(safe-area-inset-top,0px) + 58px);width:min(92vw,360px);background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
 .mi{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-height:56px;padding:8px 12px;border:0;border-radius:10px;background:transparent;color:var(--ink);text-align:left;font-size:15px}
 .mi span{font-size:12px;opacity:.65}.mi:active{background:var(--bg)}
+#nav{display:flex;gap:4px;align-items:stretch;justify-content:space-around;padding:5px 6px calc(env(safe-area-inset-bottom,0px) + 5px);background:var(--panel);border-top:1px solid var(--line);flex:none;z-index:4}
+#nav button{flex:1;min-width:44px;height:48px;border:0;background:transparent;color:var(--ink);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;padding:0;opacity:.6}
+#nav button.on{background:var(--acc);color:#fff;opacity:1}
+#nav button:active{opacity:1}
 </style>
 </head>
 <body>
@@ -486,9 +485,11 @@ function el(n,a,parent){const e=document.createElementNS(NS,n);for(const k in a)
 const xf=s=>`translate(${s.cx} ${s.cy}) rotate(${s.rot}) scale(${s.w} ${s.h})`;
 
 const AB=1000,V={k:1,x:0,y:0};
+let fitK=1,Z=1,PX=0,PY=0;
 const S=p=>[p[0]*V.k+V.x,p[1]*V.k+V.y],l2s=(s,u,v)=>S(l2w(s,u,v));
 function applyView(){const W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;const pad=14;
-  V.k=Math.max(.2,Math.min((W-2*pad)/AB,(H-2*pad)/AB,3));V.x=(W-AB*V.k)/2;V.y=(H-AB*V.k)/2;
+  fitK=Math.max(.2,Math.min((W-2*pad)/AB,(H-2*pad)/AB,3));V.k=fitK*Z;
+  {const bx=(W-AB*V.k)/2,by=(H-AB*V.k)/2;let vx=bx+PX,vy=by+PY;vx=Math.min(W-60,Math.max(60-AB*V.k,vx));vy=Math.min(H-60,Math.max(60-AB*V.k,vy));PX=vx-bx;PY=vy-by;V.x=vx;V.y=vy}
   const T='translate('+V.x+' '+V.y+') scale('+V.k+')';['world','shapes','draft'].forEach(i=>$(i).setAttribute('transform',T));
   $('mask').setAttribute('d','M0 0H'+W+'V'+H+'H0Z M'+V.x+' '+V.y+'h'+AB*V.k+'v'+AB*V.k+'h'+(-AB*V.k)+'Z')}
 function render(){
@@ -605,12 +606,28 @@ function hitTest(p,ex){
   return best?{id:best,sub:bestSub}:null;
 }
 
+/* two fingers: zoom and move the canvas together */
+const ptrs=new Map();let pinch=null;
+function cancelDrag(){if(!drag)return;if(drag.path)drag.path.remove();$('over').style.display='';drag=null}
+function startPinch(){cancelDrag();const [a,b]=[...ptrs.values()],r=svg.getBoundingClientRect(),c=[(a[0]+b[0])/2-r.left,(a[1]+b[1])/2-r.top];
+  pinch={d0:Math.hypot(a[0]-b[0],a[1]-b[1])||1,Z0:Z,w0:[(c[0]-V.x)/V.k,(c[1]-V.y)/V.k]}}
+function setZoom(z,c,w0){Z=Math.max(1,Math.min(10,z));const k=fitK*Z,W=svg.clientWidth,H=svg.clientHeight;
+  PX=c[0]-w0[0]*k-(W-AB*k)/2;PY=c[1]-w0[1]*k-(H-AB*k)/2;applyView();render()}
+function doPinch(){if(ptrs.size<2)return;const [a,b]=[...ptrs.values()],r=svg.getBoundingClientRect();
+  setZoom(pinch.Z0*(Math.hypot(a[0]-b[0],a[1]-b[1])||1)/pinch.d0,[(a[0]+b[0])/2-r.left,(a[1]+b[1])/2-r.top],pinch.w0)}
+function endPinch(){pinch=null;if(Z<1.04){Z=1;PX=0;PY=0}applyView();render()}
+svg.addEventListener('wheel',e=>{e.preventDefault();const r=svg.getBoundingClientRect(),c=[e.clientX-r.left,e.clientY-r.top];
+  setZoom(Z*Math.exp(-e.deltaY*.002),c,[(c[0]-V.x)/V.k,(c[1]-V.y)/V.k]);if(Z<1.04){Z=1;PX=0;PY=0;applyView();render()}},{passive:false});
 svg.addEventListener('pointerdown',e=>{
-  if(drag||(e.pointerType==='mouse'&&e.button!==0))return;
-  e.preventDefault();
-  note='';const ab=e.target.closest('[data-act]');
-  if(ab){doAct(ab.dataset.act);return}
-  svg.setPointerCapture(e.pointerId);
+if(e.pointerType==='mouse'&&e.button!==0)return;
+e.preventDefault();
+const ab=!pinch&&!drag&&e.target.closest('[data-act]');
+if(ab){note='';doAct(ab.dataset.act);return}
+try{svg.setPointerCapture(e.pointerId)}catch(_){}
+ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+if(ptrs.size===2){startPinch();return}
+if(ptrs.size>2||drag||pinch)return;
+note='';
   const p=pt(e),s=get(sel),h=e.target.closest('[data-h]'),hit=hitTest(p,s&&s.id===openId?s.id:null);
   drag={id:e.pointerId,start:p,moved:false,hit:hit};
   const isSub=(s&&s.parts&&subSel!==null&&s.parts[subSel]&&s.id!==openId);
@@ -649,7 +666,9 @@ svg.addEventListener('pointerdown',e=>{
 });
 
 svg.addEventListener('pointermove',e=>{
-  if(!drag||e.pointerId!==drag.id)return;e.preventDefault();
+if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+if(pinch){e.preventDefault();doPinch();return}
+if(!drag||e.pointerId!==drag.id)return;e.preventDefault();
   const p=pt(e),s=get(sel),dx=p[0]-drag.start[0],dy=p[1]-drag.start[1];
   if(Math.hypot(dx,dy)>6/V.k)drag.moved=true;
   if(drag.mode==='draw'&&drag.moved)$('over').style.display='none';
@@ -735,8 +754,9 @@ function end(e){
   }else if(d.mode==='none'&&!d.moved){sel=null;subSel=null;render()}
   else if(d.moved&&(d.mode==='move'||d.mode==='resize'||d.mode==='rotate'))commit();
 }
-svg.addEventListener('pointerup',end);
-svg.addEventListener('pointercancel',end);
+const up=e=>{ptrs.delete(e.pointerId);if(pinch){if(ptrs.size<2)endPinch();return}end(e)};
+svg.addEventListener('pointerup',up);
+svg.addEventListener('pointercancel',up);
 svg.addEventListener('contextmenu',e=>e.preventDefault());
 function syncUI(){
   const t=activeTarget();
@@ -745,26 +765,28 @@ function syncUI(){
 applyView();load();render();updBtns();
 new ResizeObserver(()=>{applyView();render()}).observe($('stage'));
 
-/* ---------- Shell: six sections, one shared project ---------- */
+/* ---------- Shell: sections, one shared project ---------- */
 const SECTIONS=[
- {id:'studio',name:'Home',icon:'◧',desc:'Your workspace and current project',ready:true},
- {id:'vector',name:'Studio',icon:'✏️',desc:'Draw and edit shapes',ready:true},
+ {id:'studio',name:'Home',icon:'◧',desc:'Your project overview',ready:true},
+ {id:'vector',name:'Studio',icon:'✏️',desc:'Draw and edit on the canvas',ready:true},
  {id:'font',name:'Font Studio',icon:'Aa',desc:'Create fonts and alphabets',ready:false,plan:['Import existing fonts','Design your own characters','Assign characters to keys','Export TTF, OTF, WOFF and WOFF2']},
- {id:'image',name:'Image Studio',icon:'🖼',desc:'Work with images',ready:false,plan:['Bring images into the project','Use them alongside vector shapes and lettering']},
- {id:'projects',name:'Project Manager',icon:'📁',desc:'Your saved projects',ready:false,plan:['A list of your projects','Open, rename, copy and delete','Keep unfinished and finished designs']},
- {id:'io',name:'Import & Export',icon:'⇅',desc:'Bring files in, get designs out',ready:false,plan:['Import SVG, fonts and images','Export SVG and finished logos','Share a design']}
+ {id:'projects',name:'Project Manager',icon:'📁',desc:'Your saved projects',ready:false,plan:['A gallery of your projects','Open, rename, copy and delete','Drafts save automatically']},
+ {id:'io',name:'Import & Export',icon:'⇅',desc:'Bring files in, get designs out',ready:false,plan:['Import SVG, fonts and images','Export SVG and finished logos','Save a copy to your device','Share a design']}
 ];
 const proj={name:'Untitled logo',section:'studio',fonts:[],images:[]};
 try{Object.assign(proj,JSON.parse(localStorage.getItem('svglogo.proj')||'{}'))}catch(e){}
 function saveProj(){try{localStorage.setItem('svglogo.proj',JSON.stringify(proj))}catch(e){}}
 function secBy(id){return SECTIONS.find(x=>x.id===id)||SECTIONS[0]}
+function setProjName(n){
+  proj.name=String(n||'').trim()||'Untitled logo';saveProj();
+  $('shellProj').textContent=proj.name;document.title=proj.name+' – SVG Logo Generator';
+}
 function renderPage(sec){
   const P=$('sec-page');
   if(sec.id==='studio'){
     P.innerHTML='<h2>Home</h2><label class="pn">Project name <input id="pname" maxlength="60"></label><p class="sub" id="psum"></p><div class="cards" id="cards"></div>';
     $('pname').value=proj.name;
     $('pname').oninput=e=>setProjName(e.target.value);
-    $('pname').onchange=e=>setProjName(e.target.value);
     $('psum').textContent=shapes.length+(shapes.length===1?' shape':' shapes')+' · '+proj.fonts.length+' fonts · '+proj.images.length+' images';
     SECTIONS.filter(x=>x.id!=='studio').forEach(x=>{
       const b=document.createElement('button');b.className='card';b.innerHTML='<b></b><span></span><i></i>';
@@ -776,46 +798,32 @@ function renderPage(sec){
     (sec.plan||[]).forEach(s=>{const li=document.createElement('li');li.textContent=s;P.children[2].appendChild(li)});
   }
 }
-function setProjName(n){
-  proj.name=String(n||'Untitled logo').trim()||'Untitled logo';
-  saveProj();
-  $('shellProj').textContent=proj.name;
-  document.title=proj.name+' – SVG Logo Generator';
-  const inp=$('pname');if(inp&&document.activeElement!==inp)inp.value=proj.name;
-}
+let navH=[secBy(proj.section).id],navI=0;
+function updNavH(){$('nbBack').style.opacity=navI>0?1:.3;$('nbFwd').style.opacity=navI<navH.length-1?1:.3}
 function go(id,silent){
   const sec=secBy(id);proj.section=sec.id;saveProj();
-  if(!silent){
-    if(navH[navI]!==sec.id){navH=navH.slice(0,navI+1);navH.push(sec.id);navI=navH.length-1}
-    updNavH();
-  }
+  if(!silent&&navH[navI]!==sec.id){navH=navH.slice(0,navI+1);navH.push(sec.id);navI=navH.length-1}
   $('sec-vector').style.display=sec.id==='vector'?'flex':'none';
   $('sec-page').style.display=sec.id==='vector'?'none':'block';
   $('shellTitle').textContent=sec.icon+' '+sec.name;
   $('menu').style.display='none';
   document.querySelectorAll('#nav button[data-sec]').forEach(b=>b.classList.toggle('on',b.dataset.sec===sec.id));
   if(sec.id!=='vector')renderPage(sec);
-  save();
+  updNavH();save();
 }
-function navBack(){if(navI>0){navI--;go(navH[navI].id,true);updNavH()}}
-function navFwd(){if(navI<navH.length-1){navI++;go(navH[navI].id,true);updNavH()}}
-function updNavH(){$('nbBack').style.opacity=navI>0?1:.3;$('nbFwd').style.opacity=navI<navH.length-1?1:.3}
-
-/* bottom icon navigation */
-const nav=$('nav');
-const mkNav=(html,fn,dsec)=>{const b=document.createElement('button');b.innerHTML=html;if(dsec)b.dataset.sec=dsec;b.onclick=fn;nav.appendChild(b);return b};
-mkNav('<span class="ic">‹</span>',navBack).id='nbBack';
-SECTIONS.forEach(x=>mkNav('<span class="ic">'+x.icon+'</span>'+x.name,()=>go(x.id),x.id));
-mkNav('<span class="ic">›</span>',navFwd).id='nbFwd';
-let navH=[secBy(proj.section)],navI=0;
-
-/* ☰ menu stays as an alternative way to see descriptions */
+function navBack(){if(navI>0){navI--;go(navH[navI],true)}}
+function navFwd(){if(navI<navH.length-1){navI++;go(navH[navI],true)}}
+/* bottom navigation: icons only */
+const mkNav=(icon,label,fn,sec,id)=>{const b=document.createElement('button');b.textContent=icon;b.setAttribute('aria-label',label);b.title=label;if(sec)b.dataset.sec=sec;if(id)b.id=id;b.onclick=fn;$('nav').appendChild(b)};
+mkNav('‹','Back',navBack,null,'nbBack');
+SECTIONS.forEach(x=>mkNav(x.icon,x.name,()=>go(x.id),x.id));
+mkNav('›','Forward',navFwd,null,'nbFwd');
+/* ☰ menu: same sections, with descriptions */
 SECTIONS.forEach(x=>{const b=document.createElement('button');b.className='mi';b.innerHTML='<b></b><span></span>';
   b.children[0].textContent=x.icon+' '+x.name;b.children[1].textContent=x.desc;b.onclick=()=>go(x.id);$('menuPanel').appendChild(b)});
 $('shellBtn').onclick=()=>{$('menu').style.display='block'};
 $('menu').onclick=e=>{if(e.target.id==='menu')$('menu').style.display='none'};
 setProjName(proj.name);
-updNavH();
 go(proj.section,true);
 </script>
 </body>
