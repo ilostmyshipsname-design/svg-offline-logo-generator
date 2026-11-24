@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logo Maker — Offline</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0e1116;
+    color: #e8edf2;
+    min-height: 100vh;
+  }
+  header { text-align: center; padding: 26px 20px 4px; }
+  header h1 { font-size: 1.6rem; letter-spacing: 1px; }
+  header p { color: #8f9dab; margin-top: 6px; font-size: 0.95rem; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .namebox {
+    width: 100%;
+    max-width: 520px;
+    margin-top: 18px;
+  }
+  .namebox label { display: block; font-size: 0.9rem; color: #aab6c2; margin-bottom: 8px; text-align: center; }
+  #name {
+    width: 100%;
+    padding: 16px 18px;
+    font-size: 1.3rem;
+    text-align: center;
+    border-radius: 12px;
+    border: 2px solid #33404e;
+    background: #161c24;
+    color: #fff;
+    outline: none;
+  }
+  #name:focus { border-color: #00e5ff; }
+  #stage {
+    margin: 26px 0 20px;
+    width: 320px;
+    height: 320px;
+    max-width: 92vw;
+    filter: drop-shadow(0 14px 36px rgba(0,0,0,0.55));
+  }
+  .bigbtn {
+    width: 100%;
+    max-width: 520px;
+    padding: 16px;
+    margin-top: 10px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.06s, filter 0.15s;
+  }
+  .bigbtn:active { transform: scale(0.985); }
+  #rollBtn { background: linear-gradient(135deg, #7b2ff7, #d629b0); color: #fff; }
+  #rollBtn:hover { filter: brightness(1.15); }
+  #saveSvg { background: #00b8d9; color: #03131a; }
+  #saveSvg:hover { filter: brightness(1.1); }
+  #savePng { background: #16202b; color: #e8edf2; border: 2px solid #33404e; }
+  #savePng:hover { border-color: #00b8d9; color: #00e5ff; }
+  details {
+    width: 100%;
+    max-width: 520px;
+    margin-top: 22px;
+    background: #131922;
+    border: 2px solid #263140;
+    border-radius: 12px;
+    padding: 14px 18px;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #aab6c2;
+    font-size: 0.95rem;
+    user-select: none;
+  }
+  .pickers { margin-top: 16px; display: flex; flex-direction: column; gap: 18px; }
+  .pickers h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: #7d8b99; margin-bottom: 8px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt {
+    width: 52px;
+    height: 44px;
+    border-radius: 9px;
+    border: 2px solid #33404e;
+    background: #161c24;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+  }
+  .opt svg { width: 100%; height: 100%; }
+  .opt:hover { border-color: #00b8d9; }
+  .opt.active { border-color: #00e5ff; background: #0b3a44; }
+  .swatch { padding: 0; }
+  .swatch .chip { width: 100%; height: 100%; border-radius: 6px; }
+  .note { color: #66727e; font-size: 0.8rem; text-align: center; margin-top: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚡ Logo Maker</h1>
+  <p>Type your name. Hit the big button. Save what you like. Works with no internet.</p>
+</header>
+
+<main>
+  <div class="namebox">
+    <label for="name">Your name or gamer tag</label>
+    <input type="text" id="name" value="NIGHTWOLF" maxlength="24" spellcheck="false">
+  </div>
+
+  <svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"></svg>
+
+  <button class="bigbtn" id="rollBtn">🎲 New design!</button>
+  <button class="bigbtn" id="saveSvg">⬇ Save my logo</button>
+  <button class="bigbtn" id="savePng">⬇ Save as picture (for uploads)</button>
+
+  <details>
+    <summary>Want more control? (optional)</summary>
+    <div class="pickers">
+      <div><h3>Shape</h3><div class="grid" id="shapeRow"></div></div>
+      <div><h3>Icon</h3><div class="grid" id="iconRow"></div></div>
+      <div><h3>Colors</h3><div class="grid" id="paletteRow"></div></div>
+    </div>
+  </details>
+
+  <p class="note">Nothing you type leaves your computer. No internet needed, ever.</p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var PALETTES = [
+    { bg1: "#0f0f1e", bg2: "#2b1a5e", text: "#00e5ff" },
+    { bg1: "#160c1e", bg2: "#4a1259", text: "#ff2ec4" },
+    { bg1: "#04140f", bg2: "#0b3d2e", text: "#39ff14" },
+    { bg1: "#1a0505", bg2: "#5e0f0f", text: "#ff9f1a" },
+    { bg1: "#101010", bg2: "#3a3a3a", text: "#f5f5f5" },
+    { bg1: "#001220", bg2: "#00406a", text: "#ffd60a" },
+    { bg1: "#1d0b2a", bg2: "#6a00b8", text: "#b9ff2c" },
+    { bg1: "#00232e", bg2: "#005f73", text: "#90f1ef" }
+  ];
+
+  var SHAPES = ["circle", "square", "blade", "shield", "hexagon", "diamond"];
+
+  var ICONS = {
+    none: "",
+    bolt: "M300 56 L150 290 H240 L200 456 L370 222 H272 Z",
+    star: "M256 130 L284.2 211.2 L370.1 212.9 L301.7 264.8 L326.5 347.1 L256 298 L185.5 347.1 L210.3 264.8 L141.9 212.9 L227.8 211.2 Z",
+    crown: "M116 180 L200 250 L256 150 L312 250 L396 180 L376 352 H136 Z",
+    flame: "M256 90 C 300 160 376 200 376 296 A 120 120 0 0 1 136 296 C 136 204 200 176 256 90 Z",
+    gem: "M256 86 L386 206 L256 426 L126 206 Z"
+  };
+
+  var FONTS = [
+    "'Arial Black', Arial, sans-serif",
+    "Impact, 'Arial Black', sans-serif",
+    "Verdana, sans-serif",
+    "'Trebuchet MS', sans-serif",
+    "Georgia, serif"
+  ];
+
+  var state = { name: "NIGHTWOLF", shape: "blade", icon: "bolt", pal: 0, font: 0 };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $("stage");
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function hexPoints(cx, cy, r) {
+    var pts = [];
+    for (var i = 0; i < 6; i++) {
+      var a = Math.PI / 180 * (60 * i - 30);
+      pts.push((cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1));
+    }
+    return pts.join(" ");
+  }
+
+  function shapeMarkup() {
+    var p = PALETTES[state.pal];
+    var fill = 'fill="url(#g)"';
+    switch (state.shape) {
+      case "square": return '<rect x="18" y="18" width="476" height="476" rx="88" ' + fill + "/>";
+      case "blade": return '<polygon points="110,18 402,18 494,110 494,402 402,494 110,494 18,402 18,110" ' + fill + "/>";
+      case "shield": return '<path d="M256 12 L490 88 V262 C490 380 394 464 256 500 C118 464 22 380 22 262 V88 Z" ' + fill + "/>";
+      case "hexagon": return '<polygon points="' + hexPoints(256, 256, 244) + '" ' + fill + "/>";
+      case "diamond": return '<polygon points="256,12 500,256 256,500 12,256" ' + fill + "/>";
+      default: return '<circle cx="256" cy="256" r="246" ' + fill + "/>";
+    }
+  }
+
+  function fit(text, maxW) {
+    var size = 108;
+    var probe = document.createElement("canvas").getContext("2d");
+    for (; size > 16; size -= 2) {
+      probe.font = "700 " + size + "px " + FONTS[state.font];
+      if (probe.measureText(text).width + 3 * Math.max(0, text.length - 1) <= maxW) break;
+    }
+    return size;
+  }
+
+  function build() {
+    var p = PALETTES[state.pal];
+    var name = state.name.trim() || "LOGO";
+    var hasIcon = state.icon !== "none";
+    var maxW = hasIcon ? 400 : 424;
+    var size = fit(name, maxW);
+    var probe = document.createElement("canvas").getContext("2d");
+    probe.font = "700 " + size + "px " + FONTS[state.font];
+    var w = probe.measureText(name).width + 3 * Math.max(0, name.length - 1);
+    var x = ((512 - w) / 2).toFixed(1);
+    var y = hasIcon ? 396 : 268;
+    var iconBox = hasIcon
+      ? '<g transform="translate(156,104) scale(0.4)"><path d="' + ICONS[state.icon]
+        + '" fill="' + p.text + '" fill-opacity="0.92"/></g>'
+      : "";
+
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">'
+      + "<defs><linearGradient id=\"g\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\">"
+      + '<stop offset="0" stop-color="' + p.bg1 + '"/>'
+      + '<stop offset="1" stop-color="' + p.bg2 + '"/>'
+      + "</linearGradient></defs>"
+      + shapeMarkup()
+      + '<rect x="0" y="0" width="0" height="0" rx="0" fill="none"/>'
+      + '<text x="' + x + '" y="' + y + '" text-anchor="middle" dominant-baseline="central" '
+      + 'font-family="' + esc(FONTS[state.font]) + '" font-size="' + size + '" font-weight="700" '
+      + 'letter-spacing="3" fill="' + p.text + '">' + esc(name) + "</text>" + iconBox + "";
+  }
+
+  function render() {
+    stage.innerHTML = build().replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+  }
+
+  function roll() {
+    var pick = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
+    state.shape = pick(SHAPES);
+    state.pal = Math.floor(Math.random() * PALETTES.length);
+    state.icon = pick(Object.keys(ICONS));
+    state.font = Math.floor(Math.random() * FONTS.length);
+    render();
+    syncRows();
+  }
+
+  function slug() {
+    return (state.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "logo");
+  }
+
+  function saveSvg() {
+    var blob = new Blob([build()], { type: "image/svg+xml" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = slug() + ".svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 800);
+  }
+
+  function savePng() {
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement("canvas");
+      c.width = 512;
+      c.height = 512;
+      c.getContext("2d").drawImage(img, 0, 0, 512, 512);
+      var a = document.createElement("a");
+      a.href = c.toDataURL("image/png");
+      a.download = slug() + ".png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+    img.onerror = function () { saveSvg(); };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(build());
+  }
+
+  var shapePreview = {
+    circle: '<circle cx="24" cy="24" r="19" fill="#61748a"/>',
+    square: '<rect x="5" y="5" width="38" height="38" rx="8" fill="#61748a"/>',
+    blade: '<polygon points="11,5 37,5 43,11 43,37 37,43 11,43 5,37 5,11" fill="#61748a"/>',
+    shield: '<path d="M24 3 L42.5 9.5 V25.5 C42.5 34.5 34.5 41 24 45 C13.5 41 5.5 34.5 5.5 25.5 V9.5 Z" fill="#61748a"/>',
+    hexagon: '<polygon points="24,3 41.3,13.5 41.3,34.5 24,45 6.7,34.5 6.7,13.5" fill="#61748a"/>',
+    diamond: '<polygon points="24,3 45,24 24,45 3,24" fill="#61748a"/>'
+  };
+
+  var iconPreview = {
+    none: "<text x='24' y='32' text-anchor='middle' font-size='26' fill='#61748a'>&#8212;</text>",
+    bolt: "<path d='M300 56 L150 290 H240 L200 456 L370 222 H272 Z' fill='#61748a'/>",
+    star: "<path d='" + ICONS.star + "' fill='#61748a'/>",
+    crown: "<path d='" + ICONS.crown + "' fill='#61748a'/>",
+    flame: "<path d='" + ICONS.flame + "' fill='#61748a'/>",
+    gem: "<path d='" + ICONS.gem + "' fill='#61748a'/>"
+  };
+
+  function makeOpt(rowId, key, name, inner, isSwatch) {
+    var b = document.createElement("button");
+    b.className = "opt" + (isSwatch ? " swatch" : "");
+    b.title = name;
+    b.innerHTML = isSwatch
+      ? "<span class='chip' style='background:linear-gradient(135deg," + PALETTES[name].bg1
+        + "," + PALETTES[name].bg2 + ")'></span>"
+      : "<svg viewBox='0 0 48 48'>" + inner + "</svg>";
+    if (isSwatch) b.dataset.pal = name;
+    b.addEventListener("click", function () {
+      if (key === "pal") state.pal = PALETTES.map(function (p) { return p.bg1; }).indexOf(PALETTES[name].bg1);
+      else state[key] = name === "none" ? "none" : name;
+      if (key === "font") state.font = parseInt(name, 10);
+      render();
+      syncRows();
+    });
+    $(rowId).appendChild(b);
+  }
+
+  Object.keys(shapePreview).forEach(function (s) {
+    makeOpt("shapeRow", "shape", s, shapePreview[s], false);
+  });
+  Object.keys(iconPreview).forEach(function (s) {
+    makeOpt("iconRow", "icon", s, iconPreview[s], false);
+  });
+  PALETTES.forEach(function (p, i) {
+    makeOpt("paletteRow", "pal", i, null, true);
+  });
+
+  function syncRows() {
+    document.querySelectorAll("#shapeRow .opt").forEach(function (b) {
+      b.classList.toggle("active", b.title === state.shape);
+    });
+    document.querySelectorAll("#iconRow .opt").forEach(function (b) {
+      b.classList.toggle("active", b.title === state.icon);
+    });
+    document.querySelectorAll("#paletteRow .opt").forEach(function (b, i) {
+      b.classList.toggle("active", i === state.pal);
+    });
+  }
+
+  $("rollBtn").addEventListener("click", roll);
+  $("saveSvg").addEventListener("click", saveSvg);
+  $("savePng").addEventListener("click", savePng);
+
+  $("name").addEventListener("input", function () {
+    state.name = this.value;
+    render();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === " " && document.activeElement !== $("name")) {
+      e.preventDefault();
+      roll();
+    }
+  });
+
+  render();
+  syncRows();
+})();
+</script>
+</body>
+</html>
