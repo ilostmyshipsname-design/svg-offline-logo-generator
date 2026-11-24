@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Layout Board – where everything goes on your screen</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: #14171c; color: #e8e8e8;
+    font-family: system-ui, sans-serif; height: 100%; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  header { padding: 10px 14px 6px; }
+  header h1 { font-size: 20px; margin: 0 0 2px; }
+  header p { margin: 0; font-size: 14px; color: #aab; }
+  #hint { font-size: 14px; color: #ffd66e; padding: 4px 14px 0; font-weight: 600; }
+
+  #traywrap { padding: 10px 10px 4px; }
+  .zonetitle { font-size: 13px; font-weight: 700; letter-spacing: .06em;
+    color: #9ab; text-transform: uppercase; margin: 0 4px 6px; }
+
+  #tray { min-height: 60px; border: 2px dashed #456; border-radius: 12px;
+    padding: 8px; display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start;
+    max-height: 30vh; overflow-y: auto; }
+
+  #mid { flex: 1; display: flex; gap: 8px; padding: 8px 10px; min-height: 0; }
+  .drawer { width: 86px; border-radius: 12px; display: flex; flex-direction: column;
+    gap: 8px; padding: 8px 6px; overflow-y: auto; }
+  #left  { background: #1c2530; border: 2px solid #34506b; }
+  #right { background: #241f2e; border: 2px solid #5b4670; }
+  .drawer .zonetitle { writing-mode: vertical-rl; transform: rotate(180deg);
+    text-align: center; color: #7d90a8; font-size: 12px; flex: 1; }
+
+  #floatzone { flex: 1; background: #232830; border: 2px solid #566; border-radius: 12px;
+    position: relative; overflow: hidden; }
+  #floatzone .zonetitle { position: absolute; top: 6px; left: 10px; }
+  #floatghost { position: absolute; inset: 46px 14px 14px; border: 2px dashed #45505a;
+    border-radius: 10px; opacity: .6; pointer-events: none; }
+  #floatghost::after { content: "your drawing sits in here — floating buttons live on top";
+    position: absolute; top: 8px; left: 10px; color: #647; font-size: 13px; }
+
+  #barzones { padding: 0 10px 8px; display: flex; flex-direction: column; gap: 8px; }
+  .barzone { min-height: 64px; border-radius: 12px; padding: 8px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start;
+    background: #1f232b; }
+  #topzone { border: 2px solid #3d5a3d; }
+  #botzone { border: 2px solid #5a4d3d; }
+
+  #savedflash { color: #8fd6a5; font-size: 14px; align-self: center; min-width: 90px;
+    text-align: center; }
+  #bin { flex: 1; min-height: 60px; border-radius: 12px; border: 2px solid #7a3b3b;
+    background: #2a1d1e; padding: 8px; display: flex; flex-wrap: wrap; gap: 8px;
+    align-content: flex-start; }
+  #bin .zonetitle { color: #d98c8c; }
+
+  .chip { background: #2f3a4d; border: 2px solid #5a7ba6; color: #fff;
+    font-size: 16px; font-weight: 600; padding: 10px 12px; border-radius: 999px;
+    min-height: 44px; display: flex; align-items: center; gap: 6px;
+    touch-action: none; user-select: none; cursor: grab; flex: 0 0 auto; }
+  .chip.drag { position: fixed; z-index: 999; opacity: .95; pointer-events: none;
+    box-shadow: 0 8px 22px rgba(0,0,0,.6); transform: rotate(2deg); }
+
+  #foot { display: flex; gap: 8px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    background: #0b0e12; border-top: 1px solid #333; }
+  #foot button { flex: 1; min-height: 52px; border-radius: 12px; border: none;
+    font-size: 16px; font-weight: 700; color: #fff; }
+  #copy { background: #2e7d4f; }
+  #reset { background: #444; flex: 0 0 110px; }
+  #toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%);
+    background: #2e7d4f; color: #fff; font-size: 15px; font-weight: 700;
+    padding: 10px 18px; border-radius: 999px; display: none; z-index: 1000;
+    white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧩 Layout Board</h1>
+  <p>This board is NOT your app — nothing here touches your drawings. It is just for
+     deciding where every button and panel will live.</p>
+</header>
+<p id="hint">Drag every chip into the place you want it. Not wanted? Drop it in the red box.</p>
+
+<div id="traywrap">
+  <p class="zonetitle">All the chips — drag each one where you want it</p>
+  <div id="tray" class="zone"></div>
+</div>
+
+<div id="mid">
+  <div id="left" class="drawer zone"><p class="zonetitle">LEFT slide-out panel</p></div>
+  <div id="floatzone" class="zone">
+    <p class="zonetitle">FLOATING on the drawing</p>
+    <div id="floatghost"></div>
+  </div>
+  <div id="right" class="drawer zone"><p class="zonetitle">RIGHT slide-out panel</p></div>
+</div>
+
+<div id="barzones">
+  <p class="zonetitle">Top bar</p>
+  <div id="topzone" class="barzone zone"></div>
+  <p class="zonetitle">Bottom bar</p>
+  <div id="botzone" class="barzone zone"></div>
+</div>
+
+<div id="binrow">
+  <div id="bin" class="zone">
+    <p class="zonetitle">NOT on my screen — leave these out</p>
+  </div>
+</div>
+
+<div id="foot">
+  <button id="copy">📋 Copy my layout</button>
+  <button id="reset">↺ Start over</button>
+  <span id="savedflash"></span>
+</div>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var CHIPS = [
+    { id: 'draw',   label: '✏️ Pencil (draw)' },
+    { id: 'colour', label: '🎨 Colour picker' },
+    { id: 'hex',    label: '# exact colour box' },
+    { id: 'mypal',  label: 'My saved colours' },
+    { id: 'width',  label: 'Line thickness' },
+    { id: 'smooth', label: 'Smoothing slider' },
+    { id: 'undo',   label: '↩ Undo arrow' },
+    { id: 'redo',   label: '↪ Redo arrow' },
+    { id: 'clear',  label: 'Clear all' },
+    { id: 'flip',   label: 'Flip left-right / up-down' },
+    { id: 'sides',  label: 'Corners ± counter' },
+    { id: 'group',  label: 'Whole Group button' },
+    { id: 'mirror', label: '🪞 Mirror drawing' },
+    { id: 'join',   label: 'Join shapes (one outline)' },
+    { id: 'hole',   label: 'Cut a hole (subtract)' },
+    { id: 'overlap',label: 'Keep the overlap (intersect)' },
+    { id: 'angle',  label: 'Type exact angle' },
+    { id: 'size',   label: 'Type exact size' },
+    { id: 'snap',   label: 'Angle snapping 15/30/45/90' },
+    { id: 'ruler',  label: '📏 Straight ruler' },
+    { id: 'compass',label: '⊙ Circle / compass guide' },
+    { id: 'grid',   label: 'Grid / graph background' },
+    { id: 'bg',     label: 'Background switcher (white/dark/clear)' },
+    { id: 'preview',label: '🔍 Small-size preview box' },
+    { id: 'ref',    label: '📚 Reference drawer (maths & symbols)' },
+    { id: 'stamp',  label: 'Stamp as vector / tracing guide' },
+    { id: 'text',   label: 'Aa Text / alphabet mode' },
+    { id: 'badge',  label: 'Curved / badge text' },
+    { id: 'offset', label: 'Parallel copy (offset)' },
+    { id: 'simpl',  label: 'Simplify (fewer points)' },
+    { id: 'trim',   label: '✂ Trim (scissors)' },
+    { id: 'extend', label: 'Extend line' },
+    { id: 'fillet', label: 'Round a corner (fillet)' },
+    { id: 'export', label: '💾 Save SVG / PNG' },
+    { id: 'sizes',  label: 'Export sizes (avatar/header/stamp)' },
+    { id: 'import', label: 'Import picture / SVG' },
+    { id: 'home',   label: '🏠 Front page (my saved works)' },
+    { id: 'menub',  label: '☰ Menu button' },
+    { id: 'layers', label: 'Layers list (eye / lock)' },
+    { id: 'align',  label: 'Centre buttons (align)' }
+  ];
+
+  var ZONES = ['tray','topzone','botzone','left','right','floatzone','bin'];
+  var ZONE_NAMES = {
+    topzone: 'TOP BAR', botzone: 'BOTTOM BAR', left: 'LEFT SLIDE-OUT PANEL',
+    right: 'RIGHT SLIDE-OUT PANEL', floatzone: 'FLOATING ON THE DRAWING',
+    bin: 'NOT ON MY SCREEN', tray: 'NOT PLACED YET'
+  };
+  var KEY = 'layoutboard.v1';
+  var drag = null, nextCustom = 1;
+
+  function $(s) { return document.querySelector(s); }
+  function zoneOf(el) {
+    var p = el.parentElement;
+    while (p) { if (ZONES.indexOf(p.id) >= 0) return p; p = p.parentElement; }
+    return null;
+  }
+  function flash(msg) {
+    var t = $('#toast'); t.textContent = msg; t.style.display = 'block';
+    clearTimeout(t._h); t._h = setTimeout(function () { t.style.display = 'none'; }, 1800);
+    var sf = $('#savedflash'); sf.textContent = 'saved ✓';
+    clearTimeout(sf._h); sf._h = setTimeout(function () { sf.textContent = ''; }, 1200);
+  }
+
+  function makeChip(label, id, custom) {
+    var c = document.createElement('div');
+    c.className = 'chip'; c.dataset.label = label; c.dataset.id = id || ('c' + label);
+    c.appendChild(document.createTextNode(label));
+    c.addEventListener('pointerdown', onDown);
+    return c;
+  }
+
+  function onDown(e) {
+    var chip = e.currentTarget;
+    drag = { chip: chip, startX: e.clientX, startY: e.clientY, moved: false,
+      home: { parent: chip.parentElement, next: chip.nextSibling }, fx: null, fy: null };
+    try { chip.setPointerCapture(e.pointerId); } catch (err) {}
+    chip.addEventListener('pointermove', onMove);
+    chip.addEventListener('pointerup', onUp);
+    chip.addEventListener('pointercancel', onUp);
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (!drag) return;
+    if (!drag.moved) {
+      if (Math.abs(e.clientX - drag.startX) < 6 && Math.abs(e.clientY - drag.startY) < 6) return;
+      drag.moved = true;
+      var r = drag.chip.getBoundingClientRect();
+      drag.ox = e.clientX - r.left; drag.oy = e.clientY - r.top;
+      drag.w = r.width;
+      drag.chip.classList.add('drag');
+      drag.chip.style.width = drag.w + 'px';
+    }
+    drag.chip.style.left = (e.clientX - drag.ox) + 'px';
+    drag.chip.style.top = (e.clientY - drag.oy) + 'px';
+    e.preventDefault();
+  }
+  function onUp(e) {
+    if (!drag) return;
+    var d = drag; drag = null;
+    d.chip.removeEventListener('pointermove', onMove);
+    d.chip.removeEventListener('pointerup', onUp);
+    d.chip.removeEventListener('pointercancel', onUp);
+    if (!d.moved) return;
+    d.chip.classList.remove('drag');
+    d.chip.style.width = '';
+
+    var zones = document.elementsFromPoint(e.clientX, e.clientY).filter(function (el) {
+      return ZONES.indexOf(el.id) >= 0;
+    });
+    var z = zones.length ? zones[0] : null;
+
+    if (z && z.id === 'floatzone') {
+      var fr = $('#floatzone').getBoundingClientRect();
+      $('#floatzone').appendChild(d.chip);
+      d.chip.style.position = 'absolute';
+      d.chip.style.left = Math.max(0, e.clientX - fr.left - d.ox) + 'px';
+      d.chip.style.top = Math.max(0, e.clientY - fr.top - d.oy) + 'px';
+    } else if (z) {
+      d.chip.style.position = ''; d.chip.style.left = ''; d.chip.style.top = '';
+      z.appendChild(d.chip);
+    } else {
+      d.chip.style.position = ''; d.chip.style.left = ''; d.chip.style.top = '';
+      if (d.home.parent && d.home.parent.isConnected) {
+        d.home.parent.insertBefore(d.chip, d.home.next);
+      } else { $('#tray').appendChild(d.chip); }
+    }
+    save();
+  }
+
+  function save() {
+    var data = { chips: [] };
+    ZONES.forEach(function (zid) {
+      var z = document.getElementById(zid);
+      Array.prototype.forEach.call(z.children, function (child) {
+        if (!child.classList || !child.classList.contains('chip')) return;
+        var rec = { label: child.dataset.label, zone: zid };
+        if (zid === 'floatzone') {
+          rec.fx = child.style.left; rec.fy = child.style.top;
+        }
+        data.chips.push(rec);
+      });
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (err) {}
+  }
+
+  function load() {
+    var raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (err) {}
+    ZONES.forEach(function (zid) {
+      var z = document.getElementById(zid);
+      Array.prototype.forEach.call(z.children, function (child) {
+        if (child.classList && child.classList.contains('chip')) child.remove();
+      });
+    });
+    if (!raw) return false;
+    var data;
+    try { data = JSON.parse(raw); } catch (err) { return false; }
+    (data.chips || []).forEach(function (rec) {
+      var c = makeChip(rec.label, null, true);
+      document.getElementById(rec.zone || 'tray').appendChild(c);
+      if (rec.zone === 'floatzone' && rec.fx) {
+        c.style.position = 'absolute'; c.style.left = rec.fx; c.style.top = rec.fy;
+      }
+    });
+    return true;
+  }
+
+  function build() {
+    CHIPS.forEach(function (c) { $('#tray').appendChild(makeChip(c.label, c.id, false)); });
+  }
+
+  $('#copy').addEventListener('click', function () {
+    var lines = ['# MY LAYOUT (' + new Date().toLocaleString() + ')'];
+    ['topzone','botzone','left','right','floatzone','bin','tray'].forEach(function (zid) {
+      var z = document.getElementById(zid);
+      var kids = Array.prototype.filter.call(z.children, function (c) {
+        return c.classList && c.classList.contains('chip');
+      });
+      if (zid === 'floatzone') {
+        kids.sort(function (a, b) {
+          var dy = parseFloat(a.style.top) - parseFloat(b.style.top);
+          return dy !== 0 ? dy : (parseFloat(a.style.left) - parseFloat(b.style.left));
+        });
+      }
+      lines.push('');
+      lines.push(ZONE_NAMES[zid] + ':');
+      if (!kids.length) lines.push('  (nothing)');
+      kids.forEach(function (c) { lines.push('  - ' + c.dataset.label); });
+    });
+    var text = lines.join('\n');
+    var done = function () { flash('Copied! Now paste it into the chat.'); };
+    var failed = function () {
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); }
+      catch (err) { window.alert('Long-press the box below and copy it.'); }
+      ta.remove();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, failed);
+    } else { failed(); }
+  });
+
+  $('#reset').addEventListener('click', function () {
+    try { localStorage.removeItem(KEY); } catch (err) {}
+    location.reload();
+  });
+
+  load() || build();
+})();
+</script>
+</body>
+</html>
