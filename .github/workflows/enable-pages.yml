@@ -1,0 +1,13 @@
+name: Enable Pages
+on:
+  push:
+    branches: [main]
+permissions:
+  pages: write
+jobs:
+  enable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
