@@ -8,7 +8,7 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; background: #14171c; color: #e8e8e8;
     font-family: system-ui, sans-serif; }
-  body { padding-bottom: 90px; }
+  body { padding-bottom: 96px; }
   header { padding: 14px 16px 4px; }
   header h1 { font-size: 22px; margin: 0 0 4px; }
   header p { margin: 0; font-size: 15px; color: #aab; line-height: 1.4; }
@@ -17,39 +17,32 @@
     font-size: 16px; font-weight: 700; line-height: 1.45; }
   #hint.sel { background: #12331f; border-color: #6fdc9a; color: #6fdc9a; }
 
-  .sect { margin: 18px 16px 0; }
-  .sect > h2 { font-size: 18px; margin: 0 0 2px; display: flex; align-items: baseline; gap: 8px; }
-  .sect > p.sub { font-size: 14px; color: #8fa; color: #93a3b8; margin: 0 0 8px; line-height: 1.35; }
+  .sect { margin: 22px 16px 0; padding: 14px 12px 12px; border-radius: 16px;
+    background: #191d24; border: 2px solid #2b323d; }
+  .sect > h2 { font-size: 19px; margin: 0 0 2px; }
+  .sect > p.sub { font-size: 14px; color: #93a3b8; margin: 0 0 12px; line-height: 1.35; }
+
+  .zt { font-size: 14px; font-weight: 700; letter-spacing: .05em; color: #7d90a8;
+    text-transform: uppercase; margin: 10px 2px 6px; }
+  .zt:first-of-type { margin-top: 0; }
 
   .zone { border-radius: 14px; padding: 12px; display: flex; flex-wrap: wrap;
-    gap: 10px; align-content: flex-start; min-height: 76px; }
+    gap: 10px; align-content: flex-start; min-height: 72px; }
   .zone.empty::after { content: "empty — nothing chosen yet";
     color: #5a6572; font-size: 15px; align-self: center; margin-left: 4px; }
 
   #tray { background: #1a1f27; border: 2px dashed #456; }
-
-  .barzone { background: #1f232b; }
-  #topzone { border: 2px solid #3d5a3d; }
-  #botzone { border: 2px solid #5a4d3d; }
-
-  #mid { display: flex; gap: 12px; align-items: stretch; }
-  .drawer { flex: 0 0 118px; display: flex; flex-direction: column; align-items: center; }
-  #left  { background: #1a2530; border: 2px solid #34506b; flex: 0 0 118px; }
+  #topzone { background: #1f232b; border: 2px solid #3d5a3d; }
+  #botzone { background: #1f232b; border: 2px solid #5a4d3d; }
+  #left { background: #1a2530; border: 2px solid #34506b; }
   #right { background: #241f2e; border: 2px solid #5b4670; }
-  .drawer .zname { writing-mode: vertical-rl; transform: rotate(180deg);
-    font-size: 14px; font-weight: 700; color: #7d90a8; letter-spacing: .04em;
-    flex: 1; text-align: center; padding: 8px 0; }
-  #floatzone { flex: 1; background: #232830; border: 2px solid #566; position: relative; }
-  #floatzone .fzname { position: absolute; top: 12px; left: 14px; margin: 0;
-    font-size: 14px; font-weight: 700; color: #93a3b8; letter-spacing: .04em; }
-  #floatghost { position: absolute; inset: 54px 14px 14px; border: 2px dashed #45505a;
-    border-radius: 10px; opacity: .6; pointer-events: none; }
-  #floatghost::after { content: "your drawing sits in the middle — floating buttons sit on top of it";
-    position: absolute; top: 8px; left: 10px; right: 8px; color: #647; font-size: 14px;
-    line-height: 1.3; }
-
+  #floatzone { background: #232830; border: 2px solid #566; }
+  #homezone { background: #16222b; border: 2px solid #2e5872; min-height: 96px; }
+  #fontzone { background: #191f2e; border: 2px solid #33417a; min-height: 96px; }
+  #projzone { background: #1f2419; border: 2px solid #4a6b3a; min-height: 96px; }
+  #iozone   { background: #241f19; border: 2px solid #7a5a2e; min-height: 96px; }
   #bin { background: #2a1d1e; border: 2px solid #a05555; min-height: 96px; }
-  #bin > h2 { color: #e6a3a3; }
+  #bin > .zt { color: #e6a3a3; }
 
   .chip { background: #2f3a4d; border: 2px solid #5a7ba6; color: #fff;
     font-size: 16px; font-weight: 600; padding: 12px 14px; border-radius: 999px;
@@ -66,7 +59,7 @@
     font-size: 17px; font-weight: 700; color: #fff; }
   #copy { background: #2e7d4f; }
   #reset { background: #444; flex: 0 0 120px; }
-  #toast { position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%);
+  #toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%);
     background: #2e7d4f; color: #fff; font-size: 15px; font-weight: 700;
     padding: 10px 18px; border-radius: 999px; display: none; z-index: 1000;
     white-space: nowrap; }
@@ -76,48 +69,64 @@
 
 <header>
   <h1>🧩 Layout Board</h1>
-  <p>This board is NOT your app — it doesn't touch your drawings. It just decides
-     where every button and panel will live on your screen.</p>
+  <p>This board is NOT your app — it doesn't touch your drawings. It decides where
+     things go. The canvas (where you draw) is the centre of the app, so it's not on
+     the board — the sections around it are.</p>
 </header>
 
 <div id="hint">Move every chip out of this box. Two ways: <b>drag</b> a chip, or
-  <b>tap a chip then tap where it goes</b>. Don't want a feature? Put it in the red
-  box at the bottom.</div>
+  <b>tap a chip, then tap the place it should live</b>. Don't want a feature? Put it
+  in the red box at the bottom.</div>
 
 <div class="sect">
   <h2>All the chips</h2>
-  <p class="sub">One chip = one feature. Drag or tap-and-place each one.</p>
+  <p class="sub">One chip = one feature. Drag or tap-and-place each one below.</p>
   <div id="tray" class="zone"></div>
 </div>
 
 <div class="sect">
-  <h2>🟩 TOP BAR</h2>
-  <p class="sub">The thin strip fixed at the top of your screen, always visible.</p>
-  <div id="topzone" class="zone barzone"></div>
+  <h2>🟦 HOME</h2>
+  <p class="sub">Where you start — your saved works live here.</p>
+  <div id="homezone" class="zone"></div>
 </div>
 
 <div class="sect">
-  <h2>The drawing area</h2>
-  <p class="sub">Middle of the screen where you draw, with panels tucked on the sides.</p>
-  <div id="mid">
-    <div class="zone" id="left"><span class="zname">LEFT panel that slides out</span></div>
-    <div class="zone" id="floatzone">
-      <p class="fzname">FLOATING buttons on the drawing</p>
-      <div id="floatghost"></div>
-    </div>
-    <div class="zone" id="right"><span class="zname">RIGHT panel that slides out</span></div>
-  </div>
+  <h2>🟩 STUDIO — where all designing happens</h2>
+  <p class="sub">The drawing screen. Put things in its bars and panels; the canvas
+     itself is the middle and needs no chip.</p>
+  <p class="zt">Top bar</p>
+  <div id="topzone" class="zone"></div>
+  <p class="zt">Left panel that slides out</p>
+  <div id="left" class="zone"></div>
+  <p class="zt">Right panel that slides out</p>
+  <div id="right" class="zone"></div>
+  <p class="zt">Bottom bar</p>
+  <div id="botzone" class="zone"></div>
+  <p class="zt">Buttons floating on the drawing</p>
+  <div id="floatzone" class="zone"></div>
 </div>
 
 <div class="sect">
-  <h2>🟧 BOTTOM BAR</h2>
-  <p class="sub">The thin strip fixed at the bottom, where the arrows are now.</p>
-  <div id="botzone" class="zone barzone"></div>
+  <h2>🟪 FONT STUDIO</h2>
+  <p class="sub">Making your own alphabets / letters (planned).</p>
+  <div id="fontzone" class="zone"></div>
+</div>
+
+<div class="sect">
+  <h2>🟨 PROJECT MANAGER</h2>
+  <p class="sub">Opening, renaming, copying your saved projects (planned).</p>
+  <div id="projzone" class="zone"></div>
+</div>
+
+<div class="sect">
+  <h2>🟧 IMPORT &amp; EXPORT</h2>
+  <p class="sub">Getting files in and finished work out (planned).</p>
+  <div id="iozone" class="zone"></div>
 </div>
 
 <div class="sect">
   <div id="bin" class="zone">
-    <h2 style="margin:0 4px 2px">🟥 NOT on my screen</h2>
+    <p class="zt">🟥 NOT on my screen — leave these out</p>
   </div>
 </div>
 
@@ -132,6 +141,8 @@
   'use strict';
 
   var CHIPS = [
+    { id: 'menub',  label: '☰ Menu button' },
+    { id: 'home',   label: '🏠 Switch to Home' },
     { id: 'draw',   label: '✏️ Pencil (draw)' },
     { id: 'colour', label: '🎨 Colour picker' },
     { id: 'hex',    label: '# exact colour box' },
@@ -168,20 +179,27 @@
     { id: 'export', label: '💾 Save SVG / PNG' },
     { id: 'sizes',  label: 'Export sizes (avatar/header/stamp)' },
     { id: 'import', label: 'Import picture / SVG' },
-    { id: 'home',   label: '🏠 Front page (my saved works)' },
-    { id: 'menub',  label: '☰ Menu button' },
+    { id: 'secpm',  label: 'Open Project Manager' },
+    { id: 'secio',  label: 'Open Import & Export' },
+    { id: 'sechome',label: 'Open Font Studio' },
     { id: 'layers', label: 'Layers list (eye / lock)' },
     { id: 'align',  label: 'Centre buttons (align)' }
   ];
 
-  var ZONE_IDS = ['tray','topzone','botzone','left','floatzone','right','bin'];
-  var ZONE_NAMES = {
-    topzone: 'TOP BAR', botzone: 'BOTTOM BAR', left: 'LEFT SLIDE-OUT PANEL',
-    right: 'RIGHT SLIDE-OUT PANEL', floatzone: 'FLOATING ON THE DRAWING',
-    bin: 'NOT ON MY SCREEN', tray: 'NOT PLACED YET'
+  var ZONE_IDS = ['tray','homezone','topzone','left','right','botzone','floatzone',
+    'fontzone','projzone','iozone','bin'];
+  var ZONE_LABEL = {
+    tray: 'Chips still in the tray (not placed)',
+    homezone: 'HOME screen',
+    topzone: 'STUDIO · Top bar', left: 'STUDIO · Left slide-out panel',
+    right: 'STUDIO · Right slide-out panel', botzone: 'STUDIO · Bottom bar',
+    floatzone: 'STUDIO · Buttons floating on the drawing',
+    fontzone: 'FONT STUDIO screen', projzone: 'PROJECT MANAGER screen',
+    iozone: 'IMPORT & EXPORT screen', bin: 'NOT ON MY SCREEN'
   };
-  var ORDER = ['topzone','botzone','left','floatzone','right','bin','tray'];
-  var KEY = 'layoutboard.v2';
+  var ORDER = ['homezone','topzone','left','right','botzone','floatzone',
+    'fontzone','projzone','iozone','bin','tray'];
+  var KEY = 'layoutboard.v3';
   var drag = null, picked = null;
 
   function $(s) { return document.querySelector(s); }
@@ -195,18 +213,18 @@
       var has = Array.prototype.some.call(z.children, function (c) {
         return c.classList && c.classList.contains('chip');
       });
-      z.classList.toggle('empty', !has && zid !== 'tray' && zid !== 'floatzone');
+      z.classList.toggle('empty', !has && zid !== 'tray');
     });
   }
   function setHint(chip) {
     var h = $('#hint');
     if (chip) {
       h.classList.add('sel');
-      h.innerHTML = 'Chip picked up: <b>' + chip.dataset.label +
-        '</b>. Now tap the place it should live (top bar, bottom bar, a side panel, floating, or the red "not wanted" box). Tap the chip again to put it down.';
+      h.innerHTML = 'Picked up: <b>' + chip.dataset.label +
+        '</b>. Now tap the place it should live. Tap the chip again to put it down.';
     } else {
       h.classList.remove('sel');
-      h.innerHTML = 'Move every chip out of this box. Two ways: <b>drag</b> a chip, or <b>tap a chip then tap where it goes</b>. Don\u2019t want a feature? Put it in the red box at the bottom.';
+      h.innerHTML = 'Move every chip out of this box. Two ways: <b>drag</b> a chip, or <b>tap a chip, then tap the place it should live</b>. Don\u2019t want a feature? Put it in the red box at the bottom.';
     }
   }
 
@@ -237,26 +255,6 @@
     drag.chip.style.top = (e.clientY - drag.oy) + 'px';
     e.preventDefault();
   }
-  function placeIn(zone, chip, pt) {
-    chip.style.width = '';
-    if (zone.id === 'floatzone') {
-      var fr = zone.getBoundingClientRect();
-      var cr = chip.getBoundingClientRect();
-      var x, y;
-      if (pt) { x = pt.x - fr.left - (drag ? drag.ox : cr.width / 2); y = pt.y - fr.top - (drag ? drag.oy : 22); }
-      else { x = cr.width ? (fr.width - cr.width) / 2 : 20; y = 60; }
-      x = Math.max(4, Math.min(x, fr.width - 40));
-      y = Math.max(34, Math.min(y, fr.height - 40));
-      zone.appendChild(chip);
-      chip.style.position = 'absolute';
-      chip.style.left = x + 'px';
-      chip.style.top = y + 'px';
-    } else {
-      chip.style.position = ''; chip.style.left = ''; chip.style.top = '';
-      zone.appendChild(chip);
-    }
-    markEmpty(); save();
-  }
   function onUp(e) {
     if (!drag) return;
     var d = drag; drag = null;
@@ -272,26 +270,30 @@
       return;
     }
     d.chip.classList.remove('drag');
+    d.chip.style.width = ''; d.chip.style.left = ''; d.chip.style.top = '';
+    d.chip.style.position = '';
     var zones = document.elementsFromPoint(e.clientX, e.clientY).filter(function (el) {
       return ZONE_IDS.indexOf(el.id) >= 0;
     });
-    if (zones.length) placeIn(zones[0], d.chip, { x: e.clientX, y: e.clientY });
-    else {
+    if (zones.length) {
+      document.getElementById(zones[0].id).appendChild(d.chip);
+      flash('Put in: ' + ZONE_LABEL[zones[0].id]);
+      markEmpty(); save();
+    } else {
       if (d.home.parent && d.home.parent.isConnected) {
         d.home.parent.insertBefore(d.chip, d.home.next);
       } else { $('#tray').appendChild(d.chip); }
-      d.chip.style.position = ''; d.chip.style.width = '';
-      d.chip.style.left = ''; d.chip.style.top = '';
     }
     save();
   }
 
   ZONE_IDS.forEach(function (zid) {
-    document.getElementById(zid).addEventListener('click', function (e) {
+    document.getElementById(zid).addEventListener('click', function () {
       if (!picked) return;
       var chip = picked; picked = null; chip.classList.remove('pick'); setHint(null);
-      placeIn(document.getElementById(zid), chip, { x: e.clientX, y: e.clientY });
-      flash('Put in: ' + ZONE_NAMES[zid]);
+      document.getElementById(zid).appendChild(chip);
+      flash('Put in: ' + ZONE_LABEL[zid]);
+      markEmpty(); save();
     });
   });
 
@@ -301,12 +303,18 @@
       var z = document.getElementById(zid);
       Array.prototype.forEach.call(z.children, function (child) {
         if (!child.classList || !child.classList.contains('chip')) return;
-        var rec = { label: child.dataset.label, zone: zid };
-        if (zid === 'floatzone') { rec.fx = child.style.left; rec.fy = child.style.top; }
-        data.chips.push(rec);
+        data.chips.push({ label: child.dataset.label, zone: zid });
       });
     });
     try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (err) {}
+  }
+
+  function makeChip(label) {
+    var chip = document.createElement('div');
+    chip.className = 'chip'; chip.dataset.label = label;
+    chip.appendChild(document.createTextNode(label));
+    chip.addEventListener('pointerdown', onDown);
+    return chip;
   }
 
   function load() {
@@ -316,50 +324,24 @@
     var data;
     try { data = JSON.parse(raw); } catch (err) { return false; }
     (data.chips || []).forEach(function (rec) {
-      var chip = document.createElement('div');
-      chip.className = 'chip'; chip.dataset.label = rec.label;
-      chip.appendChild(document.createTextNode(rec.label));
-      chip.addEventListener('pointerdown', onDown);
-      var z = document.getElementById(rec.zone || 'tray');
-      if (rec.zone === 'floatzone' && rec.fx) {
-        chip.style.position = 'absolute';
-        chip.style.left = rec.fx; chip.style.top = rec.fy;
-      }
-      z.appendChild(chip);
+      document.getElementById(rec.zone || 'tray').appendChild(makeChip(rec.label));
     });
     return true;
   }
 
   function build() {
-    CHIPS.forEach(function (c) {
-      var chip = document.createElement('div');
-      chip.className = 'chip'; chip.dataset.label = c.label;
-      chip.appendChild(document.createTextNode(c.label));
-      chip.addEventListener('pointerdown', onDown);
-      $('#tray').appendChild(chip);
-    });
+    CHIPS.forEach(function (c) { $('#tray').appendChild(makeChip(c.label)); });
   }
 
   $('#copy').addEventListener('click', function () {
-    var lines = ['# MY LAYOUT'];
+    var lines = ['# MY LAYOUT (' + new Date().toLocaleString() + ')'];
     ORDER.forEach(function (zid) {
       var z = document.getElementById(zid);
       var kids = Array.prototype.filter.call(z.children, function (c) {
         return c.classList && c.classList.contains('chip');
       });
-      if (zid === 'floatzone') {
-        kids.sort(function (a, b) {
-          var dy = parseFloat(a.style.top) - parseFloat(b.style.top);
-          return dy !== 0 ? dy : (parseFloat(a.style.left) - parseFloat(b.style.left));
-        });
-      }
-      if (zid === 'tray' && kids.length) {
-        lines.push(''); lines.push('NOT PLACED YET (still in the tray):');
-        kids.forEach(function (c) { lines.push('  - ' + c.dataset.label); });
-        return;
-      }
       lines.push('');
-      lines.push(ZONE_NAMES[zid] + ':');
+      lines.push(ZONE_LABEL[zid] + ':');
       if (!kids.length) lines.push('  (nothing)');
       kids.forEach(function (c) { lines.push('  - ' + c.dataset.label); });
     });
