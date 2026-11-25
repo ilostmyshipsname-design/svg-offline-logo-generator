@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Studio Page</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#8a8f96;
+    font-family:-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-user-select:none;user-select:none}
+  #pad{position:relative;width:100vw;height:100vh;background:#f2f0ec;touch-action:none}
+  .blk{position:fixed;z-index:5;min-width:56px;height:40px;padding:0 12px;
+    border-radius:10px;background:#3b4048;color:#f2f0ec;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;letter-spacing:.4px;box-shadow:0 2px 6px rgba(0,0,0,.35);
+    touch-action:none;cursor:pointer}
+  .blk.act{background:#e2653c}
+  .blk.round{min-width:44px;width:44px;border-radius:50%;padding:0}
+  .pop{position:fixed;z-index:9;min-width:120px;background:#fff;border:2px solid #3b4048;
+    border-radius:12px;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+  .pop .row{padding:8px 10px;margin:3px 0;border-radius:8px;background:#e9e6e1;
+    font-size:12px;color:#26292e}
+  .pop .tiny{font-size:10px;color:#8a8f96;padding:2px 4px 0}
+  #reset{position:fixed;right:8px;top:8px;z-index:20;font-size:10px;color:#3b4048;
+    background:rgba(242,240,236,.7);border:1px solid #3b4048;border-radius:8px;
+    padding:4px 8px}
+  #hint{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);z-index:20;
+    font-size:10px;color:#7c7f85}
+</style>
+</head>
+<body>
+<div id="pad"></div>
+<button id="RESET">reset</button>
+<div id="hint">tap = see what it opens &nbsp;·&nbsp; drag = move</div>
+<script>
+const PADW=()=>window.innerWidth, PADH=()=>window.innerHeight;
+
+const DEFS=[
+ {id:'menu',  t:'MENU',    x:.02,  y:.015, pop:['HOME','STUDIO','FONT STUDIO','PROJECTS','IMPORT & EXPORT']},
+ {id:'undo',  t:'UNDO',    x:.695, y:.015, pop:null},
+ {id:'redo',  t:'REDO',    x:.845, y:.015, pop:null},
+ {id:'pen',   t:'PEN',     x:.045, y:.90,  pop:['PENS LIST','+ ADD PEN','CREATE PEN','RESET PEN','PEN TIPS']},
+ {id:'col',   t:'COLOUR',  x:.225, y:.90,  pop:['WHEEL','PALETTE','# HEX','FINISH: FLAT / METAL / GEM']},
+ {id:'lay',   t:'LAYERS',  x:.415, y:.90,  pop:['EYE  👁','LOCK  🔒','MOVE UP','MOVE DOWN']},
+ {id:'tool',  t:'TOOLS',   x:.615, y:.90,  pop:['DRAWING  (unfurls)','FIXING  (unfurls)','GUIDES  (unfurls)']},
+ {id:'save',  t:'SAVE',    x:.805, y:.90,  pop:['IMPORT','EXPORT','SAVE','SAVE AS','DISCARD']},
+ {id:'erz',   t:'ERASER',  x:.70,  y:.66,  pop:['SIZE','MATERIAL','EDGE','+ ADD','STAMP SHAPES']},
+ {id:'rub',   t:'RUB',     x:.84,  y:.66,  pop:null, action:'toggle'},
+ {id:'sm',    t:'2.1',     x:.16,  y:.50,  pop:null, round:1, action:'none'}
+];
+const KEY='studiopage.v1';
+let saved={};
+try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){saved={}}
+
+const blocks={};
+const pad=document.getElementById('pad');
+
+function make(d){
+  const b=document.createElement('div');
+  b.className='blk'+(d.round?' round':'');
+  b.textContent=d.t;
+  const px= saved[d.id] ? Math.min(saved[d.id].x,PADW()-60) : Math.round(d.x*PADW());
+  const py= saved[d.id] ? Math.min(saved[d.id].y,PADH()-56) : Math.round(d.y*PADH());
+  b.style.left=px+'px'; b.style.top=py+'px';
+  pad.appendChild(b);
+  blocks[d.id]={el:b,pop:null};
+  bind(b,d);
+}
+function closePops(except){
+  for(const k in blocks){const o=blocks[k];
+    if(o.pop && o.pop!==except){o.pop.remove();o.pop=null}}
+}
+function openPop(b,d){
+  const p=document.createElement('div');
+  p.className='pop';
+  d.pop.forEach(t=>{const r=document.createElement('div');
+    r.className='row';r.textContent=t;p.appendChild(r)});
+  pad.appendChild(p); blocks[b.dataset.id].pop=p;
+  const r=b.getBoundingClientRect();
+  let lx=r.left, ly=r.top - (p.offsetHeight+10);
+  if(ly<8) ly=r.top+r.height+8;
+  lx=Math.min(Math.max(8,lx),PADW()-p.offsetWidth-8);
+  p.style.left=lx+'px'; p.style.top=ly+'px';
+}
+function bind(b,d){
+  let sx=0,sy=0,ox=0,oy=0,moved=false,down=false;
+  b.addEventListener('pointerdown',e=>{
+    b.setPointerCapture(e.pointerId);
+    down=true;moved=false;
+    sx=e.clientX;sy=e.clientY;
+    ox=parseFloat(b.style.left);oy=parseFloat(b.style.top);
+    closePops();
+  });
+  b.addEventListener('pointermove',e=>{
+    if(!down)return;
+    const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(Math.abs(dx)>8||Math.abs(dy)>8)moved=true;
+    if(moved){
+      let nx=ox+dx,ny=oy+dy;
+      nx=Math.min(Math.max(4,nx),PADW()-b.offsetWidth-4);
+      ny=Math.min(Math.max(4,ny),PADH()-b.offsetHeight-4);
+      b.style.left=nx+'px';b.style.top=ny+'px';
+    }
+  });
+  function up(e){
+    if(!down)return;down=false;
+    if(moved){
+      saved[b.dataset.id]={x:parseFloat(b.style.left),y:parseFloat(b.style.top)};
+      localStorage.setItem(KEY,JSON.stringify(saved));
+    }else{
+      const o=blocks[b.dataset.id];
+      if(o.pop){o.pop.remove();o.pop=null;return}
+      if(d.action==='toggle'){b.classList.toggle('act');return}
+      if(d.pop)openPop(b,d);
+    }
+  }
+  b.addEventListener('pointerup',up);
+  b.addEventListener('pointercancel',()=>{down=false});
+}
+DEFS.forEach(make);
+
+document.getElementById('RESET').addEventListener('click',()=>{
+  localStorage.removeItem(KEY);
+  for(const k in blocks)blocks[k].el.remove();
+  Object.keys(blocks).forEach(k=>delete blocks[k]);
+  for(const k in saved)delete saved[k];
+  DEFS.forEach(make);
+});
+window.addEventListener('resize',()=>{
+  for(const k in blocks){
+    const b=blocks[k].el;
+    b.style.left=Math.min(Math.max(4,parseFloat(b.style.left)),PADW()-b.offsetWidth-4)+'px';
+    b.style.top =Math.min(Math.max(4,parseFloat(b.style.top)), PADH()-b.offsetHeight-4)+'px';
+  }
+  closePops();
+});
+</script>
+</body>
+</html>
