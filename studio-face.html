@@ -3,206 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>Studio – the face</title>
+<title>Studio – the space</title>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; height: 100%; overflow: hidden;
-    background: #14171c; font-family: system-ui, sans-serif; user-select: none;
+    background: #8a8f96; font-family: system-ui, sans-serif; user-select: none;
     -webkit-user-select: none; }
-
-  #stage { position: fixed; inset: 0; }
-
-  #artboard { position: absolute; border: 1px solid #333a44; background: #191d24;
-    border-radius: 6px; }
-
-  .blk { position: absolute; touch-action: none; cursor: grab;
-    border: 2px solid rgba(255,255,255,.25); }
-  .blk.pick { outline: 3px solid #ffd66e; outline-offset: 2px; }
-  .blk.drag { position: fixed; z-index: 99; opacity: .95; pointer-events: none;
-    box-shadow: 0 8px 22px rgba(0,0,0,.6); }
-
-  #pen    { width: 26px; height: 52px; border-radius: 13px; background: #4d6a8f; }
-  #colour { width: 44px; height: 44px; border-radius: 50%;   background: #8f4d6a; }
-  #layers { width: 52px; height: 22px; border-radius: 6px;   background: #6a8f4d; }
-  #tools  { width: 40px; height: 40px; border-radius: 8px;   background: #8f844d; }
-  #save   { width: 64px; height: 24px; border-radius: 6px;   background: #4d8f8f; }
-  #arrowA { width: 22px; height: 22px; border-radius: 4px;   background: #555f6b; }
-  #arrowB { width: 22px; height: 22px; border-radius: 4px;   background: #555f6b; }
-
-  #copy { position: fixed; top: 8px; right: 8px; width: 26px; height: 26px;
-    border-radius: 6px; background: #232830; border: 2px solid #5a7ba6;
-    z-index: 200; }
-  #toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
-    background: #2e7d4f; color: #fff; font-size: 14px; font-weight: 700;
-    padding: 8px 16px; border-radius: 999px; display: none; z-index: 300;
-    white-space: nowrap; }
+  #space { position: absolute; background: #f2f0ec; border: 2px solid #3a3f46;
+    box-shadow: 0 4px 18px rgba(0,0,0,.35); border-radius: 4px; }
 </style>
 </head>
 <body>
 
-<div id="stage">
-  <div id="artboard"></div>
-  <div class="blk" id="pen"></div>
-  <div class="blk" id="colour"></div>
-  <div class="blk" id="layers"></div>
-  <div class="blk" id="tools"></div>
-  <div class="blk" id="save"></div>
-  <div class="blk" id="arrowA"></div>
-  <div class="blk" id="arrowB"></div>
-</div>
-
-<div id="copy"></div>
-<div id="toast"></div>
+<div id="space"></div>
 
 <script>
 (function () {
   'use strict';
-
-  var NAMES = { pen: 'PEN', colour: 'COLOUR', layers: 'LAYERS', tools: 'TOOLS',
-    save: 'SAVE', arrowA: 'UNDO', arrowB: 'REDO' };
-  var KEY = 'studioface.v1';
-
-  var blocks = {}, drag = null, picked = null;
-
-  function $(s) { return document.querySelector(s); }
-  function flash(msg) {
-    var t = $('#toast'); t.textContent = msg; t.style.display = 'block';
-    clearTimeout(t._h); t._h = setTimeout(function () { t.style.display = 'none'; }, 1800);
+  function fit() {
+    var s = document.getElementById('space');
+    var m = 24;
+    var w = document.documentElement.clientWidth - m * 2;
+    var h = document.documentElement.clientHeight - m * 2;
+    var side = Math.min(w, h);
+    s.style.width = side + 'px';
+    s.style.height = side + 'px';
+    s.style.left = ((document.documentElement.clientWidth - side) / 2) + 'px';
+    s.style.top = ((document.documentElement.clientHeight - side) / 2) + 'px';
   }
-
-  function place(b, x, y) {
-    var w = window.innerWidth, h = window.innerHeight;
-    var r = b.getBoundingClientRect();
-    x = Math.max(4, Math.min(x, w - r.width - 4));
-    y = Math.max(4, Math.min(y, h - r.height - 4));
-    b.style.left = x + 'px'; b.style.top = y + 'px';
-  }
-  function defaults() {
-    var w = window.innerWidth, h = window.innerHeight;
-    place(blocks.pen, Math.round(w * 0.25), Math.round(h * 0.30));
-    place(blocks.colour, Math.round(w * 0.25), Math.round(h * 0.55));
-    place(blocks.layers, Math.round(w * 0.68), Math.round(h * 0.25));
-    place(blocks.tools, Math.round(w * 0.68), Math.round(h * 0.42));
-    place(blocks.save, Math.round(w * 0.5) - 32, Math.round(h * 0.12));
-    place(blocks.arrowA, Math.round(w * 0.25), h - 40);
-    place(blocks.arrowB, Math.round(w * 0.25) + 30, h - 40);
-    var ab = $('#artboard');
-    var side = Math.min(w, h) * 0.55;
-    ab.style.width = side + 'px'; ab.style.height = side + 'px';
-    ab.style.left = ((w - side) / 2) + 'px';
-    ab.style.top = ((h - side) / 2) + 'px';
-  }
-
-  function onDown(e) {
-    var b = e.currentTarget;
-    drag = { b: b, sx: e.clientX, sy: e.clientY, moved: false,
-      home: { x: b.style.left, y: b.style.top } };
-    try { b.setPointerCapture(e.pointerId); } catch (err) {}
-    b.addEventListener('pointermove', onMove);
-    b.addEventListener('pointerup', onUp);
-    b.addEventListener('pointercancel', onUp);
-    e.preventDefault();
-  }
-  function onMove(e) {
-    if (!drag) return;
-    if (!drag.moved) {
-      if (Math.abs(e.clientX - drag.sx) < 8 && Math.abs(e.clientY - drag.sy) < 8) return;
-      drag.moved = true;
-      var r = drag.b.getBoundingClientRect();
-      drag.ox = e.clientX - r.left; drag.oy = e.clientY - r.top;
-      if (picked === drag.b) { picked = null; drag.b.classList.remove('pick'); }
-      drag.b.classList.add('drag');
-    }
-    drag.b.style.left = (e.clientX - drag.ox) + 'px';
-    drag.b.style.top = (e.clientY - drag.oy) + 'px';
-    e.preventDefault();
-  }
-  function onUp(e) {
-    if (!drag) return;
-    var d = drag; drag = null;
-    d.b.removeEventListener('pointermove', onMove);
-    d.b.removeEventListener('pointerup', onUp);
-    d.b.removeEventListener('pointercancel', onUp);
-    if (!d.moved) {
-      if (picked === d.b) { picked = null; d.b.classList.remove('pick'); }
-      else {
-        if (picked) picked.classList.remove('pick');
-        picked = d.b; d.b.classList.add('pick');
-      }
-      return;
-    }
-    d.b.classList.remove('drag');
-    place(d.b, e.clientX - d.ox, e.clientY - d.oy);
-    save();
-  }
-
-  document.getElementById('stage').addEventListener('click', function (e) {
-    if (!picked) return;
-    if (e.target.classList && e.target.classList.contains('blk')) return;
-    place(picked, e.clientX, e.clientY);
-    picked.classList.remove('pick'); picked = null;
-    save();
-  });
-
-  function save() {
-    var data = {};
-    Object.keys(blocks).forEach(function (k) {
-      data[k] = { x: blocks[k].style.left, y: blocks[k].style.top };
-    });
-    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (err) {}
-  }
-  function load() {
-    var raw = null;
-    try { raw = localStorage.getItem(KEY); } catch (err) {}
-    if (!raw) return false;
-    var data;
-    try { data = JSON.parse(raw); } catch (err) { return false; }
-    Object.keys(blocks).forEach(function (k) {
-      if (data[k] && data[k].x != null) {
-        blocks[k].style.left = data[k].x; blocks[k].style.top = data[k].y;
-      }
-    });
-    return true;
-  }
-
-  window.addEventListener('resize', function () {
-    var ab = $('#artboard');
-    var side = Math.min(window.innerWidth, window.innerHeight) * 0.55;
-    ab.style.width = side + 'px'; ab.style.height = side + 'px';
-    ab.style.left = ((window.innerWidth - side) / 2) + 'px';
-    ab.style.top = ((window.innerHeight - side) / 2) + 'px';
-  });
-
-  ['pen','colour','layers','tools','save','arrowA','arrowB'].forEach(function (k) {
-    blocks[k] = document.getElementById(k);
-    blocks[k].addEventListener('pointerdown', onDown);
-  });
-
-  if (!load()) defaults();
-  window.dispatchEvent(new Event('resize'));
-
-  $('#copy').addEventListener('click', function () {
-    var lines = ['# FACE (' + new Date().toLocaleString() + ')'];
-    Object.keys(blocks).forEach(function (k) {
-      var r = blocks[k].getBoundingClientRect();
-      var w = window.innerWidth, h = window.innerHeight;
-      var loc;
-      if (r.left < w * 0.12) loc = 'LEFT EDGE';
-      else if (r.right > w * 0.88) loc = 'RIGHT EDGE';
-      else if (r.top < h * 0.12) loc = 'TOP EDGE';
-      else if (r.top > h * 0.88) loc = 'BOTTOM EDGE';
-      else loc = 'FLOATING (on the drawing)';
-      lines.push(NAMES[k] + ': ' + loc +
-        '  [' + Math.round(r.left / w * 100) + '% from left, ' +
-        Math.round(r.top / h * 100) + '% from top]');
-    });
-    var text = lines.join('\n');
-    var done = function () { flash('ok'); };
-    var failed = function () { window.alert(text); };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done, failed);
-    } else { failed(); }
-  });
+  window.addEventListener('resize', fit);
+  fit();
 })();
 </script>
 </body>
