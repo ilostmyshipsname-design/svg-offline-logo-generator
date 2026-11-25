@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Layout Board – where everything goes on your screen</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: #14171c; color: #e8e8e8;
+    font-family: system-ui, sans-serif; }
+  body { padding-bottom: 96px; }
+  header { padding: 14px 16px 4px; }
+  header h1 { font-size: 22px; margin: 0 0 4px; }
+  header p { margin: 0; font-size: 15px; color: #aab; line-height: 1.4; }
+  #hint { margin: 10px 16px 0; padding: 12px 14px; border-radius: 12px;
+    background: #33290f; border: 2px solid #ffd66e; color: #ffd66e;
+    font-size: 16px; font-weight: 700; line-height: 1.45; }
+  #hint.sel { background: #12331f; border-color: #6fdc9a; color: #6fdc9a; }
+
+  .sect { margin: 22px 16px 0; padding: 14px 12px 12px; border-radius: 16px;
+    background: #191d24; border: 2px solid #2b323d; }
+  .sect > h2 { font-size: 19px; margin: 0 0 2px; }
+  .sect > p.sub { font-size: 14px; color: #93a3b8; margin: 0 0 12px; line-height: 1.35; }
+
+  .zt { font-size: 14px; font-weight: 700; letter-spacing: .05em; color: #7d90a8;
+    text-transform: uppercase; margin: 10px 2px 6px; }
+  .zt:first-of-type { margin-top: 0; }
+
+  .zone { border-radius: 14px; padding: 12px; display: flex; flex-wrap: wrap;
+    gap: 10px; align-content: flex-start; min-height: 72px; scroll-margin: 90px; }
+  .zone.empty::after { content: "empty — nothing chosen yet";
+    color: #5a6572; font-size: 15px; align-self: center; margin-left: 4px; }
+
+  #tray { background: #1a1f27; border: 2px dashed #456; }
+  #tray { gap: 10px; }
+  .pile { flex: 1 1 260px; border: 1px dashed #3a4656; border-radius: 12px;
+    padding: 10px; display: flex; flex-wrap: wrap; gap: 8px;
+    align-content: flex-start;
+  }
+  .pt { width: 100%; margin: 0; font-size: 14px; font-weight: 700;
+    letter-spacing: .05em; color: #ffd66e; text-transform: uppercase; }
+  .pile { display: none; }
+  .pile.on { display: flex; }
+  #gnav { display: flex; align-items: center; gap: 12px; margin: 12px 16px 0; }
+  #gnav button { min-height: 50px; min-width: 64px; border-radius: 12px; border: none;
+    background: #2f3a4d; color: #fff; font-size: 20px; font-weight: 700; }
+  #gnav button:disabled { opacity: .35; }
+  #gname { font-size: 16px; font-weight: 700; color: #e8e8e8; flex: 1; line-height: 1.3; }
+  #gname small { display: block; font-size: 13px; color: #8fa3b8; font-weight: 400; }
+  #topzone { background: #1f232b; border: 2px solid #3d5a3d; }
+  #botzone { background: #1f232b; border: 2px solid #5a4d3d; }
+  #left { background: #1a2530; border: 2px solid #34506b; }
+  #right { background: #241f2e; border: 2px solid #5b4670; }
+  #floatzone { background: #232830; border: 2px solid #566; }
+  #homezone { background: #16222b; border: 2px solid #2e5872; min-height: 96px; }
+  #fontzone { background: #191f2e; border: 2px solid #33417a; min-height: 96px; }
+  #projzone { background: #1f2419; border: 2px solid #4a6b3a; min-height: 96px; }
+  #iozone   { background: #241f19; border: 2px solid #7a5a2e; min-height: 96px; }
+  #bin { background: #2a1d1e; border: 2px solid #a05555; min-height: 96px; }
+  #bin > .zt { color: #e6a3a3; }
+
+  .chip { background: #2f3a4d; border: 2px solid #5a7ba6; color: #fff;
+    font-size: 16px; font-weight: 600; padding: 12px 14px; border-radius: 999px;
+    display: flex; align-items: center; gap: 6px;
+    touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+  .chip.pick { background: #7a5a1e; border-color: #ffd66e; box-shadow: 0 0 0 3px #ffd66e55; }
+  .chip.drag { position: fixed; z-index: 999; opacity: .95; pointer-events: none;
+    box-shadow: 0 8px 22px rgba(0,0,0,.6); }
+
+  #foot { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: #0b0e12; border-top: 1px solid #333; }
+  #foot button { flex: 1; min-height: 54px; border-radius: 12px; border: none;
+    font-size: 17px; font-weight: 700; color: #fff; }
+  #copy { background: #2e7d4f; }
+  #reset { background: #444; flex: 0 0 120px; }
+  #toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%);
+    background: #2e7d4f; color: #fff; font-size: 15px; font-weight: 700;
+    padding: 10px 18px; border-radius: 999px; display: none; z-index: 1000;
+    white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧩 Layout Board</h1>
+  <p>This board is NOT your app — it doesn't touch your drawings. It decides where
+     things go. The canvas (where you draw) is the centre of the app, so it's not on
+     the board — the sections around it are.</p>
+</header>
+
+<div id="hint">Move every chip out of this box. Two ways: <b>drag</b> a chip, or
+  <b>tap a chip, then tap the place it should live</b>. Don't want a feature? Put it
+  in the red box at the bottom.</div>
+
+<div class="sect">
+  <h2>All the chips</h2>
+  <p class="sub">One group at a time. <b>Tap a chip, then tap the place it should
+     live</b> — scrolling with a chip picked is fine. Dragging now auto-scrolls too.</p>
+  <div id="gnav">
+    <button id="gprev" aria-label="Previous group">&#8249;</button>
+    <span id="gname"></span>
+    <button id="gnext" aria-label="Next group">&#8250;</button>
+  </div>
+  <div id="tray" class="zone"></div>
+</div>
+
+<div class="sect" id="sect-home">
+  <h2>🟦 HOME</h2>
+  <p class="sub">Where you start — your saved works live here.</p>
+  <div id="homezone" class="zone"></div>
+</div>
+
+<div class="sect" id="sect-studio">
+  <h2>🟩 STUDIO — where all designing happens</h2>
+  <p class="sub">The drawing screen. Put things in its bars and panels; the canvas
+     itself is the middle and needs no chip.</p>
+  <p class="zt">Top bar</p>
+  <div id="topzone" class="zone"></div>
+  <p class="zt">Left panel that slides out</p>
+  <div id="left" class="zone"></div>
+  <p class="zt">Right panel that slides out</p>
+  <div id="right" class="zone"></div>
+  <p class="zt">Bottom bar</p>
+  <div id="botzone" class="zone"></div>
+  <p class="zt">Buttons floating on the drawing</p>
+  <div id="floatzone" class="zone"></div>
+</div>
+
+<div class="sect" id="sect-font">
+  <h2>🟪 FONT STUDIO</h2>
+  <p class="sub">Making your own alphabets / letters (planned).</p>
+  <div id="fontzone" class="zone"></div>
+</div>
+
+<div class="sect" id="sect-pm">
+  <h2>🟨 PROJECT MANAGER</h2>
+  <p class="sub">Opening, renaming, copying your saved projects (planned).</p>
+  <div id="projzone" class="zone"></div>
+</div>
+
+<div class="sect" id="sect-io">
+  <h2>🟧 IMPORT &amp; EXPORT</h2>
+  <p class="sub">Getting files in and finished work out (planned).</p>
+  <div id="iozone" class="zone"></div>
+</div>
+
+<div class="sect">
+  <div id="bin" class="zone">
+    <p class="zt">🟥 NOT on my screen — leave these out</p>
+  </div>
+</div>
+
+<div id="foot">
+  <button id="copy">📋 Copy my layout</button>
+  <button id="reset">↺ Start over</button>
+</div>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var CHIPS = [
+    { id: 'works',  g: 'home',   label: '\ud83d\uddc4 Saved works list' },
+    { id: 'neww',   g: 'home',   label: '\u2795 New work button' },
+    { id: 'editw',  g: 'home',   label: '\u270f\ufe0f Edit a saved work' },
+    { id: 'delw',   g: 'home',   label: 'Delete button' },
+    { id: 'sharew', g: 'home',   label: 'Share button' },
+    { id: 'saveto', g: 'home',   label: 'Save to / Save as' },
+
+    { id: 'draw',   g: 'pen',    label: '\u270f\ufe0f Pencil (draw)' },
+    { id: 'eraser', g: 'pen',    label: '\u23fb Eraser (rub out)' },
+    { id: 'width',  g: 'pen',    label: 'Line thickness' },
+    { id: 'smooth', g: 'pen',    label: 'Smoothing slider' },
+
+    { id: 'colour', g: 'colour', label: '\ud83c\udfa8 Colour picker' },
+    { id: 'mypal',  g: 'colour', label: 'My saved colours' },
+    { id: 'hex',    g: 'colour', label: '# exact colour box' },
+
+    { id: 'sides',  g: 'shape',  label: 'Corners \u00b1 counter' },
+    { id: 'flip',   g: 'shape',  label: 'Flip left-right / up-down' },
+    { id: 'group',  g: 'shape',  label: 'Whole Group button' },
+    { id: 'layers', g: 'shape',  label: 'Layers button (eye / lock)' },
+    { id: 'align',  g: 'shape',  label: 'Centre buttons (align)' },
+    { id: 'join',   g: 'shape',  label: 'Join shapes (one outline)' },
+    { id: 'hole',   g: 'shape',  label: 'Cut a hole (subtract)' },
+    { id: 'overlap',g: 'shape',  label: 'Keep the overlap (intersect)' },
+    { id: 'trim',   g: 'shape',  label: '\u2702 Trim (scissors)' },
+    { id: 'extend', g: 'shape',  label: 'Extend line' },
+    { id: 'fillet', g: 'shape',  label: 'Round a corner (fillet)' },
+    { id: 'offset', g: 'shape',  label: 'Parallel copy (offset)' },
+    { id: 'simpl',  g: 'shape',  label: 'Simplify (fewer points)' },
+
+    { id: 'mirror', g: 'guide',  label: '\ud83e\ude9e Mirror drawing' },
+    { id: 'ruler',  g: 'guide',  label: '\ud83d\udccf Straight ruler' },
+    { id: 'compass',g: 'guide',  label: '\u2299 Circle / compass guide' },
+    { id: 'snap',   g: 'guide',  label: 'Angle snapping 15/30/45/90' },
+    { id: 'angle',  g: 'guide',  label: 'Type exact angle' },
+    { id: 'size',   g: 'guide',  label: 'Type exact size' },
+    { id: 'pageset',g: 'guide',  label: '\ud83d\udcd0 Page setup (tall / wide / square)' },
+    { id: 'grid',   g: 'guide',  label: 'Grid / graph background' },
+
+    { id: 'bg',     g: 'screen', label: 'Background switcher (white/dark/clear)' },
+    { id: 'preview',g: 'screen', label: '\ud83d\udd0d Small-size preview box' },
+    { id: 'menub',  g: 'screen', label: '\u2630 Tools menu button' },
+    { id: 'export', g: 'screen', label: '\ud83d\udcbe Save menu (save / save as / discard)' },
+    { id: 'sizes',  g: 'screen', label: 'Export sizes (avatar/header/stamp)' },
+    { id: 'import', g: 'screen', label: 'Import picture / SVG' },
+
+    { id: 'ref',    g: 'drawer', label: '\ud83d\udcda Reference drawer (maths & symbols)' },
+    { id: 'stamp',  g: 'drawer', label: 'Stamp as vector / tracing guide' },
+    { id: 'text',   g: 'drawer', label: 'Aa Text / alphabet mode' },
+    { id: 'badge',  g: 'drawer', label: 'Curved / badge text' }
+  ];
+
+  var PILES = [
+    ['home',   'Home page things'],
+    ['pen',    'Pen & drawing'],
+    ['colour', 'Colour'],
+    ['shape',  'Shapes & edits'],
+    ['guide',  'Guides & maths'],
+    ['screen', 'Screen & saving'],
+    ['drawer', 'Drawer things']
+  ];
+
+  var ZONE_IDS = ['tray','homezone','topzone','left','right','botzone','floatzone',
+    'fontzone','projzone','iozone','bin'];
+  var ZONE_LABEL = {
+    tray: 'Chips still in the tray (not placed)',
+    homezone: 'HOME screen',
+    topzone: 'STUDIO · Top bar', left: 'STUDIO · Left slide-out panel',
+    right: 'STUDIO · Right slide-out panel', botzone: 'STUDIO · Bottom bar',
+    floatzone: 'STUDIO · Buttons floating on the drawing',
+    fontzone: 'FONT STUDIO screen', projzone: 'PROJECT MANAGER screen',
+    iozone: 'IMPORT & EXPORT screen', bin: 'NOT ON MY SCREEN'
+  };
+  var ORDER = ['homezone','topzone','left','right','botzone','floatzone',
+    'fontzone','projzone','iozone','bin','tray'];
+  var KEY = 'layoutboard.v3';
+  var drag = null, picked = null;
+
+  function $(s) { return document.querySelector(s); }
+  function flash(msg) {
+    var t = $('#toast'); t.textContent = msg; t.style.display = 'block';
+    clearTimeout(t._h); t._h = setTimeout(function () { t.style.display = 'none'; }, 2000);
+  }
+  function markEmpty() {
+    ZONE_IDS.forEach(function (zid) {
+      var z = document.getElementById(zid);
+      var has = Array.prototype.some.call(z.children, function (c) {
+        return c.classList && c.classList.contains('chip');
+      });
+      z.classList.toggle('empty', !has && zid !== 'tray');
+    });
+  }
+  function setHint(chip) {
+    var h = $('#hint');
+    if (chip) {
+      h.classList.add('sel');
+      h.innerHTML = 'Picked up: <b>' + chip.dataset.label +
+        '</b>. Now tap the place it should live. Tap the chip again to put it down.';
+    } else {
+      h.classList.remove('sel');
+      h.innerHTML = 'Move every chip out of this box. Two ways: <b>drag</b> a chip, or <b>tap a chip, then tap the place it should live</b>. Don\u2019t want a feature? Put it in the red box at the bottom.';
+    }
+  }
+
+  function onDown(e) {
+    var chip = e.currentTarget;
+    drag = {
+      chip: chip, startX: e.clientX, startY: e.clientY, moved: false,
+      home: { parent: chip.parentElement, next: chip.nextSibling }
+    };
+    try { chip.setPointerCapture(e.pointerId); } catch (err) {}
+    chip.addEventListener('pointermove', onMove);
+    chip.addEventListener('pointerup', onUp);
+    chip.addEventListener('pointercancel', onUp);
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (!drag) return;
+    if (!drag.moved) {
+      if (Math.abs(e.clientX - drag.startX) < 8 && Math.abs(e.clientY - drag.startY) < 8) return;
+      drag.moved = true;
+      var r = drag.chip.getBoundingClientRect();
+      drag.ox = e.clientX - r.left; drag.oy = e.clientY - r.top;
+      if (picked === drag.chip) { picked = null; drag.chip.classList.remove('pick'); setHint(null); }
+      drag.chip.classList.add('drag');
+      drag.chip.style.width = r.width + 'px';
+    }
+    drag.chip.style.left = (e.clientX - drag.ox) + 'px';
+    drag.chip.style.top = (e.clientY - drag.oy) + 'px';
+    var edge = 90;
+    if (e.clientY < edge) window.scrollBy(0, -(edge - e.clientY));
+    else if (window.innerHeight - e.clientY < edge) window.scrollBy(0, (edge - (window.innerHeight - e.clientY)));
+    e.preventDefault();
+  }
+  function onUp(e) {
+    if (!drag) return;
+    var d = drag; drag = null;
+    d.chip.removeEventListener('pointermove', onMove);
+    d.chip.removeEventListener('pointerup', onUp);
+    d.chip.removeEventListener('pointercancel', onUp);
+    if (!d.moved) {
+      if (picked === d.chip) { picked = null; d.chip.classList.remove('pick'); setHint(null); }
+      else {
+        if (picked) picked.classList.remove('pick');
+        picked = d.chip; d.chip.classList.add('pick'); setHint(d.chip);
+      }
+      return;
+    }
+    d.chip.classList.remove('drag');
+    d.chip.style.width = ''; d.chip.style.left = ''; d.chip.style.top = '';
+    d.chip.style.position = '';
+    var zones = document.elementsFromPoint(e.clientX, e.clientY).filter(function (el) {
+      return ZONE_IDS.indexOf(el.id) >= 0;
+    });
+    if (zones.length) {
+      document.getElementById(zones[0].id).appendChild(d.chip);
+      flash('Put in: ' + ZONE_LABEL[zones[0].id]);
+      markEmpty(); save();
+    } else {
+      if (d.home.parent && d.home.parent.isConnected) {
+        d.home.parent.insertBefore(d.chip, d.home.next);
+      } else { $('#tray').appendChild(d.chip); }
+    }
+    save();
+  }
+
+  ZONE_IDS.forEach(function (zid) {
+    document.getElementById(zid).addEventListener('click', function () {
+      if (!picked) return;
+      var chip = picked; picked = null; chip.classList.remove('pick'); setHint(null);
+      document.getElementById(zid).appendChild(chip);
+      flash('Put in: ' + ZONE_LABEL[zid]);
+      markEmpty(); save();
+    });
+  });
+
+  function save() {
+    var data = { chips: [] };
+    ZONE_IDS.forEach(function (zid) {
+      var z = document.getElementById(zid);
+      Array.prototype.forEach.call(z.children, function (child) {
+        if (!child.classList || !child.classList.contains('chip')) return;
+        data.chips.push({ label: child.dataset.label, zone: zid });
+      });
+    });
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (err) {}
+  }
+
+  function makeChip(label) {
+    var chip = document.createElement('div');
+    chip.className = 'chip'; chip.dataset.label = label;
+    chip.appendChild(document.createTextNode(label));
+    chip.addEventListener('pointerdown', onDown);
+    return chip;
+  }
+
+  function placeLabel(label, zoneId) {
+    var zone = document.getElementById(zoneId);
+    if (!zone || zoneId === 'tray') return;
+    var found = null;
+    document.querySelectorAll('#tray .chip').some(function (c) {
+      if (c.dataset.label === label) { found = c; return true; }
+      return false;
+    });
+    if (!found) found = makeChip(label);
+    zone.appendChild(found);
+  }
+  function load() {
+    var raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (err) {}
+    if (!raw) return false;
+    var data;
+    try { data = JSON.parse(raw); } catch (err) { return false; }
+    (data.chips || []).forEach(function (rec) {
+      placeLabel(rec.label, rec.zone || 'tray');
+    });
+    return true;
+  }
+
+  var SECT_FOR = {
+    home:   ['sect-home'],
+    pen:    ['sect-studio'],
+    colour: ['sect-studio'],
+    shape:  ['sect-studio'],
+    guide:  ['sect-studio'],
+    screen: ['sect-studio'],
+    drawer: ['sect-studio', 'sect-font']
+  };
+  var gI = 0;
+  function showPile(i) {
+    gI = Math.max(0, Math.min(i, PILES.length - 1));
+    PILES.forEach(function (spec, n) {
+      var p = document.getElementById('pile-' + spec[0]);
+      if (p) p.classList.toggle('on', n === gI);
+    });
+    var show = SECT_FOR[PILES[gI][0]] || [];
+    ['sect-home','sect-studio','sect-font','sect-pm','sect-io'].forEach(function (sid) {
+      var el = document.getElementById(sid);
+      el.style.display = show.indexOf(sid) >= 0 ? '' : 'none';
+    });
+    $('#gnav').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var left = 0;
+    PILES.slice(0, gI).forEach(function (spec) {
+      CHIPS.filter(function (c) { return c.g === spec[0]; }).forEach(function (c) {
+        if (document.getElementById('pile-' + c.g) &&
+            document.querySelector('#tray .chip[data-label="' + c.label + '"]')) left++;
+      });
+    });
+    var remain = CHIPS.filter(function (c) { return c.g === PILES[gI][0]; }).
+      filter(function (c) {
+        return document.querySelector('#pile-' + c.g + ' .chip[data-label="' + c.label + '"]');
+      }).length;
+    $('#gname').innerHTML = (gI + 1) + ' of ' + PILES.length + ': ' + PILES[gI][1] +
+      '<small>' + remain + ' chips still to place in this group' + (left ? ' \u00b7 ' + left + ' left in earlier groups' : '') + '</small>';
+    $('#gprev').disabled = gI === 0;
+    $('#gnext').disabled = gI === PILES.length - 1;
+  }
+  function build() {
+    var tray = $('#tray');
+    PILES.forEach(function (spec) {
+      var p = document.createElement('div');
+      p.className = 'pile'; p.id = 'pile-' + spec[0];
+      var t = document.createElement('p');
+      t.className = 'pt'; t.textContent = spec[1];
+      p.appendChild(t);
+      tray.appendChild(p);
+      CHIPS.filter(function (c) { return c.g === spec[0]; }).forEach(function (c) {
+        p.appendChild(makeChip(c.label));
+      });
+    });
+    $('#gprev').addEventListener('click', function () { showPile(gI - 1); });
+    $('#gnext').addEventListener('click', function () { showPile(gI + 1); });
+    showPile(0);
+  }
+
+  $('#copy').addEventListener('click', function () {
+    var lines = ['# MY LAYOUT (' + new Date().toLocaleString() + ')'];
+    ORDER.forEach(function (zid) {
+      var z = document.getElementById(zid);
+      var kids = Array.prototype.filter.call(z.children, function (c) {
+        return c.classList && c.classList.contains('chip');
+      });
+      lines.push('');
+      lines.push(ZONE_LABEL[zid] + ':');
+      if (!kids.length) lines.push('  (nothing)');
+      kids.forEach(function (c) { lines.push('  - ' + c.dataset.label); });
+    });
+    var text = lines.join('\n');
+    var done = function () { flash('Copied! Now paste it into the chat.'); };
+    var failed = function () {
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); }
+      catch (err) { window.alert(text); }
+      ta.remove();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, failed);
+    } else { failed(); }
+  });
+
+  $('#reset').addEventListener('click', function () {
+    try { localStorage.removeItem(KEY); } catch (err) {}
+    location.reload();
+  });
+
+  build();
+  load();
+  markEmpty();
+})();
+</script>
+</body>
+</html>
