@@ -32,6 +32,13 @@
     color: #5a6572; font-size: 15px; align-self: center; margin-left: 4px; }
 
   #tray { background: #1a1f27; border: 2px dashed #456; }
+  #tray { gap: 10px; }
+  .pile { flex: 1 1 260px; border: 1px dashed #3a4656; border-radius: 12px;
+    padding: 10px; display: flex; flex-wrap: wrap; gap: 8px;
+    align-content: flex-start;
+  }
+  .pt { width: 100%; margin: 0; font-size: 14px; font-weight: 700;
+    letter-spacing: .05em; color: #ffd66e; text-transform: uppercase; }
   #topzone { background: #1f232b; border: 2px solid #3d5a3d; }
   #botzone { background: #1f232b; border: 2px solid #5a4d3d; }
   #left { background: #1a2530; border: 2px solid #34506b; }
@@ -141,46 +148,58 @@
   'use strict';
 
   var CHIPS = [
-    { id: 'menub',  label: '☰ Menu button' },
-    { id: 'draw',   label: '✏️ Pencil (draw)' },
-    { id: 'colour', label: '🎨 Colour picker' },
-    { id: 'hex',    label: '# exact colour box' },
-    { id: 'mypal',  label: 'My saved colours' },
-    { id: 'width',  label: 'Line thickness' },
-    { id: 'smooth', label: 'Smoothing slider' },
-    { id: 'undo',   label: '↩ Undo arrow' },
-    { id: 'redo',   label: '↪ Redo arrow' },
-    { id: 'clear',  label: 'Clear all' },
-    { id: 'flip',   label: 'Flip left-right / up-down' },
-    { id: 'sides',  label: 'Corners ± counter' },
-    { id: 'group',  label: 'Whole Group button' },
-    { id: 'mirror', label: '🪞 Mirror drawing' },
-    { id: 'join',   label: 'Join shapes (one outline)' },
-    { id: 'hole',   label: 'Cut a hole (subtract)' },
-    { id: 'overlap',label: 'Keep the overlap (intersect)' },
-    { id: 'angle',  label: 'Type exact angle' },
-    { id: 'size',   label: 'Type exact size' },
-    { id: 'snap',   label: 'Angle snapping 15/30/45/90' },
-    { id: 'ruler',  label: '📏 Straight ruler' },
-    { id: 'compass',label: '⊙ Circle / compass guide' },
-    { id: 'grid',   label: 'Grid / graph background' },
-    { id: 'pageset', label: '📐 Page setup (portrait / landscape / square)' },
-    { id: 'bg',     label: 'Background switcher (white/dark/clear)' },
-    { id: 'preview',label: '🔍 Small-size preview box' },
-    { id: 'ref',    label: '📚 Reference drawer (maths & symbols)' },
-    { id: 'stamp',  label: 'Stamp as vector / tracing guide' },
-    { id: 'text',   label: 'Aa Text / alphabet mode' },
-    { id: 'badge',  label: 'Curved / badge text' },
-    { id: 'offset', label: 'Parallel copy (offset)' },
-    { id: 'simpl',  label: 'Simplify (fewer points)' },
-    { id: 'trim',   label: '✂ Trim (scissors)' },
-    { id: 'extend', label: 'Extend line' },
-    { id: 'fillet', label: 'Round a corner (fillet)' },
-    { id: 'export', label: '💾 Save SVG / PNG' },
-    { id: 'sizes',  label: 'Export sizes (avatar/header/stamp)' },
-    { id: 'import', label: 'Import picture / SVG' },
-    { id: 'layers', label: 'Layers list (eye / lock)' },
-    { id: 'align',  label: 'Centre buttons (align)' }
+    { id: 'draw',   g: 'pen',    label: '\u270f\ufe0f Pencil (draw)' },
+    { id: 'eraser', g: 'pen',    label: '\u23fb Eraser (rub out)' },
+    { id: 'width',  g: 'pen',    label: 'Line thickness' },
+    { id: 'smooth', g: 'pen',    label: 'Smoothing slider' },
+
+    { id: 'colour', g: 'colour', label: '\ud83c\udfa8 Colour picker' },
+    { id: 'mypal',  g: 'colour', label: 'My saved colours' },
+    { id: 'hex',    g: 'colour', label: '# exact colour box' },
+
+    { id: 'sides',  g: 'shape',  label: 'Corners \u00b1 counter' },
+    { id: 'flip',   g: 'shape',  label: 'Flip left-right / up-down' },
+    { id: 'group',  g: 'shape',  label: 'Whole Group button' },
+    { id: 'layers', g: 'shape',  label: 'Layers button (eye / lock)' },
+    { id: 'align',  g: 'shape',  label: 'Centre buttons (align)' },
+    { id: 'join',   g: 'shape',  label: 'Join shapes (one outline)' },
+    { id: 'hole',   g: 'shape',  label: 'Cut a hole (subtract)' },
+    { id: 'overlap',g: 'shape',  label: 'Keep the overlap (intersect)' },
+    { id: 'trim',   g: 'shape',  label: '\u2702 Trim (scissors)' },
+    { id: 'extend', g: 'shape',  label: 'Extend line' },
+    { id: 'fillet', g: 'shape',  label: 'Round a corner (fillet)' },
+    { id: 'offset', g: 'shape',  label: 'Parallel copy (offset)' },
+    { id: 'simpl',  g: 'shape',  label: 'Simplify (fewer points)' },
+
+    { id: 'mirror', g: 'guide',  label: '\ud83e\ude9e Mirror drawing' },
+    { id: 'ruler',  g: 'guide',  label: '\ud83d\udccf Straight ruler' },
+    { id: 'compass',g: 'guide',  label: '\u2299 Circle / compass guide' },
+    { id: 'snap',   g: 'guide',  label: 'Angle snapping 15/30/45/90' },
+    { id: 'angle',  g: 'guide',  label: 'Type exact angle' },
+    { id: 'size',   g: 'guide',  label: 'Type exact size' },
+    { id: 'pageset',g: 'guide',  label: '\ud83d\udcd0 Page setup (tall / wide / square)' },
+    { id: 'grid',   g: 'guide',  label: 'Grid / graph background' },
+
+    { id: 'bg',     g: 'screen', label: 'Background switcher (white/dark/clear)' },
+    { id: 'preview',g: 'screen', label: '\ud83d\udd0d Small-size preview box' },
+    { id: 'menub',  g: 'screen', label: '\u2630 Tools menu button' },
+    { id: 'export', g: 'screen', label: '\ud83d\udcbe Save menu (save / save as / discard)' },
+    { id: 'sizes',  g: 'screen', label: 'Export sizes (avatar/header/stamp)' },
+    { id: 'import', g: 'screen', label: 'Import picture / SVG' },
+
+    { id: 'ref',    g: 'drawer', label: '\ud83d\udcda Reference drawer (maths & symbols)' },
+    { id: 'stamp',  g: 'drawer', label: 'Stamp as vector / tracing guide' },
+    { id: 'text',   g: 'drawer', label: 'Aa Text / alphabet mode' },
+    { id: 'badge',  g: 'drawer', label: 'Curved / badge text' }
+  ];
+
+  var PILES = [
+    ['pen',    'Pen & drawing'],
+    ['colour', 'Colour'],
+    ['shape',  'Shapes & edits'],
+    ['guide',  'Guides & maths'],
+    ['screen', 'Screen & saving'],
+    ['drawer', 'Drawer things']
   ];
 
   var ZONE_IDS = ['tray','homezone','topzone','left','right','botzone','floatzone',
@@ -314,6 +333,17 @@
     return chip;
   }
 
+  function placeLabel(label, zoneId) {
+    var zone = document.getElementById(zoneId);
+    if (!zone || zoneId === 'tray') return;
+    var found = null;
+    document.querySelectorAll('#tray .chip').some(function (c) {
+      if (c.dataset.label === label) { found = c; return true; }
+      return false;
+    });
+    if (!found) found = makeChip(label);
+    zone.appendChild(found);
+  }
   function load() {
     var raw = null;
     try { raw = localStorage.getItem(KEY); } catch (err) {}
@@ -321,13 +351,24 @@
     var data;
     try { data = JSON.parse(raw); } catch (err) { return false; }
     (data.chips || []).forEach(function (rec) {
-      document.getElementById(rec.zone || 'tray').appendChild(makeChip(rec.label));
+      placeLabel(rec.label, rec.zone || 'tray');
     });
     return true;
   }
 
   function build() {
-    CHIPS.forEach(function (c) { $('#tray').appendChild(makeChip(c.label)); });
+    var tray = $('#tray');
+    PILES.forEach(function (spec) {
+      var p = document.createElement('div');
+      p.className = 'pile'; p.id = 'pile-' + spec[0];
+      var t = document.createElement('p');
+      t.className = 'pt'; t.textContent = spec[1];
+      p.appendChild(t);
+      tray.appendChild(p);
+      CHIPS.filter(function (c) { return c.g === spec[0]; }).forEach(function (c) {
+        p.appendChild(makeChip(c.label));
+      });
+    });
   }
 
   $('#copy').addEventListener('click', function () {
@@ -361,7 +402,8 @@
     location.reload();
   });
 
-  if (!load()) build();
+  build();
+  load();
   markEmpty();
 })();
 </script>
