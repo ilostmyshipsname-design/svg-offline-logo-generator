@@ -89,9 +89,6 @@
      the board — the sections around it are.</p>
 </header>
 
-<div id="hint">Move every chip out of this box. Two ways: <b>drag</b> a chip, or
-  <b>tap a chip, then tap the place it should live</b>. Don't want a feature? Put it
-  in the red box at the bottom.</div>
 
 <div class="sect">
   <h2>All the chips</h2>
@@ -107,7 +104,6 @@
 
 <div class="sect" id="sect-home">
   <h2>🟦 HOME</h2>
-  <p class="sub">Where you start — your saved works live here.</p>
   <div id="homezone" class="zone"></div>
 </div>
 
@@ -129,19 +125,16 @@
 
 <div class="sect" id="sect-font">
   <h2>🟪 FONT STUDIO</h2>
-  <p class="sub">Making your own alphabets / letters (planned).</p>
   <div id="fontzone" class="zone"></div>
 </div>
 
 <div class="sect" id="sect-pm">
   <h2>🟨 PROJECT MANAGER</h2>
-  <p class="sub">Opening, renaming, copying your saved projects (planned).</p>
   <div id="projzone" class="zone"></div>
 </div>
 
 <div class="sect" id="sect-io">
   <h2>🟧 IMPORT &amp; EXPORT</h2>
-  <p class="sub">Getting files in and finished work out (planned).</p>
   <div id="iozone" class="zone"></div>
 </div>
 
@@ -255,16 +248,9 @@
     });
   }
   function setHint(chip) {
-    var h = $('#hint');
-    if (chip) {
-      h.classList.add('sel');
-      h.innerHTML = 'Picked up: <b>' + chip.dataset.label +
-        '</b>. Now tap the place it should live. Tap the chip again to put it down.';
-    } else {
-      h.classList.remove('sel');
-      h.innerHTML = 'Move every chip out of this box. Two ways: <b>drag</b> a chip, or <b>tap a chip, then tap the place it should live</b>. Don\u2019t want a feature? Put it in the red box at the bottom.';
-    }
+    if (chip && chip.dataset) { lastPicked = chip; } else { lastPicked = null; }
   }
+  var lastPicked = null;
 
   function onDown(e) {
     var chip = e.currentTarget;
@@ -414,7 +400,7 @@
         return document.querySelector('#pile-' + c.g + ' .chip[data-label="' + c.label + '"]');
       }).length;
     $('#gname').innerHTML = (gI + 1) + ' of ' + PILES.length + ': ' + PILES[gI][1] +
-      '<small>' + remain + ' chips still to place in this group' + (left ? ' \u00b7 ' + left + ' left in earlier groups' : '') + '</small>';
+      '<small>' + (remain + left) + ' to place' + '</small>';
     $('#gprev').disabled = gI === 0;
     $('#gnext').disabled = gI === PILES.length - 1;
   }
