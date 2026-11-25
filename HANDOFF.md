@@ -34,7 +34,9 @@ A single-file, 100% offline vector/logo drawing app (one HTML file: index.html).
 ## STUDIO layout (owner's own arrangement, agreed in conversation)
 Buttons around the canvas; each opens its own popup:
 - ✏️ Pen → pen popup = the PEN MANAGER: list of pens, add pen, delete pen (never the last one), reset pen to original, per-pen tip settings (ends blunt/round, even vs tapered, pressure). “Texture” means line behaviour, not raster grain.
-- FRONT-OF-SCREEN items (menu, not visible): Eraser button and Smoothing effect — owner placed both OUT FRONT, explicitly not hidden in menus. Smoothing is a toggleable extra effect.
+- FRONT-OF-SCREEN items (owner decided, not hidden in menus):
+  - Eraser = a FLOATING button parked near the canvas, draggable to wherever the owner finds effortless; position is remembered. Tap to switch active tool between pen and eraser; tap pen to switch back. Needs palm-rejection guard (deliberate tap only, ignore drawing-hand brushes).
+  - Smoothing = a floating extra effect, toggleable; exact control form (dial with number vs simple badge) STILL OPEN.
 - Eraser → popup with size slider. Eraser behaviour DECIDED: partial scrape-erase (rubber removes parts of strokes by cutting the stored point chains, splitting strokes into pieces), NOT tap-to-delete-whole-shape. Fine tip for minute deletions. Works with undo. Recognised/perfect shapes become ordinary point chains once scraped (expected, acceptable).
 - 🎨 Colour wheel (ring + diamond picker) → popup also holds saved colour palettes and a # hex box. Replaces today's plain colour input.
 - Layers button → real layer menu (show/hide eye, lock, reorder up/down). LAYERS DO NOT EXIST YET — this is a build item (a layer/group stack; groups already have some machinery: ensureParts, rebuildGroupBounds).
