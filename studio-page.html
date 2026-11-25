@@ -40,15 +40,15 @@ const DEFS=[
  {id:'lay',   t:'LAYERS', x:.30,  y:.02,  pop:['EYE','LOCK','MOVE UP','MOVE DOWN']},
  {id:'undo',  t:'UNDO',   x:.46,  y:.02,  pop:null},
  {id:'redo',  t:'REDO',   x:.58,  y:.02,  pop:null},
- {id:'menu',  t:'MENU',   x:.92,  y:.02,  pop:['HOME','STUDIO','FONT STUDIO','PROJECTS','IMPORT & EXPORT']},
+ {id:'menu',  t:'MENU',   x:.92,  y:.02,  pop:['HOME','STUDIO','FONT STUDIO','PROJECTS','IMPORT / EXPORT']},
  {id:'col',   t:'COLOUR', x:.02,  y:.30,  pop:['WHEEL','PALETTE','# HEX','FINISH: FLAT / METAL / GEM']},
  {id:'rub',   t:'RUB',    x:.02,  y:.46,  pop:null, action:'toggle'},
  {id:'share', t:'SHARE',  x:.92,  y:.30,  pop:['SAVE','SAVE AS','PNG','JPG','SVG','STL']},
- {id:'imp',   t:'IMPORT', x:.92,  y:.50,  pop:['FROM FILES','SVG = TRUE LINES','JPG/PNG = PICTURE']},
- {id:'clr',   t:'CLEAR',  x:.92,  y:.70,  pop:null, pend:1},
- {id:'tool',  t:'TOOLS',  x:.45,  y:.90,  pop:['CREATE  (draws)','EDIT  (fixes)']}
+ {id:'save',  t:'SAVE',   x:.14,  y:.91,  pop:['TO GALLERY']},
+ {id:'clr',   t:'CLEAR',  x:.34,  y:.91,  pop:null, pend:1},
+ {id:'tool',  t:'TOOLS',  x:.56,  y:.91,  pop:['CREATE  (draws)','EDIT  (fixes)']}
 ];
-const KEY='studiopage.v2';
+const KEY='studiopage.v3';
 let saved={};
 try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){saved={}}
 
