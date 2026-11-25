@@ -77,6 +77,7 @@ Front page lists saved works to open/edit. The gallery IS Home (no separate gall
 Home screen holds, in the owner's own order: Add New, Delete, Share, Save to / Save as,
 Edit a saved work, Saved works list. Possibly with a side drawer for section links.
 Studio bar/panel placement: still being decided group by group on the layout board.
+- STUDIO PAGE PLACEMENT (draft on the table, PINNED by owner, not yet confirmed): TOP BAR = section switch + undo/redo (owner's move). BOTTOM BAR = five openers only: pen, colour, layers, tools, save. FLOATING = draggable eraser (position remembered) + smoothing dial (form still parked). ON CANVAS = nothing permanent (border/points/number/icons appear on selection only). LEFT/RIGHT PANELS = left empty on purpose (spare rooms). Awaiting owner's arrangement remarks.
 Section icons: Home = little house; Studio icon under discussion (a square with an S was floated).
 
 ## Prioritised feature build order (agreed triage)
