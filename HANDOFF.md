@@ -16,6 +16,7 @@ A single-file, 100% offline vector/logo drawing app (one HTML file: index.html).
 - Groups ("Whole Group"), per-shape and group props: cx, cy, w, h, rot, pts (normalised 0..1), kind, poly, closed, sides, colour, stroke width, rawOpen memory.
 - Corner-sides counter (±), "back to original shape" memory, flip left-right / up-down.
 - Single 1000×1000 artboard in a `<g id="world">`; shapes in `<g id="shapes">`; zoom/pan via scale factor V.k incl. pinch-zoom (touch + wheel).
+- GAP AGREED: artboard is a fixed square. Page setup with portrait / landscape / square presets must be added (owner flagged landscape alongside portrait).
 - Autosave to localStorage key `svglogo.v1` ({ver:2,shapes,nid,col,wid}) on pagehide/visibilitychange; project name + section in `svglogo.proj`.
 - Five app sections already defined in the file (SECTIONS array): Home (studio overview), Studio (the drawing canvas), Font Studio (NOT built — `ready:false` stub), Project Manager (NOT built), Import & Export (NOT built).
 - Bottom nav with back/forward arrows; ☰ menu opens the same sections.
