@@ -63,6 +63,9 @@ Buttons around the canvas; each opens its own popup:
 - The active border carries EVERYTHING at once (follows from nodes-baked-in): dots/pull points + number + border-shape icon + the regular controls (delete, flip, axis, copy, move, resize). Buttons sit on corners/edges, points along the line — one border, no mode switching.
 - CODER CONFIRMED: no extra selection tool is needed; the tap/points/rubber rule covers the jobs a dedicated part-selection tool does elsewhere. Owner grants latitude: if building reveals a genuine gap (e.g. selecting many scattered pieces), coder must RAISE it with the owner plainly before adding anything — nothing slipped in silently. Safety nets already present: undo history walks back cuts; restore-to-original works per piece.
 
+## Terminology rule (owner, decided after trying Flowdia Diagrams)
+- A DRAWING is for looking at — hangs on Home, dated, finished. A STAMP or BORDER is for USING — a mould, pressed/wrapped many times, never a wall piece. They are NOT drawings (owner's words) and never enter the Home gallery; stamps live in the stamps pop-up, borders in the border pop-up. The no-shape-gallery ruling STANDS (nobody else's pre-made art); Flowdia's shelves = confirmation of the mould-collection idea, with ownership: starter five borders + starter stamps, then CREATE freely (draw once, bottle it), delete unused, never the last one.
+
 ## Owner train notes (recorded as ideas; not yet decided unless marked)
 - DRAW CANVAS vs LOGO CANVAS (two buttons floated by owner; owner unsure how to classify since "it's all design"). Coder's suggestion on the table: ONE canvas, classification happens at SAVE (name + file on Home); revisit only if logo work genuinely needs different furniture — owner has not agreed/rejected yet.
 - COLOUR FINISHES: jewel tones (jade), shiny rocks, metallic paint — shine as real maths (flat / metallic sheen / gem depth) in the colour pop-up as a row of finishes; stays vector.
