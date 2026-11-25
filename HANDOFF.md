@@ -42,7 +42,13 @@ Buttons around the canvas; each opens its own popup:
 - Layers button → real layer menu (show/hide eye, lock, reorder up/down). LAYERS DO NOT EXIST YET — this is a build item (a layer/group stack; groups already have some machinery: ensureParts, rebuildGroupBounds).
 - Tools menu → opener for the rest (mirror, ruler, snapping, shape math, etc.) to keep the screen clean.
 - Save popup → one menu: import / export / save / save as / discard.
-- Unchanged: bottom undo/redo arrows, pinch-zoom, flip on the selected shape's border.
+- CHANGED BY OWNER: undo/redo arrows move from bottom bar to the TOP (revises the old 'arrows at bottom' lock). Arrow design revisited later; blocks for now.
+- Shape BORDER CONTROLS for every shape (grouped or not): delete, flip, axis (meaning to pin down), copy, move, resize, plus the corners counter. Counter number-changing needs a better mechanism (current ± is inelegant) — parked.
+- Selection = dashed border + grips; WHOLE vs PART selection still to be discussed together, incl. how partial erasing interplays.
+- Palm rejection: LOCKED IN (owner will use stylus; ignores drawing-hand touches).
+- Pen effects (stars/chain/tree lines) = stamp-along-stroke patterns (SVG dash/repeat), per-pen setting, shares machinery with the stamps feature; skeleton-first.
+- ERASER = two buttons + own menu: stationary button opens menu (thickness, opacity?, materials/types causing different cut effects, edge shapes, add/create erasers); separate DRAGGABLE eraser button parked near canvas (position remembered), tap-to-switch with pen. Skeleton first.
+- Menu TYPES discussed: popup, side drawer, top sheet, bottom sheet (drag handle), floating button/dial, long-press menu, radial menu, ribbon strip.
 
 ## HOME layout
 Front page lists saved works to open/edit. The gallery IS Home (no separate gallery screen).
