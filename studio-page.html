@@ -14,13 +14,12 @@
     display:flex;align-items:center;justify-content:center;
     font-size:11px;letter-spacing:.4px;box-shadow:0 2px 6px rgba(0,0,0,.35);
     touch-action:none;cursor:pointer}
+  .blk.pend{background:#f2f0ec;color:#3b4048;border:2px dashed #3b4048;box-shadow:none}
   .blk.act{background:#e2653c}
-  .blk.round{min-width:44px;width:44px;border-radius:50%;padding:0}
   .pop{position:fixed;z-index:9;min-width:120px;background:#fff;border:2px solid #3b4048;
     border-radius:12px;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
   .pop .row{padding:8px 10px;margin:3px 0;border-radius:8px;background:#e9e6e1;
     font-size:12px;color:#26292e}
-  .pop .tiny{font-size:10px;color:#8a8f96;padding:2px 4px 0}
   #reset{position:fixed;right:8px;top:8px;z-index:20;font-size:10px;color:#3b4048;
     background:rgba(242,240,236,.7);border:1px solid #3b4048;border-radius:8px;
     padding:4px 8px}
@@ -31,23 +30,25 @@
 <body>
 <div id="pad"></div>
 <button id="RESET">reset</button>
-<div id="hint">tap = see what it opens &nbsp;·&nbsp; drag = move</div>
+<div id="hint">tap = what it opens · drag = move</div>
 <script>
 const PADW=()=>window.innerWidth, PADH=()=>window.innerHeight;
 
 const DEFS=[
- {id:'menu',  t:'MENU',    x:.02,  y:.015, pop:['HOME','STUDIO','FONT STUDIO','PROJECTS','IMPORT & EXPORT']},
- {id:'undo',  t:'UNDO',    x:.695, y:.015, pop:null},
- {id:'redo',  t:'REDO',    x:.845, y:.015, pop:null},
- {id:'pen',   t:'PEN',     x:.045, y:.90,  pop:['PENS LIST','+ ADD PEN','CREATE PEN','RESET PEN','PEN TIPS','SMOOTHING  2.1']},
- {id:'col',   t:'COLOUR',  x:.225, y:.90,  pop:['WHEEL','PALETTE','# HEX','FINISH: FLAT / METAL / GEM']},
- {id:'lay',   t:'LAYERS',  x:.415, y:.90,  pop:['EYE  👁','LOCK  🔒','MOVE UP','MOVE DOWN']},
- {id:'tool',  t:'TOOLS',   x:.615, y:.90,  pop:['DRAWING  (unfurls)','FIXING  (unfurls)','GUIDES  (unfurls)']},
- {id:'save',  t:'SAVE',    x:.805, y:.90,  pop:['IMPORT','EXPORT','SAVE','SAVE AS','DISCARD']},
- {id:'erz',   t:'ERASER',  x:.70,  y:.66,  pop:['SIZE','MATERIAL','EDGE','+ ADD','STAMP SHAPES']},
- {id:'rub',   t:'RUB',     x:.84,  y:.66,  pop:null, action:'toggle'},
+ {id:'pen',   t:'PEN',    x:.02,  y:.02,  pop:['PENS LIST','+ ADD PEN','CREATE PEN','RESET PEN','PEN TIPS','SMOOTHING 2.1']},
+ {id:'erz',   t:'ERASER', x:.16,  y:.02,  pop:['SIZE','MATERIAL','EDGE','+ ADD','STAMP SHAPES']},
+ {id:'lay',   t:'LAYERS', x:.30,  y:.02,  pop:['EYE','LOCK','MOVE UP','MOVE DOWN']},
+ {id:'undo',  t:'UNDO',   x:.46,  y:.02,  pop:null},
+ {id:'redo',  t:'REDO',   x:.58,  y:.02,  pop:null},
+ {id:'menu',  t:'MENU',   x:.92,  y:.02,  pop:['HOME','STUDIO','FONT STUDIO','PROJECTS','IMPORT & EXPORT']},
+ {id:'col',   t:'COLOUR', x:.02,  y:.30,  pop:['WHEEL','PALETTE','# HEX','FINISH: FLAT / METAL / GEM']},
+ {id:'rub',   t:'RUB',    x:.02,  y:.46,  pop:null, action:'toggle'},
+ {id:'share', t:'SHARE',  x:.92,  y:.30,  pop:['SAVE','SAVE AS','PNG','JPG','SVG','STL']},
+ {id:'imp',   t:'IMPORT', x:.92,  y:.50,  pop:['FROM FILES','SVG = TRUE LINES','JPG/PNG = PICTURE']},
+ {id:'clr',   t:'CLEAR',  x:.92,  y:.70,  pop:null, pend:1},
+ {id:'tool',  t:'TOOLS',  x:.45,  y:.90,  pop:['CREATE  (draws)','EDIT  (fixes)']}
 ];
-const KEY='studiopage.v1';
+const KEY='studiopage.v2';
 let saved={};
 try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){saved={}}
 
@@ -56,7 +57,7 @@ const pad=document.getElementById('pad');
 
 function make(d){
   const b=document.createElement('div');
-  b.className='blk'+(d.round?' round':'');
+  b.className='blk'+(d.round?' round':'')+(d.pend?' pend':'');
   b.textContent=d.t;
   const px= saved[d.id] ? Math.min(saved[d.id].x,PADW()-60) : Math.round(d.x*PADW());
   const py= saved[d.id] ? Math.min(saved[d.id].y,PADH()-56) : Math.round(d.y*PADH());
