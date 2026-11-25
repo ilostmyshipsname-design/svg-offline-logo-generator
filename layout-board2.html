@@ -28,8 +28,6 @@
 
   .zone { border-radius: 14px; padding: 12px; display: flex; flex-wrap: wrap;
     gap: 10px; align-content: flex-start; min-height: 72px; scroll-margin: 90px; }
-  .zone.empty::after { content: "empty — nothing chosen yet";
-    color: #5a6572; font-size: 15px; align-self: center; margin-left: 4px; }
 
   #tray { background: #1a1f27; border: 2px dashed #456; }
   #tray { gap: 10px; }
@@ -82,18 +80,10 @@
 </head>
 <body>
 
-<header>
-  <h1>🧩 Layout Board</h1>
-  <p>This board is NOT your app — it doesn't touch your drawings. It decides where
-     things go. The canvas (where you draw) is the centre of the app, so it's not on
-     the board — the sections around it are.</p>
-</header>
 
 
 <div class="sect">
   <h2>All the chips</h2>
-  <p class="sub">One group at a time. <b>Tap a chip, then tap the place it should
-     live</b> — scrolling with a chip picked is fine. Dragging now auto-scrolls too.</p>
   <div id="gnav">
     <button id="gprev" aria-label="Previous group">&#8249;</button>
     <span id="gname"></span>
@@ -109,8 +99,6 @@
 
 <div class="sect" id="sect-studio">
   <h2>🟩 STUDIO — where all designing happens</h2>
-  <p class="sub">The drawing screen. Put things in its bars and panels; the canvas
-     itself is the middle and needs no chip.</p>
   <p class="zt">Top bar</p>
   <div id="topzone" class="zone"></div>
   <p class="zt">Left panel that slides out</p>
@@ -400,7 +388,7 @@
         return document.querySelector('#pile-' + c.g + ' .chip[data-label="' + c.label + '"]');
       }).length;
     $('#gname').innerHTML = (gI + 1) + ' of ' + PILES.length + ': ' + PILES[gI][1] +
-      '<small>' + (remain + left) + ' to place' + '</small>';
+      '';
     $('#gprev').disabled = gI === 0;
     $('#gnext').disabled = gI === PILES.length - 1;
   }
