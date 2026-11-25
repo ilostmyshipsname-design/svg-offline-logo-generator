@@ -27,7 +27,7 @@
   .zt:first-of-type { margin-top: 0; }
 
   .zone { border-radius: 14px; padding: 12px; display: flex; flex-wrap: wrap;
-    gap: 10px; align-content: flex-start; min-height: 72px; }
+    gap: 10px; align-content: flex-start; min-height: 72px; scroll-margin: 90px; }
   .zone.empty::after { content: "empty — nothing chosen yet";
     color: #5a6572; font-size: 15px; align-self: center; margin-left: 4px; }
 
@@ -39,6 +39,14 @@
   }
   .pt { width: 100%; margin: 0; font-size: 14px; font-weight: 700;
     letter-spacing: .05em; color: #ffd66e; text-transform: uppercase; }
+  .pile { display: none; }
+  .pile.on { display: flex; }
+  #gnav { display: flex; align-items: center; gap: 12px; margin: 12px 16px 0; }
+  #gnav button { min-height: 50px; min-width: 64px; border-radius: 12px; border: none;
+    background: #2f3a4d; color: #fff; font-size: 20px; font-weight: 700; }
+  #gnav button:disabled { opacity: .35; }
+  #gname { font-size: 16px; font-weight: 700; color: #e8e8e8; flex: 1; line-height: 1.3; }
+  #gname small { display: block; font-size: 13px; color: #8fa3b8; font-weight: 400; }
   #topzone { background: #1f232b; border: 2px solid #3d5a3d; }
   #botzone { background: #1f232b; border: 2px solid #5a4d3d; }
   #left { background: #1a2530; border: 2px solid #34506b; }
@@ -87,7 +95,13 @@
 
 <div class="sect">
   <h2>All the chips</h2>
-  <p class="sub">One chip = one feature. Drag or tap-and-place each one below.</p>
+  <p class="sub">One group at a time. <b>Tap a chip, then tap the place it should
+     live</b> — scrolling with a chip picked is fine. Dragging now auto-scrolls too.</p>
+  <div id="gnav">
+    <button id="gprev" aria-label="Previous group">&#8249;</button>
+    <span id="gname"></span>
+    <button id="gnext" aria-label="Next group">&#8250;</button>
+  </div>
   <div id="tray" class="zone"></div>
 </div>
 
@@ -277,6 +291,9 @@
     }
     drag.chip.style.left = (e.clientX - drag.ox) + 'px';
     drag.chip.style.top = (e.clientY - drag.oy) + 'px';
+    var edge = 90;
+    if (e.clientY < edge) window.scrollBy(0, -(edge - e.clientY));
+    else if (window.innerHeight - e.clientY < edge) window.scrollBy(0, (edge - (window.innerHeight - e.clientY)));
     e.preventDefault();
   }
   function onUp(e) {
@@ -364,6 +381,29 @@
     return true;
   }
 
+  var gI = 0;
+  function showPile(i) {
+    gI = Math.max(0, Math.min(i, PILES.length - 1));
+    PILES.forEach(function (spec, n) {
+      var p = document.getElementById('pile-' + spec[0]);
+      if (p) p.classList.toggle('on', n === gI);
+    });
+    var left = 0;
+    PILES.slice(0, gI).forEach(function (spec) {
+      CHIPS.filter(function (c) { return c.g === spec[0]; }).forEach(function (c) {
+        if (document.getElementById('pile-' + c.g) &&
+            document.querySelector('#tray .chip[data-label="' + c.label + '"]')) left++;
+      });
+    });
+    var remain = CHIPS.filter(function (c) { return c.g === PILES[gI][0]; }).
+      filter(function (c) {
+        return document.querySelector('#pile-' + c.g + ' .chip[data-label="' + c.label + '"]');
+      }).length;
+    $('#gname').innerHTML = (gI + 1) + ' of ' + PILES.length + ': ' + PILES[gI][1] +
+      '<small>' + remain + ' chips still to place in this group' + (left ? ' \u00b7 ' + left + ' left in earlier groups' : '') + '</small>';
+    $('#gprev').disabled = gI === 0;
+    $('#gnext').disabled = gI === PILES.length - 1;
+  }
   function build() {
     var tray = $('#tray');
     PILES.forEach(function (spec) {
@@ -377,6 +417,9 @@
         p.appendChild(makeChip(c.label));
       });
     });
+    $('#gprev').addEventListener('click', function () { showPile(gI - 1); });
+    $('#gnext').addEventListener('click', function () { showPile(gI + 1); });
+    showPile(0);
   }
 
   $('#copy').addEventListener('click', function () {
