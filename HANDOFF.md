@@ -58,6 +58,10 @@ Buttons around the canvas; each opens its own popup:
 - ERASER = two buttons + own menu: stationary button opens menu (thickness, opacity?, materials/types causing different cut effects, edge shapes, add/create erasers); separate DRAGGABLE eraser button parked near canvas (position remembered), tap-to-switch with pen. Skeleton first.
 - Menu TYPES discussed: popup, side drawer, top sheet, bottom sheet (drag handle), floating button/dial, long-press menu, radial menu, ribbon strip.
 
+## SELECTION — decided (whole vs part closed)
+- Rule, owner-agreed through chat: TAP = whole thing (a shape, or a group's individual piece); POINTS = bend a part (nodes reshape while the line stays whole); RUBBER = free a part (scrape cuts a line into real separate pieces that become selectable shapes). No separate part-selection tool exists; no third way.
+- The active border carries EVERYTHING at once (follows from nodes-baked-in): dots/pull points + number + border-shape icon + the regular controls (delete, flip, axis, copy, move, resize). Buttons sit on corners/edges, points along the line — one border, no mode switching.
+
 ## Owner train notes (recorded as ideas; not yet decided unless marked)
 - DRAW CANVAS vs LOGO CANVAS (two buttons floated by owner; owner unsure how to classify since "it's all design"). Coder's suggestion on the table: ONE canvas, classification happens at SAVE (name + file on Home); revisit only if logo work genuinely needs different furniture — owner has not agreed/rejected yet.
 - COLOUR FINISHES: jewel tones (jade), shiny rocks, metallic paint — shine as real maths (flat / metallic sheen / gem depth) in the colour pop-up as a row of finishes; stays vector.
