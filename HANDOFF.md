@@ -61,6 +61,7 @@ Buttons around the canvas; each opens its own popup:
 ## SELECTION — decided (whole vs part closed)
 - Rule, owner-agreed through chat: TAP = whole thing (a shape, or a group's individual piece); POINTS = bend a part (nodes reshape while the line stays whole); RUBBER = free a part (scrape cuts a line into real separate pieces that become selectable shapes). No separate part-selection tool exists; no third way.
 - The active border carries EVERYTHING at once (follows from nodes-baked-in): dots/pull points + number + border-shape icon + the regular controls (delete, flip, axis, copy, move, resize). Buttons sit on corners/edges, points along the line — one border, no mode switching.
+- CODER CONFIRMED: no extra selection tool is needed; the tap/points/rubber rule covers the jobs a dedicated part-selection tool does elsewhere. Owner grants latitude: if building reveals a genuine gap (e.g. selecting many scattered pieces), coder must RAISE it with the owner plainly before adding anything — nothing slipped in silently. Safety nets already present: undo history walks back cuts; restore-to-original works per piece.
 
 ## Owner train notes (recorded as ideas; not yet decided unless marked)
 - DRAW CANVAS vs LOGO CANVAS (two buttons floated by owner; owner unsure how to classify since "it's all design"). Coder's suggestion on the table: ONE canvas, classification happens at SAVE (name + file on Home); revisit only if logo work genuinely needs different furniture — owner has not agreed/rejected yet.
