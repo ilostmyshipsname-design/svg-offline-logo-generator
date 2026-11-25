@@ -58,6 +58,12 @@ Buttons around the canvas; each opens its own popup:
 - ERASER = two buttons + own menu: stationary button opens menu (thickness, opacity?, materials/types causing different cut effects, edge shapes, add/create erasers); separate DRAGGABLE eraser button parked near canvas (position remembered), tap-to-switch with pen. Skeleton first.
 - Menu TYPES discussed: popup, side drawer, top sheet, bottom sheet (drag handle), floating button/dial, long-press menu, radial menu, ribbon strip.
 
+## Owner train notes (recorded as ideas; not yet decided unless marked)
+- DRAW CANVAS vs LOGO CANVAS (two buttons floated by owner; owner unsure how to classify since "it's all design"). Coder's suggestion on the table: ONE canvas, classification happens at SAVE (name + file on Home); revisit only if logo work genuinely needs different furniture — owner has not agreed/rejected yet.
+- COLOUR FINISHES: jewel tones (jade), shiny rocks, metallic paint — shine as real maths (flat / metallic sheen / gem depth) in the colour pop-up as a row of finishes; stays vector.
+- STAMPS twice: stamps have their OWN pop-up menu (make/list, shared machinery with pen effects — as already agreed) AND stamps appear in the ERASER's pop-up as eraser shapes/materials (stamp-shaped erasers fit the existing edge-shapes/materials slot).
+- UNFURLING TOOLS MENU: a drop-down that opens section by section as its arrows are pressed; each tool carries an explanation and EXAMPLES of what you can do with it — a teaching menu (grows out of the Create/Edit split idea).
+
 ## HOME layout
 Front page lists saved works to open/edit. The gallery IS Home (no separate gallery screen).
 Home screen holds, in the owner's own order: Add New, Delete, Share, Save to / Save as,
