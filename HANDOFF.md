@@ -8,7 +8,7 @@ A single-file, 100% offline vector/logo drawing app (one HTML file: index.html).
 - Owner is mathematically inclined, loves angles and precision, and hates jargon.
 - Hosted for previews via GitHub Pages: https://ilostmyshipsname-design.github.io/svg-offline-logo-generator/
 - GitHub repo: ilostmyshipsname-design/svg-offline-logo-generator (public, branch main).
-- A planning page (layout-board.html) also lives in the repo; it is NOT part of the app.
+- A planning page (layout-board2.html) also lives in the repo; it is NOT part of the app.
 
 ## What is ALREADY BUILT (current index.html — do not regress these)
 - Freehand drawing with pen/finger; auto shape recognition (line / circle / polygon / open stroke) with a resample-160-points + ellipse-fit + RDP-simplify recogniser.
