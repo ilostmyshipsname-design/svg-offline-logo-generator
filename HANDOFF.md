@@ -42,7 +42,11 @@ Buttons around the canvas; each opens its own popup:
 - Unchanged: bottom undo/redo arrows, pinch-zoom, flip on the selected shape's border.
 
 ## HOME layout
-Front page lists saved works to open/edit — the gallery IS Home (no separate gallery screen).\nHome page actions agreed: Add New (start a fresh work), Edit a saved work, Delete, Share,\nSave to / Save as. Possibly with a side drawer for the section links. Owner to finalise.\nSection icons: Home = little house; Studio icon under discussion (a square with an S was floated).
+Front page lists saved works to open/edit. The gallery IS Home (no separate gallery screen).
+Home screen holds, in the owner's own order: Add New, Delete, Share, Save to / Save as,
+Edit a saved work, Saved works list. Possibly with a side drawer for section links.
+Studio bar/panel placement: still being decided group by group on the layout board.
+Section icons: Home = little house; Studio icon under discussion (a square with an S was floated).
 
 ## Prioritised feature build order (agreed triage)
 1. "Finishing Four": export with true transparency + auto-crop to drawing (small even margin); mirror/symmetry drawing mode (vertical at minimum, with visible centre line); proportional stroke-width scaling when resizing shapes/groups; small-size live preview box.

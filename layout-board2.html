@@ -342,8 +342,7 @@
     var data = { chips: [] };
     ZONE_IDS.forEach(function (zid) {
       var z = document.getElementById(zid);
-      Array.prototype.forEach.call(z.children, function (child) {
-        if (!child.classList || !child.classList.contains('chip')) return;
+      Array.prototype.forEach.call(z.querySelectorAll('.chip'), function (child) {
         data.chips.push({ label: child.dataset.label, zone: zid });
       });
     });
@@ -441,9 +440,7 @@
     var lines = ['# MY LAYOUT (' + new Date().toLocaleString() + ')'];
     ORDER.forEach(function (zid) {
       var z = document.getElementById(zid);
-      var kids = Array.prototype.filter.call(z.children, function (c) {
-        return c.classList && c.classList.contains('chip');
-      });
+      var kids = Array.prototype.slice.call(z.querySelectorAll('.chip'));
       lines.push('');
       lines.push(ZONE_LABEL[zid] + ':');
       if (!kids.length) lines.push('  (nothing)');
