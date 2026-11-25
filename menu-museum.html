@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Arrow Menu Museum</title>
+<style>
+ html,body{margin:0;min-height:100vh;background:#f2f0ec;color:#26292e;
+   font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+ h2{font-size:13px;letter-spacing:1px;color:#8a8f96;margin:26px 16px 8px}
+ .edge{position:fixed;right:0;top:40%;z-index:9;width:34px;height:88px;
+   background:#3b4048;color:#f2f0ec;border-radius:12px 0 0 12px;
+   display:flex;align-items:center;justify-content:center;font-size:18px;
+   box-shadow:-2px 2px 8px rgba(0,0,0,.3)}
+ .drawer{position:fixed;right:-240px;top:30%;width:220px;z-index:8;
+   background:#fff;border:1px solid #cbd5e1;border-radius:12px 0 0 12px;
+   padding:12px;transition:right .25s ease;box-shadow:-4px 4px 16px rgba(0,0,0,.15)}
+ .drawer.onq{right:34px}
+ .row{padding:9px 10px;margin:4px 0;background:#e9e6e1;border-radius:8px;font-size:13px}
+ .ladder{margin:0 16px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;overflow:hidden}
+ .sec{border-bottom:1px solid #e2e8f0}
+ .sec:last-child{border-bottom:0}
+ .sec .head{display:flex;align-items:center;gap:10px;padding:12px;font-size:14px;font-weight:600}
+ .tw{display:inline-block;transition:transform .2s ease;font-size:12px;color:#3b4048}
+ .sec.openq .tw{transform:rotate(90deg)}
+ .sec .kids{display:none;padding:2px 12px 10px 34px}
+ .sec.openq .kids{display:block}
+ .kid{padding:8px 0;font-size:13px;border-top:1px dashed #e2e8f0}
+ .kid small{display:block;color:#8a8f96;font-size:11px;margin-top:2px}
+ .cycle{margin:6px 16px;background:#fff;border:1px solid #cbd5e1;border-radius:12px;
+   padding:12px;display:flex;align-items:center;gap:12px}
+ .carr{width:44px;height:44px;border-radius:50%;border:1px solid #cbd5e1;background:#fff;
+   font-size:18px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+ .cinfo{font-size:13px}
+ .cinfo b{display:block;font-size:14px;margin-bottom:3px}
+ .flick{position:fixed;left:0;top:55%;z-index:9;width:30px;height:140px;
+   background:#3b4048;color:#f2f0ec;border-radius:0 12px 12px 0;
+   display:flex;align-items:center;justify-content:center;font-size:20px}
+</style>
+</head>
+<body>
+
+<h2>A · EDGE TAB</h2>
+<div class="edge" id="ea">◀</div>
+<div class="drawer" id="da">
+  <div class="row">PEN</div><div class="row">COLOUR</div>
+  <div class="row">LAYERS</div><div class="row">TOOLS</div>
+</div>
+
+<h2>B · THE LADDER</h2>
+<div class="ladder">
+ <div class="sec"><div class="head"><span class="tw">▸</span> CREATE</div>
+   <div class="kids">
+     <div class="kid">PEN<small>free strokes, shapes made on the fly</small></div>
+     <div class="kid">STAMP<small>press saved moulds onto the canvas</small></div>
+   </div>
+ </div>
+ <div class="sec"><div class="head"><span class="tw">▸</span> EDIT</div>
+   <div class="kids">
+     <div class="kid">POINTS<small>bend any line from its dots</small></div>
+     <div class="kid">BORDER<small>wrap, flip, resize any shape</small></div>
+   </div>
+ </div>
+ <div class="sec"><div class="head"><span class="tw">▸</span> GUIDES</div>
+   <div class="kids">
+     <div class="kid">RULER<small>straight edges and angle snapping</small></div>
+     <div class="kid">MIRROR<small>draw one side, both sides appear</small></div>
+   </div>
+ </div>
+</div>
+
+<h2>C · STEP ARROW</h2>
+<div class="cycle">
+ <div class="carr" id="ca">▶</div>
+ <div class="cinfo"><b id="ct">PEN</b><span id="cd">tap the arrow to step to the next tool</span></div>
+</div>
+
+<script>
+ document.getElementById('ea').addEventListener('click',function(){
+   var d=document.getElementById('da');
+   var on=d.classList.toggle('onq');
+   this.textContent=on?'▶':'◀';
+ });
+ document.querySelectorAll('.sec .head').forEach(function(h){
+   h.addEventListener('click',function(){h.parentElement.classList.toggle('openq')});
+ });
+ var tools=[['PEN','free strokes, shapes made on the fly'],
+   ['STAMP','press saved moulds onto the canvas'],
+   ['POINTS','bend any line from its dots'],
+   ['BORDER','wrap, flip, resize any shape'],
+   ['RULER','straight edges and angle snapping'],
+   ['MIRROR','draw one side, both sides appear']];
+ var i=0;
+ document.getElementById('ca').addEventListener('click',function(){
+   i=(i+1)%tools.length;
+   document.getElementById('ct').textContent=tools[i][0];
+   document.getElementById('cd').textContent=tools[i][1];
+ });
+</script>
+</body>
+</html>
