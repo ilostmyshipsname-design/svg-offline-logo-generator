@@ -77,7 +77,13 @@ Front page lists saved works to open/edit. The gallery IS Home (no separate gall
 Home screen holds, in the owner's own order: Add New, Delete, Share, Save to / Save as,
 Edit a saved work, Saved works list. Possibly with a side drawer for section links.
 Studio bar/panel placement: still being decided group by group on the layout board.
-- STUDIO PAGE PLACEMENT (draft on the table, PINNED by owner, not yet confirmed): TOP BAR = section switch + undo/redo (owner's move). BOTTOM BAR = five openers only: pen, colour, layers, tools, save. FLOATING = draggable eraser (position remembered) + smoothing dial (form still parked). ON CANVAS = nothing permanent (border/points/number/icons appear on selection only). LEFT/RIGHT PANELS = left empty on purpose (spare rooms). Awaiting owner's arrangement remarks.
+- STUDIO PAGE PLACEMENT (OWNER ARRANGED IT on the studio-page.html blocks page, 25/11 — screenshot read back and confirmed): NO BARS AT ALL, NO BOTTOM BAR, NOTHING IN THE MIDDLE; everything hugs the screen edges:
+  · Top edge, left to right: PEN, ERASER, LAYERS — then MENU apart at top-right (kept away from the working cluster).
+  · Second row under top-left: UNDO, REDO.
+  · Left edge downward: COLOUR, then RUB (the held rubber; draggable, position remembered).
+  · Right edge downward: TOOLS, then SAVE.
+  · Middle canvas = clear; border/points/number/icons appear on selection only.
+  Coder observation recorded: left side = materials (colour, rubber), right side = heavy menus (tools, save); no bars = canvas maximally clear. Openers' popups unchanged (content per decided menus). ERASER menu button lives top edge with PEN/LAYERS; RUB floats (per earlier ruling).
 Section icons: Home = little house; Studio icon under discussion (a square with an S was floated).
 
 ## Prioritised feature build order (agreed triage)
