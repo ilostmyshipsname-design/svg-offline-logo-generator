@@ -105,13 +105,13 @@
   <div id="tray" class="zone"></div>
 </div>
 
-<div class="sect">
+<div class="sect" id="sect-home">
   <h2>🟦 HOME</h2>
   <p class="sub">Where you start — your saved works live here.</p>
   <div id="homezone" class="zone"></div>
 </div>
 
-<div class="sect">
+<div class="sect" id="sect-studio">
   <h2>🟩 STUDIO — where all designing happens</h2>
   <p class="sub">The drawing screen. Put things in its bars and panels; the canvas
      itself is the middle and needs no chip.</p>
@@ -127,19 +127,19 @@
   <div id="floatzone" class="zone"></div>
 </div>
 
-<div class="sect">
+<div class="sect" id="sect-font">
   <h2>🟪 FONT STUDIO</h2>
   <p class="sub">Making your own alphabets / letters (planned).</p>
   <div id="fontzone" class="zone"></div>
 </div>
 
-<div class="sect">
+<div class="sect" id="sect-pm">
   <h2>🟨 PROJECT MANAGER</h2>
   <p class="sub">Opening, renaming, copying your saved projects (planned).</p>
   <div id="projzone" class="zone"></div>
 </div>
 
-<div class="sect">
+<div class="sect" id="sect-io">
   <h2>🟧 IMPORT &amp; EXPORT</h2>
   <p class="sub">Getting files in and finished work out (planned).</p>
   <div id="iozone" class="zone"></div>
@@ -381,6 +381,15 @@
     return true;
   }
 
+  var SECT_FOR = {
+    home:   ['sect-home'],
+    pen:    ['sect-studio'],
+    colour: ['sect-studio'],
+    shape:  ['sect-studio'],
+    guide:  ['sect-studio'],
+    screen: ['sect-studio'],
+    drawer: ['sect-studio', 'sect-font']
+  };
   var gI = 0;
   function showPile(i) {
     gI = Math.max(0, Math.min(i, PILES.length - 1));
@@ -388,6 +397,12 @@
       var p = document.getElementById('pile-' + spec[0]);
       if (p) p.classList.toggle('on', n === gI);
     });
+    var show = SECT_FOR[PILES[gI][0]] || [];
+    ['sect-home','sect-studio','sect-font','sect-pm','sect-io'].forEach(function (sid) {
+      var el = document.getElementById(sid);
+      el.style.display = show.indexOf(sid) >= 0 ? '' : 'none';
+    });
+    $('#gnav').scrollIntoView({ behavior: 'smooth', block: 'start' });
     var left = 0;
     PILES.slice(0, gI).forEach(function (spec) {
       CHIPS.filter(function (c) { return c.g === spec[0]; }).forEach(function (c) {
