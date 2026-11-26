@@ -11,6 +11,9 @@
  .petal{transform-box:view-box;transform-origin:150px 150px}
  #marker{pointer-events:none;transition:opacity .3s ease}
  #hub{cursor:pointer}
+ .sizes{position:fixed;top:20px;left:20px;display:flex;gap:12px;z-index:5}
+ .s{width:22px;height:22px;border-radius:50%;border:1px solid #7d8288;background:#f2f0ec;cursor:pointer;box-sizing:border-box}
+ .s.onq{outline:2px solid #3c3a36;outline-offset:1px}
 </style>
 </head>
 <body>
@@ -21,6 +24,12 @@
  <circle id="hub" cx="150" cy="150" r="20" fill="#c0392b" stroke="#f4f1eb" stroke-width="3"/>
  <path id="marker" d="M150 8 L143 22 L157 22 Z" fill="#3c3a36"/>
 </svg>
+
+<div class="sizes">
+ <span class="s onq" data-s="1"></span>
+ <span class="s" data-s="1.25"></span>
+ <span class="s" data-s="1.5"></span>
+</div>
 
 <script>
  var NS='http://www.w3.org/2000/svg';
@@ -41,6 +50,7 @@
    p.setAttribute('fill',cols[i]);
    p.setAttribute('stroke','rgba(255,255,255,.30)');
    p.setAttribute('stroke-width','1');
+   p.style.transform='rotate('+(i*30)+'deg) scale(1)';
    pet.appendChild(p);
  }
 
@@ -53,28 +63,33 @@
  var cxp=rest.x, cyp=rest.y;
  setRest(); setHome(); cyp=rest.y;
 
- function petState(){
-   for(var i=0;i<N;i++){
-     var pg=pet.children[i];
-     pg.style.transition='transform .55s cubic-bezier(.34,1.45,.45,1)';
-     pg.style.transitionDelay=(open? i*26 : (N-1-i)*22)+'ms';
-     pg.style.transform=open? 'rotate('+(i*30)+'deg) scale(1)' : 'rotate(-84deg) scale(.04)';
-   }
- }
+ var openScale=1, restScale=0.22;
  function place(){
    svg.style.left=(cxp-CX)+'px'; svg.style.top=(cyp-CY)+'px';
+   svg.style.transform='scale('+(open?openScale:restScale)+')';
  }
  function look(){
-   svg.style.transition='left .55s ease, top .55s ease';
+   svg.style.transition='left .55s ease, top .55s ease, transform .5s cubic-bezier(.34,1.45,.45,1)';
    place();
    marker.style.opacity=open? '.9':'0';
-   petState();
+   readOut();
  }
  function readOut(){
    var idx=((Math.round(-rot/STEP))%N+N)%N;
    hub.setAttribute('fill',cols[idx]);
  }
- look(); readOut(); window.addEventListener('resize',function(){
+ look(); readOut();
+
+ document.querySelectorAll('.s').forEach(function(b){
+   b.addEventListener('click',function(){
+     document.querySelectorAll('.s').forEach(function(x){x.classList.remove('onq')});
+     b.classList.add('onq');
+     openScale=parseFloat(b.dataset.s);
+     svg.style.transition='transform .35s ease';
+     place();
+   });
+ });
+ window.addEventListener('resize',function(){
    setRest(); setHome();
    if(cxp>innerWidth-30)cxp=innerWidth-30;
    if(cyp>innerHeight-30)cyp=innerHeight-30;
