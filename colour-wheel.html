@@ -92,14 +92,14 @@
    else{
      var diff=rot-shown;
      if(Math.abs(diff)>0.05){
-       shown+=diff*0.35;
+       shown+=diff*0.18;
        pet.style.transform='rotate('+shown.toFixed(2)+'deg)';
      }
    }
    if(PX!==null){
      var dx=R.x-PX, dy=R.y-PY;
      if(Math.abs(dx)+Math.abs(dy)>0.5){
-       PX+=dx*0.35; PY+=dy*0.35;
+       PX+=dx*0.18; PY+=dy*0.18;
        apply();
      }
    }
