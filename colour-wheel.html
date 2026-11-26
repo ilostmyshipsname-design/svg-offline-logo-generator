@@ -10,27 +10,20 @@
  svg{position:fixed;touch-action:none}
  .petal{transform-box:view-box;transform-origin:150px 150px}
  #marker{pointer-events:none;transition:opacity .3s ease}
- #hub{cursor:pointer}
  .sizes{position:fixed;top:20px;left:20px;display:flex;gap:12px;z-index:5}
  .s{width:22px;height:22px;border-radius:50%;border:1px solid #7d8288;background:#f2f0ec;cursor:pointer;box-sizing:border-box}
  .s.onq{outline:2px solid #3c3a36;outline-offset:1px}
- #sel{position:fixed;display:none;border:2px dashed #3c3a36;border-radius:16px;z-index:6;box-sizing:border-box}
- #sel.onq{display:block}
- #grip{position:absolute;right:-11px;bottom:-11px;width:22px;height:22px;border-radius:7px;
-   background:#f2f0ec;border:2px solid #3c3a36;box-sizing:border-box;touch-action:none}
- #fx{position:absolute;right:-11px;top:-11px;width:22px;height:22px;border-radius:50%;
-   background:#f2f0ec;border:2px solid #3c3a36;color:#3c3a36;font-size:12px;
-   display:flex;align-items:center;justify-content:center;cursor:pointer;box-sizing:border-box}
+ #sel{position:fixed;left:0;top:0;pointer-events:none;z-index:6;touch-action:none}
 </style>
 </head>
 <body>
 
 <svg id="w" width="300" height="300" viewBox="0 0 300 300">
  <g id="pet"></g>
- <circle id="cz" cx="150" cy="150" r="36" fill="transparent"/>
- <circle id="hub" cx="150" cy="150" r="20" fill="#c0392b" stroke="#f4f1eb" stroke-width="3"/>
  <path id="marker" d="M150 8 L143 22 L157 22 Z" fill="#3c3a36"/>
 </svg>
+
+<svg id="sel"></svg>
 
 <div class="sizes">
  <span class="s onq" data-s="1"></span>
@@ -38,18 +31,12 @@
  <span class="s" data-s="1.5"></span>
 </div>
 
-<div id="sel"><span id="fx">✕</span><span id="grip"></span></div>
-
 <script>
  var NS='http://www.w3.org/2000/svg';
  var svg=document.getElementById('w');
  var pet=document.getElementById('pet');
- var hub=document.getElementById('hub');
- var cz=document.getElementById('cz');
  var marker=document.getElementById('marker');
- var selEl=document.getElementById('sel');
- var grip=document.getElementById('grip');
- var fx=document.getElementById('fx');
+ var sel=document.getElementById('sel');
  var N=16, STEP=360/N, r0=32, r1=124, CX=150, CY=150;
  var cols=['#0d0c0b','#262019','#2c2f3a','#3a332a'];
  for(var i=0;i<12;i++)cols.push('hsl('+i*30+', 65%, 46%)');
@@ -68,7 +55,7 @@
  }
 
  var KEY='colourwheel.v1';
- var open=false, rot=0, drag=null, selected=false;
+ var open=false, rot=0, drag=null, selected=false, rdrag=null;
  var openScale=1, restScale=0.22;
  var R={x:innerWidth/2,y:innerHeight/2};
  var O={x:innerWidth/2,y:innerHeight/2};
@@ -97,22 +84,35 @@
    svg.style.left=(p.x-CX)+'px'; svg.style.top=(p.y-CY)+'px';
    svg.style.transform='scale('+(open?openScale:restScale)+')';
  }
- function showSel(){
-   var s=r1*openScale*2+20;
-   selEl.style.width=s+'px'; selEl.style.height=s+'px';
-   selEl.style.left=(cur().x-s/2)+'px'; selEl.style.top=(cur().y-s/2)+'px';
-   selEl.classList.add('onq');
+
+ function el(par,n,a){var e=document.createElementNS(NS,n);
+   for(var k in a)e.setAttribute(k,a[k]);par.appendChild(e);return e}
+
+ function drawSel(){
+   while(sel.firstChild)sel.removeChild(sel.firstChild);
+   if(!selected)return;
+   sel.setAttribute('width',innerWidth); sel.setAttribute('height',innerHeight);
+   var s=r1*openScale+9;
+   el(sel,'rect',{x:O.x-s,y:O.y-s,width:2*s,height:2*s,fill:'none',
+     stroke:'#2f6bff','stroke-width':2,'stroke-dasharray':'6 5',
+     'vector-effect':'non-scaling-stroke'});
+   var HS=[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
+   for(var i=0;i<HS.length;i++){
+     var gx=O.x+HS[i][0]*s, gy=O.y+HS[i][1]*s;
+     var g=el(sel,'g',{'data-h':HS[i][0]+'_'+HS[i][1],'pointer-events':'all'});
+     el(g,'circle',{cx:gx,cy:gy,r:22,fill:'transparent'});
+     el(g,'rect',{x:gx-6.5,y:gy-6.5,width:13,height:13,rx:3,fill:'#fff',
+       stroke:'#2f6bff','stroke-width':2});
+   }
  }
- function hideSel(){selEl.classList.remove('onq')}
- function readOut(){
-   var idx=((Math.round(-rot/STEP))%N+N)%N;
-   hub.setAttribute('fill',cols[idx]);
- }
+ function hideSel(){while(sel.firstChild)sel.removeChild(sel.firstChild);}
+
  function look(){
    svg.style.transition='left .5s ease, top .5s ease, transform .5s cubic-bezier(.34,1.45,.45,1)';
    place();
    marker.style.opacity=open? '.9':'0';
-   readOut(); pin();
+   if(selected)drawSel();
+   pin();
  }
  look(); if(fresh)pin();
 
@@ -123,7 +123,7 @@
      openScale=parseFloat(b.dataset.s);
      O=fitO(O.x,O.y);
      svg.style.transition='left .35s ease, top .35s ease, transform .35s ease';
-     place(); if(selected)showSel(); pin();
+     place(); if(selected)drawSel(); pin();
    });
  });
  (function(){var mark=null;
@@ -138,9 +138,8 @@
  }
  svg.addEventListener('pointerdown',function(e){
    e.preventDefault();
-   var t=e.target;
-   var mode=(!open||selected||t===cz||t===hub)?'carry':'turn';
-   drag={x:e.clientX,y:e.clientY,cx:cur().x,cy:cur().y,rot0:rot,t:t,moved:false,mode:mode};
+   var mode=open? (selected?'carry':'turn') : 'carry';
+   drag={x:e.clientX,y:e.clientY,cx:cur().x,cy:cur().y,rot0:rot,moved:false,mode:mode};
    try{svg.setPointerCapture(e.pointerId)}catch(_){}
  });
  svg.addEventListener('pointermove',function(e){
@@ -151,11 +150,10 @@
      var d=angAt(e.clientX,e.clientY)-angAt(drag.x,drag.y);
      rot=drag.rot0+d;
      pet.setAttribute('transform','rotate('+rot.toFixed(2)+' '+CX+' '+CY+')');
-     readOut();
    } else {
      svg.style.transition='none';
      var nx=drag.cx+(e.clientX-drag.x), ny=drag.cy+(e.clientY-drag.y);
-     if(open){O=fitO(nx,ny); place(); if(selected)showSel(); pin();}
+     if(open){O=fitO(nx,ny); place(); if(selected)drawSel(); pin();}
      else {R=clampR(nx,ny); place(); pin();}
    }
  });
@@ -164,9 +162,7 @@
    if(!drag.moved&&!open){
      open=true; O=fitO(R.x,R.y); look();
    } else if(!drag.moved&&open&&!selected){
-     selected=true; showSel();
-   } else if(!drag.moved&&open&&selected){
-     selected=false; hideSel();
+     selected=true; drawSel();
    } else if(drag.moved){ pin(); }
    drag=null;
  }
@@ -180,40 +176,35 @@
    }
  });
 
- var gdrag=false;
- grip.addEventListener('pointerdown',function(e){
-   e.preventDefault(); e.stopPropagation();
-   gdrag=true;
-   try{grip.setPointerCapture(e.pointerId)}catch(_){}
+ sel.addEventListener('pointerdown',function(e){
+   e.preventDefault();
+   var h=e.target.closest?e.target.closest('[data-h]'):null;
+   if(!h)return;
+   rdrag=true;
+   try{sel.setPointerCapture(e.pointerId)}catch(_){}
  });
- grip.addEventListener('pointermove',function(e){
-   if(!gdrag)return;
-   var b=svg.getBoundingClientRect();
-   var d=Math.hypot(e.clientX-(b.left+CX), e.clientY-(b.top+CY));
+ sel.addEventListener('pointermove',function(e){
+   if(!rdrag)return;
+   var d=Math.hypot(e.clientX-O.x, e.clientY-O.y);
    openScale=Math.max(0.55,Math.min(1.7,d/r1));
    O=fitO(O.x,O.y);
    svg.style.transition='none';
-   place(); showSel();
+   place(); drawSel();
  });
  ['pointerup','pointercancel'].forEach(function(ev){
-   grip.addEventListener(ev,function(){
-     if(!gdrag)return;
-     gdrag=false;
-     svg.style.transition='';
-     place();
+   sel.addEventListener(ev,function(){
+     if(!rdrag)return;
+     rdrag=false;
+     place(); drawSel();
      document.querySelectorAll('.s').forEach(function(x){x.classList.remove('onq')});
      pin();
    });
- });
- fx.addEventListener('click',function(e){
-   e.stopPropagation();
-   selected=false; hideSel(); open=false; look();
  });
 
  window.addEventListener('resize',function(){
    O=fitO(O.x,O.y);
    R=clampR(R.x,R.y);
-   place(); if(selected)showSel(); pin();
+   place(); if(selected)drawSel(); pin();
  });
 </script>
 </body>
