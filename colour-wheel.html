@@ -9,13 +9,11 @@
    font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
  svg{position:fixed;touch-action:none}
  .petal{transform-box:view-box;transform-origin:150px 150px}
+ #pet{transform-box:view-box;transform-origin:150px 150px;will-change:transform}
  #tab{position:fixed;width:44px;height:26px;background:#f2f0ec;border:1px solid #9a958d;
-   border-radius:8px;z-index:5;display:none;align-items:center;justify-content:center;gap:4px;
+   border-radius:8px;z-index:5;display:flex;align-items:center;justify-content:center;gap:4px;
    box-shadow:0 1px 4px rgba(0,0,0,.2);touch-action:none;cursor:grab}
  #tab i{width:4px;height:4px;border-radius:50%;background:#6d6a64;display:block}
- #fold{position:fixed;width:30px;height:26px;background:#f2f0ec;border:1px solid #9a958d;
-   border-radius:8px;z-index:5;display:none;align-items:center;justify-content:center;
-   box-shadow:0 1px 4px rgba(0,0,0,.2);touch-action:none;cursor:pointer}
 </style>
 </head>
 <body>
@@ -25,14 +23,12 @@
 </svg>
 
 <div id="tab"><i></i><i></i><i></i></div>
-<div id="fold"><svg width="14" height="8" viewBox="0 0 14 8"><path d="M1 1 L7 7 L13 1" fill="none" stroke="#6d6a64" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
 
 <script>
  var NS='http://www.w3.org/2000/svg';
  var svg=document.getElementById('w');
  var pet=document.getElementById('pet');
  var tab=document.getElementById('tab');
- var fold=document.getElementById('fold');
  var N=16, STEP=360/N, r0=32, r1=124, CX=150, CY=150;
  var cols=['#0d0c0b','#262019','#2c2f3a','#3a332a'];
  for(var i=0;i<12;i++)cols.push('hsl('+i*30+', 65%, 46%)');
@@ -51,45 +47,33 @@
  }
 
  var KEY='colourwheel.v1';
- var open=false, rot=0, drag=null, tdrag=null;
- var openScale=1, restScale=0.22;
+ var rot=0, drag=null, tdrag=null, s=0.22;
  var pointers={}, pinch=null;
  var R={x:innerWidth/2,y:innerHeight/2};
- var O={x:innerWidth/2,y:innerHeight/2};
  var fresh=true;
  try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');
-   if(sv&&sv.rx!==undefined){
-     R={x:sv.rx,y:sv.ry}; O={x:sv.ox,y:sv.oy};
-     openScale=sv.s||1; rot=sv.rot||0; open=!!sv.open; fresh=false;
+   if(sv&&sv.x!==undefined){
+     R={x:sv.x,y:sv.y}; s=sv.s||0.22; rot=sv.rot||0; fresh=false;
+   } else if(sv&&sv.rx!==undefined){
+     R={x:sv.open?sv.ox:sv.rx, y:sv.open?sv.oy:sv.ry};
+     s=sv.open?(sv.s||1):0.22; rot=sv.rot||0; fresh=false;
    }
  }catch(e){}
 
- function fitO(x,y){
-   var exc=r1*(open?openScale:restScale)-60;
+ function fit(x,y){
+   var exc=r1*s-60;
    return {x:Math.max(-exc,Math.min(innerWidth+exc,x)),
            y:Math.max(-exc,Math.min(innerHeight+exc,y))};
  }
- function clampR(x,y){
-   return {x:Math.max(30,Math.min(innerWidth-30,x)),
-           y:Math.max(30,Math.min(innerHeight-30,y))};
- }
- function cur(){return open?O:R}
  function pin(){try{localStorage.setItem(KEY,JSON.stringify(
-   {rx:R.x,ry:R.y,ox:O.x,oy:O.y,s:openScale,rot:Math.round(rot),open:open}))}catch(e){}}
+   {x:R.x,y:R.y,s:s,rot:Math.round(rot)}))}catch(e){}}
  function place(){
-   var p=cur();
-   svg.style.left=(p.x-CX)+'px'; svg.style.top=(p.y-CY)+'px';
-   svg.style.transform='scale('+(open?openScale:restScale)+')';
-   var rr=r1*openScale;
-   tab.style.display=open?'flex':'none';
-   fold.style.display=open?'flex':'none';
-   if(open){
-     var tx=Math.max(24,Math.min(innerWidth-64,O.x));
-     var ty=O.y+rr+16;
-     if(ty>innerHeight-44) ty=O.y-rr-46;
-     tab.style.left=(tx-22)+'px'; tab.style.top=ty+'px';
-     fold.style.left=(tx+30)+'px'; fold.style.top=ty+'px';
-   }
+   svg.style.left=(R.x-CX)+'px'; svg.style.top=(R.y-CY)+'px';
+   svg.style.transform='scale('+s+')';
+   var tx=Math.max(24,Math.min(innerWidth-24,R.x));
+   var ty=R.y+r1*s+16;
+   if(ty>innerHeight-40) ty=R.y-r1*s-42;
+   tab.style.left=(tx-22)+'px'; tab.style.top=ty+'px';
  }
  function look(){
    svg.style.transition='left .5s ease, top .5s ease, transform .5s cubic-bezier(.34,1.45,.45,1)';
@@ -97,20 +81,20 @@
    pin();
  }
  look(); if(fresh)pin();
+ pet.style.transform='rotate('+rot.toFixed(2)+'deg)';
 
  function ang2(x,y,cx,cy){return Math.atan2(y-cy, x-cx)*180/Math.PI}
  svg.addEventListener('pointerdown',function(e){
    e.preventDefault();
    try{svg.setPointerCapture(e.pointerId)}catch(_){}
    pointers[e.pointerId]={x:e.clientX,y:e.clientY};
-   if(open&&Object.keys(pointers).length===2){
+   if(Object.keys(pointers).length===2){
      drag=null;
-     pinch={d0:pDist(),s0:openScale};
+     pinch={d0:pDist(),s0:s};
      svg.style.transition='none';
      return;
    }
-   var mode=open?'turn':'carry';
-   drag={x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY,cx:cur().x,cy:cur().y,moved:false,mode:mode};
+   drag={x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY,moved:false};
  });
  function pDist(){
    var k=Object.keys(pointers);
@@ -122,7 +106,7 @@
      var k=Object.keys(pointers);
      if(k.length>=2){
        var d=Math.hypot(pointers[k[0]].x-pointers[k[1]].x, pointers[k[0]].y-pointers[k[1]].y);
-       openScale=Math.max(0.4,Math.min(2.5,pinch.s0*d/pinch.d0));
+       s=Math.max(0.22,Math.min(2.5,pinch.s0*d/pinch.d0));
        place(); pin();
      }
      return;
@@ -130,21 +114,15 @@
    if(!drag)return;
    if(!drag.moved&&Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>8)drag.moved=true;
    if(!drag.moved)return;
-   if(drag.mode==='turn'){
-     var b=svg.getBoundingClientRect(), scx=b.left+b.width/2, scy=b.top+b.height/2;
-     var r1d=Math.hypot(e.clientX-scx,e.clientY-scy), r0d=Math.hypot(drag.px-scx,drag.py-scy);
-     if(r1d>30&&r0d>30){
-       var d=ang2(e.clientX,e.clientY,scx,scy)-ang2(drag.px,drag.py,scx,scy);
-       if(d>180)d-=360; if(d<-180)d+=360;
-       rot+=d;
-       pet.setAttribute('transform','rotate('+rot.toFixed(2)+' '+CX+' '+CY+')');
-     }
-     drag.px=e.clientX; drag.py=e.clientY;
-   } else {
-     svg.style.transition='none';
-     R=clampR(drag.cx+(e.clientX-drag.x), drag.cy+(e.clientY-drag.y));
-     place(); pin();
+   var b=svg.getBoundingClientRect(), scx=b.left+b.width/2, scy=b.top+b.height/2;
+   var r1d=Math.hypot(e.clientX-scx,e.clientY-scy), r0d=Math.hypot(drag.px-scx,drag.py-scy);
+   if(r1d>30&&r0d>30){
+     var d=ang2(e.clientX,e.clientY,scx,scy)-ang2(drag.px,drag.py,scx,scy);
+     if(d>180)d-=360; if(d<-180)d+=360;
+     rot+=d;
+     pet.style.transform='rotate('+rot.toFixed(2)+'deg)';
    }
+   drag.px=e.clientX; drag.py=e.clientY;
  });
  function up(e){
    delete pointers[e.pointerId];
@@ -157,9 +135,7 @@
      return;
    }
    if(!drag)return;
-   if(!drag.moved&&!open){
-     open=true; O=fitO(R.x,R.y); look();
-   } else if(drag.moved){ pin(); }
+   if(drag.moved)pin();
    drag=null;
  }
  svg.addEventListener('pointerup',up);
@@ -168,14 +144,9 @@
    pinch=null; drag=null;
  });
 
- fold.addEventListener('pointerdown',function(e){
-   e.preventDefault();
-   open=false; look();
- });
-
  tab.addEventListener('pointerdown',function(e){
    e.preventDefault();
-   tdrag={x:e.clientX,y:e.clientY,ox:O.x,oy:O.y,moved:false};
+   tdrag={x:e.clientX,y:e.clientY,ox:R.x,oy:R.y,moved:false};
    try{tab.setPointerCapture(e.pointerId)}catch(_){}
  });
  tab.addEventListener('pointermove',function(e){
@@ -183,7 +154,7 @@
    if(!tdrag.moved&&Math.abs(e.clientX-tdrag.x)+Math.abs(e.clientY-tdrag.y)>8)tdrag.moved=true;
    if(!tdrag.moved)return;
    svg.style.transition='none';
-   O=fitO(tdrag.ox+(e.clientX-tdrag.x), tdrag.oy+(e.clientY-tdrag.y));
+   R=fit(tdrag.ox+(e.clientX-tdrag.x), tdrag.oy+(e.clientY-tdrag.y));
    place(); pin();
  });
  ['pointerup','pointercancel'].forEach(function(ev){
@@ -194,8 +165,7 @@
  });
 
  window.addEventListener('resize',function(){
-   O=fitO(O.x,O.y);
-   R=clampR(R.x,R.y);
+   R=fit(R.x,R.y);
    place(); pin();
  });
 </script>
