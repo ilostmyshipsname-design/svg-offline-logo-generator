@@ -44,9 +44,9 @@
  }
 
  var open=false, rot=0, drag=null;
- var rest={x:58,y:0};
- function setRest(){rest.y=innerHeight-58; if(!open){cxp=rest.x;cyp=rest.y;}}
- var home={x:190,y:0};
+ var rest={x:66,y:0};
+ function setRest(){rest.y=innerHeight/2; if(!open){cxp=rest.x;cyp=rest.y;}}
+ var home={x:210,y:0};
  function setHome(){home.y=innerHeight/2; if(open){cxp=home.x;cyp=home.y;}}
  var cxp=rest.x, cyp=rest.y;
  setRest(); setHome(); cyp=rest.y;
