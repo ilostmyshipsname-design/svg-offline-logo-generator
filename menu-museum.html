@@ -36,6 +36,44 @@
  .flick{position:fixed;left:0;top:55%;z-index:9;width:30px;height:140px;
    background:#3b4048;color:#f2f0ec;border-radius:0 12px 12px 0;
    display:flex;align-items:center;justify-content:center;font-size:20px}
+ /* --- D · looks of the same bones --- */
+ .mus{margin:0 16px}
+ .sec2{overflow:hidden}
+ .sec2 .head2{display:flex;align-items:center;justify-content:space-between;
+   padding:13px 14px;font-size:14px;font-weight:600}
+ .sec2 .chev{font-size:13px;transition:transform .2s ease;color:#3b4048}
+ .sec2.openq .chev{transform:rotate(180deg)}
+ .sec2 .kids2{display:none;padding:4px 14px 12px;font-size:13px}
+ .sec2.openq .kids2{display:block}
+ .kid2{padding:8px 0}
+ .kid2 small{display:block;color:#8a8f96;font-size:11px;margin-top:2px}
+ /* 1 · your picture: one thin box, hairline rows, chevron down/up */
+ .plain{border:1px solid #cbd5e1;border-radius:12px;background:#fff;overflow:hidden}
+ .plain .sec2{border-bottom:1px solid #e2e8f0}
+ .plain .sec2:last-child{border-bottom:0}
+ .plain .kid2{border-top:1px dashed #e2e8f0}
+ /* 2 · settings sidebar: no outer box, hairline rows only */
+ .sidebar{background:transparent}
+ .sidebar .sec2{background:#fff;border-bottom:1px solid #e2e8f0}
+ .sidebar .sec2:first-child{border-radius:10px 10px 0 0}
+ .sidebar .sec2:last-child{border-bottom:0;border-radius:0 0 10px 10px}
+ .sidebar .kid2{border-top:1px solid #f2f0ec}
+ /* 3 · soft cards: every row its own little box with a gap */
+ .cards .sec2{background:#fff;border:1px solid #cbd5e1;border-radius:12px;
+   margin-bottom:8px}
+ .cards .kid2{border-top:1px dashed #e2e8f0}
+ /* 4 · dark rows: matches the studio's dark buttons */
+ .darks .sec2{background:#3b4048;border-radius:12px;margin-bottom:8px}
+ .darks .head2{color:#f2f0ec}
+ .darks .chev{color:#9aa0a8}
+ .darks .kids2{color:#d7d2ca;border-top:1px solid #4a5058}
+ .darks .kid2 small{color:#9aa0a8}
+ /* --- E/F · open rules --- */
+ .rule{margin:0 16px;border:1px solid #cbd5e1;border-radius:12px;
+   background:#fff;overflow:hidden}
+ .rule .sec2{border-bottom:1px solid #e2e8f0}
+ .rule .sec2:last-child{border-bottom:0}
+ .rule .kid2{border-top:1px dashed #e2e8f0}
 </style>
 </head>
 <body>
@@ -75,7 +113,67 @@
  <div class="cinfo"><b id="ct">PEN</b><span id="cd">tap the arrow to step to the next tool</span></div>
 </div>
 
+<h2>D · LOOKS OF THE SAME BONES</h2>
+<div class="mus plain">
+ <div class="sec2"><div class="head2"><span>PEN</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">blunt or round ends, even or tapered<small>press a row, the rows below slide down</small></div></div></div>
+ <div class="sec2"><div class="head2"><span>ERASER</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">size, material, edge<small>press again and it tucks back in</small></div></div></div>
+ <div class="sec2"><div class="head2"><span>GUIDES</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">ruler, mirror, snapping</div></div></div>
+</div>
+<div class="mus sidebar">
+ <div class="sec2"><div class="head2"><span>PEN</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">no outer box, just hairlines</div></div></div>
+ <div class="sec2"><div class="head2"><span>ERASER</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">like a settings page</div></div></div>
+</div>
+<div class="mus cards">
+ <div class="sec2"><div class="head2"><span>PEN</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">every row its own soft card</div></div></div>
+ <div class="sec2"><div class="head2"><span>ERASER</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">gaps between the rows</div></div></div>
+</div>
+<div class="mus darks">
+ <div class="sec2"><div class="head2"><span>PEN</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">dark rows, like the studio buttons</div></div></div>
+ <div class="sec2"><div class="head2"><span>ERASER</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">draws less attention in low light</div></div></div>
+</div>
+
+<h2>E · ONE OPEN AT A TIME</h2>
+<div class="rule" id="oneopen">
+ <div class="sec2"><div class="head2"><span>CREATE</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">opening this closes the others</div></div></div>
+ <div class="sec2"><div class="head2"><span>EDIT</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">the menu stays short and calm</div></div></div>
+ <div class="sec2"><div class="head2"><span>GUIDES</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">only one room lit at a time</div></div></div>
+</div>
+
+<h2>F · MANY OPEN AT ONCE</h2>
+<div class="rule" id="manyopen">
+ <div class="sec2"><div class="head2"><span>CREATE</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">every section holds itself open</div></div></div>
+ <div class="sec2"><div class="head2"><span>EDIT</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">compare two tools side by side</div></div></div>
+ <div class="sec2"><div class="head2"><span>GUIDES</span><span class="chev">▾</span></div>
+   <div class="kids2"><div class="kid2">but the list grows long</div></div></div>
+</div>
+
 <script>
+ document.querySelectorAll('.sec2 .head2').forEach(function(h){
+   var sec=h.parentElement;
+   h.addEventListener('click',function(){
+     var now=!sec.classList.contains('openq');
+     if(now){
+       var box=sec.closest('.mus,.rule');
+       if(box&&(box.classList.contains('plain')||box.id==='oneopen'))
+         box.querySelectorAll('.sec2').forEach(function(s){s.classList.remove('openq')});
+     }
+     sec.classList.toggle('openq');
+   });
+ });
  document.getElementById('ea').addEventListener('click',function(){
    var d=document.getElementById('da');
    var on=d.classList.toggle('onq');
@@ -83,6 +181,15 @@
  });
  document.querySelectorAll('.sec .head').forEach(function(h){
    h.addEventListener('click',function(){h.parentElement.classList.toggle('openq')});
+ });
+ /* the old ladder B: opening one closes the others */
+ document.querySelectorAll('.ladder .sec .head').forEach(function(h){
+   h.addEventListener('click',function(){
+     var sec=h.parentElement;
+     var now=!sec.classList.contains('openq');
+     if(now)document.querySelectorAll('.ladder .sec').forEach(function(s){s.classList.remove('openq')});
+     sec.classList.toggle('openq');
+   });
  });
  var tools=[['PEN','free strokes, shapes made on the fly'],
    ['STAMP','press saved moulds onto the canvas'],
