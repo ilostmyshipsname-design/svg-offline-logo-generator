@@ -13,13 +13,14 @@
  .ex{position:relative;height:110px;margin:0 16px 24px;background:#8a8f96;
    border-radius:12px;overflow:hidden}
  .tab{position:absolute;z-index:5;cursor:pointer;display:flex;
-   align-items:center;justify-content:center;background:#3b4048;color:#f2f0ec;
-   box-shadow:-2px 2px 6px rgba(0,0,0,.25);transition:background .15s ease}
- .tab:active{background:#565c66}
+   align-items:center;justify-content:center;background:#fbf9f6;color:#8a8f96;
+   border:1px solid #c9c4bc;box-sizing:border-box;
+   box-shadow:0 1px 4px rgba(0,0,0,.12);transition:box-shadow .15s ease}
+ .tab:active{box-shadow:0 1px 7px rgba(0,0,0,.22)}
  .drawer{position:absolute;top:0;right:0;bottom:0;width:0;background:#fbf9f6;
    transition:width .25s ease;box-shadow:-3px 3px 10px rgba(0,0,0,.15)}
  .ex.openq .drawer{width:120px}
- .dots{width:3px;height:30px;background-image:radial-gradient(circle,#f2f0ec 1.2px,transparent 1.5px);
+ .dots{width:3px;height:30px;background-image:radial-gradient(circle,#8a8f96 1.2px,transparent 1.5px);
    background-size:3px 7px}
  .arw{font-size:12px;transition:transform .25s ease}
  .ex.openq .arw{transform:rotate(180deg)}
@@ -57,7 +58,7 @@
 <div class="lb">G</div>
 <div class="ex" id="G"><div class="drawer"></div>
  <div class="tab" style="right:0;top:23px;width:10px;height:64px;
-   border-radius:6px 0 0 6px;background:#fbf9f6;box-shadow:-2px 2px 5px rgba(0,0,0,.2)"></div></div>
+   border-radius:6px 0 0 6px;border-left:0"></div></div>
 
 <div class="gap"></div>
 <div class="lb">H</div>
