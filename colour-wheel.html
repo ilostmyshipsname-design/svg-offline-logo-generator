@@ -27,9 +27,9 @@
  var pet=document.getElementById('pet');
  var hub=document.getElementById('hub');
  var marker=document.getElementById('marker');
- var N=12, STEP=360/N, r0=32, r1=124, CX=150, CY=150;
- var cols=[];
- for(var i=0;i<N;i++)cols.push('hsl('+(i*30)+', 65%, 46%)');
+ var N=16, STEP=360/N, r0=32, r1=124, CX=150, CY=150;
+ var cols=['#0d0c0b','#262019','#2c2f3a','#3a332a'];
+ for(var i=0;i<12;i++)cols.push('hsl('+i*30+', 65%, 46%)');
  function P(r,a){a*=Math.PI/180;return (CX+r*Math.cos(a)).toFixed(2)+' '+(CY+r*Math.sin(a)).toFixed(2)}
  for(var i=0;i<N;i++){
    var a=i*30-90;
