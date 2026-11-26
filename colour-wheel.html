@@ -48,6 +48,7 @@
  var KEY='colourwheel.v1';
  var open=false, rot=0, drag=null, tdrag=null;
  var openScale=1, restScale=0.22;
+ var pointers={}, pinch=null;
  var R={x:innerWidth/2,y:innerHeight/2};
  var O={x:innerWidth/2,y:innerHeight/2};
  var fresh=true;
@@ -59,7 +60,7 @@
  }catch(e){}
 
  function fitO(x,y){
-   var exc=r1-60;
+   var exc=r1*(open?openScale:restScale)-60;
    return {x:Math.max(-exc,Math.min(innerWidth+exc,x)),
            y:Math.max(-exc,Math.min(innerHeight+exc,y))};
  }
@@ -96,11 +97,32 @@
  }
  svg.addEventListener('pointerdown',function(e){
    e.preventDefault();
+   try{svg.setPointerCapture(e.pointerId)}catch(_){}
+   pointers[e.pointerId]={x:e.clientX,y:e.clientY};
+   if(open&&Object.keys(pointers).length===2){
+     drag=null;
+     pinch={d0:pDist(),s0:openScale};
+     svg.style.transition='none';
+     return;
+   }
    var mode=open?'turn':'carry';
    drag={x:e.clientX,y:e.clientY,cx:cur().x,cy:cur().y,rot0:rot,moved:false,mode:mode};
-   try{svg.setPointerCapture(e.pointerId)}catch(_){}
  });
+ function pDist(){
+   var k=Object.keys(pointers);
+   return Math.hypot(pointers[k[0]].x-pointers[k[1]].x, pointers[k[0]].y-pointers[k[1]].y);
+ }
  svg.addEventListener('pointermove',function(e){
+   if(pinch){
+     if(pointers[e.pointerId]!==undefined)pointers[e.pointerId]={x:e.clientX,y:e.clientY};
+     var k=Object.keys(pointers);
+     if(k.length>=2){
+       var d=Math.hypot(pointers[k[0]].x-pointers[k[1]].x, pointers[k[0]].y-pointers[k[1]].y);
+       openScale=Math.max(0.4,Math.min(2.5,pinch.s0*d/pinch.d0));
+       place(); pin();
+     }
+     return;
+   }
    if(!drag)return;
    if(!drag.moved&&Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>8)drag.moved=true;
    if(!drag.moved)return;
@@ -115,6 +137,15 @@
    }
  });
  function up(e){
+   delete pointers[e.pointerId];
+   if(pinch){
+     if(Object.keys(pointers).length<2){
+       pinch=null;
+       svg.style.transition='left .5s ease, top .5s ease, transform .5s cubic-bezier(.34,1.45,.45,1)';
+       pin();
+     }
+     return;
+   }
    if(!drag)return;
    if(!drag.moved&&!open){
      open=true; O=fitO(R.x,R.y); look();
@@ -122,7 +153,10 @@
    drag=null;
  }
  svg.addEventListener('pointerup',up);
- svg.addEventListener('pointercancel',function(){drag=null});
+ svg.addEventListener('pointercancel',function(e){
+   delete pointers[e.pointerId];
+   pinch=null; drag=null;
+ });
  document.body.addEventListener('pointerup',function(e){
    if(!open||drag)return;
    if(e.target!==svg&&!svg.contains(e.target)&&
