@@ -17,6 +17,7 @@
 
 <svg id="w" width="300" height="300" viewBox="0 0 300 300">
  <g id="pet"></g>
+ <circle id="cz" cx="150" cy="150" r="36" fill="transparent"/>
  <circle id="hub" cx="150" cy="150" r="20" fill="#c0392b" stroke="#f4f1eb" stroke-width="3"/>
  <path id="marker" d="M150 8 L143 22 L157 22 Z" fill="#3c3a36"/>
 </svg>
@@ -44,6 +45,7 @@
  }
 
  var open=false, rot=0, drag=null;
+ var cz=document.getElementById('cz');
  var rest={x:66,y:0};
  function setRest(){rest.y=innerHeight/2; if(!open){cxp=rest.x;cyp=rest.y;}}
  var home={x:210,y:0};
@@ -85,14 +87,16 @@
  }
  svg.addEventListener('pointerdown',function(e){
    e.preventDefault();
-   drag={x:e.clientX,y:e.clientY,cx:cxp,cy:cyp,rot0:rot,t:e.target,moved:false};
+   var t=e.target;
+   var mode=(t===cz||t===hub||!open)?'carry':'turn';
+   drag={x:e.clientX,y:e.clientY,cx:cxp,cy:cyp,rot0:rot,t:t,moved:false,mode:mode};
    try{svg.setPointerCapture(e.pointerId)}catch(_){}
  });
  svg.addEventListener('pointermove',function(e){
    if(!drag)return;
    if(!drag.moved&&Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>8)drag.moved=true;
    if(!drag.moved)return;
-   if(open){
+   if(drag.mode==='turn'){
      var d=angAt(e.clientX,e.clientY)-angAt(drag.x,drag.y);
      rot=drag.rot0+d;
      pet.setAttribute('transform','rotate('+rot.toFixed(2)+' '+CX+' '+CY+')');
@@ -110,7 +114,7 @@
    if(!drag)return;
    if(!drag.moved){
      if(!open){open=true; cxp=home.x; cyp=home.y; look();}
-     else if(drag.t===hub){open=false; cxp=rest.x; cyp=rest.y; look();}
+     else if(drag.t===cz||drag.t===hub){open=false; cxp=rest.x; cyp=rest.y; look();}
    }
    drag=null;
  }
