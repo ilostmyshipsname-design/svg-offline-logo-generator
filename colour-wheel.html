@@ -47,16 +47,16 @@
  }
 
  var KEY='colourwheel.v1';
- var rot=0, drag=null, tdrag=null, s=0.22;
+ var rot=0, drag=null, tdrag=null, s=0.6;
  var pointers={}, pinch=null;
  var R={x:innerWidth/2,y:innerHeight/2};
  var fresh=true;
  try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');
    if(sv&&sv.x!==undefined){
-     R={x:sv.x,y:sv.y}; s=sv.s||0.22; rot=sv.rot||0; fresh=false;
+     R={x:sv.x,y:sv.y}; s=sv.s||0.6; rot=sv.rot||0; fresh=false;
    } else if(sv&&sv.rx!==undefined){
      R={x:sv.open?sv.ox:sv.rx, y:sv.open?sv.oy:sv.ry};
-     s=sv.open?(sv.s||1):0.22; rot=sv.rot||0; fresh=false;
+     s=sv.open?(sv.s||1):0.6; rot=sv.rot||0; fresh=false;
    }
  }catch(e){}
 
@@ -81,7 +81,19 @@
    pin();
  }
  look(); if(fresh)pin();
- pet.style.transform='rotate('+rot.toFixed(2)+'deg)';
+ var shown=null;
+ function spin(){
+   if(shown===null){ shown=rot; pet.style.transform='rotate('+rot.toFixed(2)+'deg)'; }
+   else{
+     var diff=rot-shown;
+     if(Math.abs(diff)>0.05){
+       shown+=diff*0.35;
+       pet.style.transform='rotate('+shown.toFixed(2)+'deg)';
+     }
+   }
+   requestAnimationFrame(spin);
+ }
+ requestAnimationFrame(spin);
 
  function ang2(x,y,cx,cy){return Math.atan2(y-cy, x-cx)*180/Math.PI}
  svg.addEventListener('pointerdown',function(e){
@@ -106,7 +118,7 @@
      var k=Object.keys(pointers);
      if(k.length>=2){
        var d=Math.hypot(pointers[k[0]].x-pointers[k[1]].x, pointers[k[0]].y-pointers[k[1]].y);
-       s=Math.max(0.22,Math.min(2.5,pinch.s0*d/pinch.d0));
+       s=Math.max(0.6,Math.min(2.5,pinch.s0*d/pinch.d0));
        place(); pin();
      }
      return;
@@ -120,7 +132,6 @@
      var d=ang2(e.clientX,e.clientY,scx,scy)-ang2(drag.px,drag.py,scx,scy);
      if(d>180)d-=360; if(d<-180)d+=360;
      rot+=d;
-     pet.style.transform='rotate('+rot.toFixed(2)+'deg)';
    }
    drag.px=e.clientX; drag.py=e.clientY;
  });
