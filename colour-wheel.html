@@ -9,7 +9,6 @@
    font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
  svg{position:fixed;touch-action:none}
  .petal{transform-box:view-box;transform-origin:150px 150px}
- #marker{pointer-events:none;transition:opacity .3s ease}
  #tab{position:fixed;width:44px;height:26px;background:#f2f0ec;border:1px solid #9a958d;
    border-radius:8px;z-index:5;display:none;align-items:center;justify-content:center;gap:4px;
    box-shadow:0 1px 4px rgba(0,0,0,.2);touch-action:none;cursor:grab}
@@ -20,7 +19,6 @@
 
 <svg id="w" width="300" height="300" viewBox="0 0 300 300">
  <g id="pet"></g>
- <path id="marker" d="M150 8 L143 22 L157 22 Z" fill="#3c3a36"/>
 </svg>
 
 <div id="tab"><i></i><i></i><i></i></div>
@@ -29,7 +27,6 @@
  var NS='http://www.w3.org/2000/svg';
  var svg=document.getElementById('w');
  var pet=document.getElementById('pet');
- var marker=document.getElementById('marker');
  var tab=document.getElementById('tab');
  var N=16, STEP=360/N, r0=32, r1=124, CX=150, CY=150;
  var cols=['#0d0c0b','#262019','#2c2f3a','#3a332a'];
@@ -89,7 +86,6 @@
  function look(){
    svg.style.transition='left .5s ease, top .5s ease, transform .5s cubic-bezier(.34,1.45,.45,1)';
    place();
-   marker.style.opacity=open? '.9':'0';
    pin();
  }
  look(); if(fresh)pin();
