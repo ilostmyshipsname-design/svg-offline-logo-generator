@@ -149,20 +149,15 @@
    if(!drag)return;
    if(!drag.moved&&!open){
      open=true; O=fitO(R.x,R.y); look();
-   } else if(drag.moved){ pin(); }
+   } else if(!drag.moved&&open){
+     open=false; look();
+   } else { pin(); }
    drag=null;
  }
  svg.addEventListener('pointerup',up);
  svg.addEventListener('pointercancel',function(e){
    delete pointers[e.pointerId];
    pinch=null; drag=null;
- });
- document.body.addEventListener('pointerup',function(e){
-   if(!open||drag)return;
-   if(e.target!==svg&&!svg.contains(e.target)&&
-      e.target!==tab&&!tab.contains(e.target)){
-     open=false; look();
-   }
  });
 
  tab.addEventListener('pointerdown',function(e){
