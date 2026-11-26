@@ -112,14 +112,17 @@
  });
  function up(e){
    if(!drag)return;
-   if(!drag.moved){
-     if(!open){open=true; cxp=home.x; cyp=home.y; look();}
-     else if(drag.t===cz||drag.t===hub){open=false; cxp=rest.x; cyp=rest.y; look();}
-   }
+   if(!drag.moved&&!open){open=true; cxp=home.x; cyp=home.y; look();}
    drag=null;
  }
  svg.addEventListener('pointerup',up);
  svg.addEventListener('pointercancel',function(){drag=null});
+ document.body.addEventListener('pointerup',function(e){
+   if(!open||drag)return;
+   if(e.target!==svg&&!svg.contains(e.target)){
+     open=false; cxp=rest.x; cyp=rest.y; look();
+   }
+ });
 </script>
 </body>
 </html>
