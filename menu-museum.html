@@ -73,7 +73,25 @@
    background:#fff;overflow:hidden}
  .rule .sec2{border-bottom:1px solid #e2e8f0}
  .rule .sec2:last-child{border-bottom:0}
- .rule .kid2{border-top:1px dashed #e2e8f0}
+ /* --- G · side tabs --- */
+ .stage{position:relative;margin:0 16px 24px;height:210px;border:1px solid #cbd5e1;
+   border-radius:14px;background:#8a8f96;overflow:hidden}
+ .board{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+   width:150px;height:150px;background:#f2f0ec;border-radius:4px}
+ .vt{position:absolute;right:0;z-index:5;display:flex;align-items:center;justify-content:center;
+   background:#3b4048;color:#f2f0ec;border-radius:8px 0 0 8px;font-size:10px;
+   letter-spacing:2px;box-shadow:-2px 2px 6px rgba(0,0,0,.25);cursor:pointer}
+ .vt.w{writing-mode:vertical-rl}
+ .vt.h{font-size:16px;letter-spacing:0}
+ .sdraw{position:absolute;right:0;top:0;bottom:0;width:158px;z-index:4;
+   background:#fff;border-left:1px solid #cbd5e1;transform:translateX(100%);
+   transition:transform .25s ease;padding:10px;box-sizing:border-box}
+ .sdraw.onq{transform:translateX(0)}
+ .srow{padding:9px 8px;margin:4px 0;background:#e9e6e1;border-radius:8px;font-size:12px}
+ .sdraw .kids2{padding:2px 2px 2px 8px}
+ .sdraw .kid2{padding:6px 0;font-size:12px}
+ .sdraw .kid2 small{font-size:10px}
+ .sdraw .head2{padding:9px 2px;font-size:13px}
 </style>
 </head>
 <body>
@@ -161,7 +179,46 @@
    <div class="kids2"><div class="kid2">but the list grows long</div></div></div>
 </div>
 
+<h2>G · SIDE TABS</h2>
+<div class="stage">
+ <div class="board"></div>
+ <div class="vt w" data-d="g1a" style="top:14px;height:56px;width:28px">SAVE</div>
+ <div class="vt w" data-d="g1b" style="top:78px;height:56px;width:28px">SHARE</div>
+ <div class="vt w" data-d="g1c" style="top:142px;height:52px;width:28px">MORE</div>
+ <div class="sdraw" id="g1a"><div class="srow">TO GALLERY</div><div class="srow">SAVE AS</div></div>
+ <div class="sdraw" id="g1b"><div class="srow">PNG</div><div class="srow">JPG</div><div class="srow">SVG</div><div class="srow">STL</div></div>
+ <div class="sdraw" id="g1c"><div class="srow">IMPORT</div><div class="srow">EXPORT</div><div class="srow">MENU</div></div>
+</div>
+<div class="stage">
+ <div class="board"></div>
+ <div class="vt w" data-d="g2" style="top:14px;bottom:14px;width:30px">MENU</div>
+ <div class="sdraw" id="g2">
+  <div class="sec2"><div class="head2"><span>PEN</span><span class="chev">▾</span></div>
+    <div class="kids2"><div class="kid2">tip, taper, smoothing</div></div></div>
+  <div class="sec2"><div class="head2"><span>ERASER</span><span class="chev">▾</span></div>
+    <div class="kids2"><div class="kid2">size, material, edge</div></div></div>
+  <div class="sec2"><div class="head2"><span>GUIDES</span><span class="chev">▾</span></div>
+    <div class="kids2"><div class="kid2">ruler, mirror, snapping</div></div></div>
+ </div>
+</div>
+<div class="stage">
+ <div class="board"></div>
+ <div class="vt h" data-d="g3" style="top:70px;height:70px;width:34px">≡</div>
+ <div class="sdraw" id="g3">
+  <div class="srow">TO GALLERY</div><div class="srow">SHARE</div>
+  <div class="srow">IMPORT</div><div class="srow">CLEAR</div>
+ </div>
+</div>
+
 <script>
+ document.querySelectorAll('.vt').forEach(function(t){
+   t.addEventListener('click',function(){
+     var d=document.getElementById(t.dataset.d);
+     var was=d.classList.contains('onq');
+     document.querySelectorAll('.sdraw.onq').forEach(function(x){x.classList.remove('onq')});
+     if(!was)d.classList.add('onq');
+   });
+ });
  document.querySelectorAll('.sec2 .head2').forEach(function(h){
    var sec=h.parentElement;
    h.addEventListener('click',function(){
