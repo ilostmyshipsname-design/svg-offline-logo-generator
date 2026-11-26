@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Wheel — unfold and turn</title>
+<style>
+ html,body{margin:0;height:100%;overflow:hidden;background:#9aa0a5;
+   font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+ svg{position:fixed;touch-action:none}
+ .petal{transform-box:view-box;transform-origin:150px 150px}
+ #marker{pointer-events:none;transition:opacity .3s ease}
+ #hub{cursor:pointer}
+</style>
+</head>
+<body>
+
+<svg id="w" width="300" height="300" viewBox="0 0 300 300">
+ <g id="pet"></g>
+ <circle id="hub" cx="150" cy="150" r="20" fill="#c0392b" stroke="#f4f1eb" stroke-width="3"/>
+ <path id="marker" d="M150 8 L143 22 L157 22 Z" fill="#3c3a36"/>
+</svg>
+
+<script>
+ var NS='http://www.w3.org/2000/svg';
+ var svg=document.getElementById('w');
+ var pet=document.getElementById('pet');
+ var hub=document.getElementById('hub');
+ var marker=document.getElementById('marker');
+ var N=12, STEP=360/N, r0=32, r1=124, CX=150, CY=150;
+ var cols=[];
+ for(var i=0;i<N;i++)cols.push('hsl('+(i*30)+', 65%, 46%)');
+ function P(r,a){a*=Math.PI/180;return (CX+r*Math.cos(a)).toFixed(2)+' '+(CY+r*Math.sin(a)).toFixed(2)}
+ for(var i=0;i<N;i++){
+   var a=i*30-90;
+   var p=document.createElementNS(NS,'path');
+   p.setAttribute('class','petal');
+   p.setAttribute('d','M'+P(r1,a-STEP/2+.4)+' A'+r1+' '+r1+' 0 0 1 '+P(r1,a+STEP/2-.4)+
+     ' L'+P(r0,a+STEP/2-.4)+' A'+r0+' '+r0+' 0 0 0 '+P(r0,a-STEP/2+.4)+' Z');
+   p.setAttribute('fill',cols[i]);
+   p.setAttribute('stroke','rgba(255,255,255,.30)');
+   p.setAttribute('stroke-width','1');
+   pet.appendChild(p);
+ }
+
+ var open=false, rot=0, drag=null;
+ var rest={x:58,y:0};
+ function setRest(){rest.y=innerHeight-58; if(!open){cxp=rest.x;cyp=rest.y;}}
+ var home={x:190,y:0};
+ function setHome(){home.y=innerHeight/2; if(open){cxp=home.x;cyp=home.y;}}
+ var cxp=rest.x, cyp=rest.y;
+ setRest(); setHome(); cyp=rest.y;
+
+ function petState(){
+   for(var i=0;i<N;i++){
+     var pg=pet.children[i];
+     pg.style.transition='transform .55s cubic-bezier(.34,1.45,.45,1)';
+     pg.style.transitionDelay=(open? i*26 : (N-1-i)*22)+'ms';
+     pg.style.transform=open? 'rotate('+(i*30)+'deg) scale(1)' : 'rotate(-84deg) scale(.04)';
+   }
+ }
+ function place(){
+   svg.style.left=(cxp-CX)+'px'; svg.style.top=(cyp-CY)+'px';
+ }
+ function look(){
+   svg.style.transition='left .55s ease, top .55s ease';
+   place();
+   marker.style.opacity=open? '.9':'0';
+   petState();
+ }
+ function readOut(){
+   var idx=((Math.round(-rot/STEP))%N+N)%N;
+   hub.setAttribute('fill',cols[idx]);
+ }
+ look(); readOut(); window.addEventListener('resize',function(){
+   setRest(); setHome();
+   if(cxp>innerWidth-30)cxp=innerWidth-30;
+   if(cyp>innerHeight-30)cyp=innerHeight-30;
+   place();
+ });
+
+ function angAt(x,y){
+   var b=svg.getBoundingClientRect();
+   return Math.atan2(y-(b.top+CY), x-(b.left+CX))*180/Math.PI;
+ }
+ svg.addEventListener('pointerdown',function(e){
+   e.preventDefault();
+   drag={x:e.clientX,y:e.clientY,cx:cxp,cy:cyp,rot0:rot,t:e.target,moved:false};
+   try{svg.setPointerCapture(e.pointerId)}catch(_){}
+ });
+ svg.addEventListener('pointermove',function(e){
+   if(!drag)return;
+   if(!drag.moved&&Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>8)drag.moved=true;
+   if(!drag.moved)return;
+   if(open){
+     var d=angAt(e.clientX,e.clientY)-angAt(drag.x,drag.y);
+     rot=drag.rot0+d;
+     pet.setAttribute('transform','rotate('+rot.toFixed(2)+' '+CX+' '+CY+')');
+     readOut();
+   } else {
+     svg.style.transition='none';
+     cxp=drag.cx+(e.clientX-drag.x);
+     cyp=drag.cy+(e.clientY-drag.y);
+     cxp=Math.max(30,Math.min(innerWidth-30,cxp));
+     cyp=Math.max(30,Math.min(innerHeight-30,cyp));
+     place();
+   }
+ });
+ function up(e){
+   if(!drag)return;
+   if(!drag.moved){
+     if(!open){open=true; cxp=home.x; cyp=home.y; look();}
+     else if(drag.t===hub){open=false; cxp=rest.x; cyp=rest.y; look();}
+   }
+   drag=null;
+ }
+ svg.addEventListener('pointerup',up);
+ svg.addEventListener('pointercancel',function(){drag=null});
+</script>
+</body>
+</html>
