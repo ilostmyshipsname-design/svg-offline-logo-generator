@@ -11,8 +11,7 @@
  .petal{transform-box:view-box;transform-origin:150px 150px}
  #marker{pointer-events:none;transition:opacity .3s ease}
  .sizes{position:fixed;top:20px;left:20px;display:flex;gap:12px;z-index:5}
- .s{width:22px;height:22px;border-radius:50%;border:1px solid #7d8288;background:#f2f0ec;cursor:pointer;box-sizing:border-box}
- .s.onq{outline:2px solid #3c3a36;outline-offset:1px}
+ .s{display:none}
  #sel{position:fixed;left:0;top:0;pointer-events:none;z-index:6;touch-action:none}
 </style>
 </head>
@@ -24,12 +23,6 @@
 </svg>
 
 <svg id="sel"></svg>
-
-<div class="sizes">
- <span class="s onq" data-s="1"></span>
- <span class="s" data-s="1.25"></span>
- <span class="s" data-s="1.5"></span>
-</div>
 
 <script>
  var NS='http://www.w3.org/2000/svg';
@@ -116,22 +109,6 @@
  }
  look(); if(fresh)pin();
 
- document.querySelectorAll('.s').forEach(function(b){
-   b.addEventListener('click',function(){
-     document.querySelectorAll('.s').forEach(function(x){x.classList.remove('onq')});
-     b.classList.add('onq');
-     openScale=parseFloat(b.dataset.s);
-     O=fitO(O.x,O.y);
-     svg.style.transition='left .35s ease, top .35s ease, transform .35s ease';
-     place(); if(selected)drawSel(); pin();
-   });
- });
- (function(){var mark=null;
-   document.querySelectorAll('.s').forEach(function(b){
-     if(Math.abs(parseFloat(b.dataset.s)-openScale)<0.01)mark=b;});
-   if(mark){document.querySelectorAll('.s').forEach(function(x){x.classList.remove('onq')});mark.classList.add('onq');}
- })();
-
  function angAt(x,y){
    var b=svg.getBoundingClientRect();
    return Math.atan2(y-(b.top+CY), x-(b.left+CX))*180/Math.PI;
@@ -195,9 +172,7 @@
    sel.addEventListener(ev,function(){
      if(!rdrag)return;
      rdrag=false;
-     place(); drawSel();
-     document.querySelectorAll('.s').forEach(function(x){x.classList.remove('onq')});
-     pin();
+     place(); drawSel(); pin();
    });
  });
 
