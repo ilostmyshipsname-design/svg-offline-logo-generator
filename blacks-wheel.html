@@ -7,14 +7,14 @@
 <style>
  html,body{margin:0;height:100%;overflow:hidden;background:#8a8f96;
    font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
- .seat{position:fixed;left:14px;top:48%;transform:translateY(-50%);z-index:5}
+ .seat{position:fixed;z-index:5;transform:translate(-50%,-50%)}
  .notch{position:absolute;left:50%;top:-16px;transform:translateX(-50%);
    width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
    border-top:10px solid #46433f}
  .bgd{position:absolute;left:-14px;top:-14px;width:292px;height:292px;
    border-radius:50%;background:#f2f0ec;border:1px solid #b5b0a8;
    box-sizing:border-box;box-shadow:0 2px 10px rgba(0,0,0,.16)}
- svg{position:relative}
+ svg{position:relative;display:block}
  .right{position:fixed;left:306px;top:48%;transform:translateY(-50%);
    display:flex;flex-direction:column;gap:12px;align-items:flex-start;max-width:calc(100vw - 330px)}
  .paper{position:relative;width:100%;max-width:520px;aspect-ratio:4/3;background:#f2f0ec;
@@ -24,18 +24,22 @@
  .clr{position:absolute;right:8px;top:8px;width:28px;height:28px;border-radius:50%;
    background:#fbf9f6;border:1px solid #9a958d;color:#46433f;font-size:13px;
    display:flex;align-items:center;justify-content:center;z-index:2}
- .brow{display:flex;gap:6px}
+ .brow{display:flex;gap:6px;align-items:center}
  .bs{width:22px;height:22px;border-radius:6px;border:1px solid #9a958d;cursor:pointer;box-sizing:border-box}
  .bs.chk{background:#fff;
    background-image:linear-gradient(45deg,#c9c4bc 25%,transparent 25%,transparent 75%,#c9c4bc 75%),
                     linear-gradient(45deg,#c9c4bc 25%,transparent 25%,transparent 75%,#c9c4bc 75%);
    background-size:10px 10px;background-position:0 0,5px 5px}
  .bs.onq{outline:2px solid #46433f;outline-offset:1px}
+ .sz{width:46px;height:26px;border-radius:7px;border:1px solid #9a958d;background:#fbf9f6;
+   cursor:pointer;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+ .sz.onq{outline:2px solid #46433f;outline-offset:1px}
+ .sz i{border-radius:50%;background:#46433f;display:block}
 </style>
 </head>
 <body>
 
-<div class="seat">
+<div class="seat" id="seat">
  <div class="bgd" id="bgd"></div>
  <div class="notch"></div>
  <svg id="wheel" width="264" height="264" viewBox="0 0 264 264"></svg>
@@ -52,10 +56,14 @@
   <span class="bs" data-bg="#9a958d" style="background:#9a958d"></span>
   <span class="bs" data-bg="#0d0c0b" style="background:#0d0c0b"></span>
   <span class="bs chk" data-bg="chk"></span>
+  <span class="sz onq" data-i="0"><i style="width:7px;height:7px"></i></span>
+  <span class="sz" data-i="1"><i style="width:11px;height:11px"></i></span>
+  <span class="sz" data-i="2"><i style="width:15px;height:15px"></i></span>
  </div>
 </div>
 
 <script>
+ var KEY='blackswheel.v1';
  var blacks=['#0d0c0b','#1a1613','#262019','#332a20','#3a332a','#332b25','#262019','#1a1613',
              '#0d0c0e','#171a20','#23242e','#2c2f3a','#33343c','#2c2f3a','#23242e','#171a20'];
  var svg=document.getElementById('wheel'), cx=132, cy=132, r0=58, r1=126, N=blacks.length;
@@ -81,38 +89,60 @@
  var veil=document.createElementNS('http://www.w3.org/2000/svg','circle');
  veil.setAttribute('cx',cx); veil.setAttribute('cy',cy); veil.setAttribute('r','34');
  veil.setAttribute('fill','#f2f0ec'); svg.appendChild(veil);
- var dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
- dot.setAttribute('cx',cx); dot.setAttribute('cy',cy); dot.setAttribute('r','30');
- svg.appendChild(dot);
+ var dotEl=document.createElementNS('http://www.w3.org/2000/svg','circle');
+ dotEl.setAttribute('cx',cx); dotEl.setAttribute('cy',cy); dotEl.setAttribute('r','30');
+ svg.appendChild(dotEl);
  var ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
  ring.setAttribute('cx',cx); ring.setAttribute('cy',cy); ring.setAttribute('r','30');
  ring.setAttribute('fill','none'); ring.setAttribute('stroke','#46433f');
  ring.setAttribute('stroke-width','2'); svg.appendChild(ring);
 
- var rot=0, cur=blacks[0];
+ var seat=document.getElementById('seat');
+ var rot=0, cur=blacks[0], scale=1, wx=160, wy=innerHeight*0.48;
+ try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');
+   if(sv){rot=sv.rot||0;scale=sv.scale||1;wx=sv.wx||wx;wy=sv.wy||wy;}
+ }catch(e){}
  var paperEl=document.getElementById('paper');
  var ctx=document.getElementById('pc').getContext('2d');
  function apply(){
    g.setAttribute('transform','rotate('+rot.toFixed(2)+' '+cx+' '+cy+')');
    var i=Math.round(-rot/step-0.5)%N; if(i<0)i+=N;
-   cur=blacks[i];
-   dot.setAttribute('fill',cur);
-   ctx.strokeStyle=cur;
+   cur=blacks[i]; dotEl.setAttribute('fill',cur); ctx.strokeStyle=cur;
  }
+ function place(){remember();}
+ function remember(){try{localStorage.setItem(KEY,JSON.stringify({rot:rot,scale:scale,wx:wx,wy:wy}))}catch(e){}}
+ seat.style.left=wx+'px'; seat.style.top=wy+'px';
+ seat.style.transform='translate(-50%,-50%) scale('+scale+')';
+
+ var mode=null, lastAng=0, lastX=0, lastY=0;
+ svg.style.touchAction='none';
+ dotEl.addEventListener('pointerdown',function(e){
+   mode='move'; lastX=e.clientX; lastY=e.clientY;
+   dotEl.setPointerCapture(e.pointerId); e.stopPropagation();
+ });
+ veil.addEventListener('pointerdown',function(e){
+   mode='move'; lastX=e.clientX; lastY=e.clientY;
+   veil.setPointerCapture(e.pointerId); e.stopPropagation();
+ });
+ svg.addEventListener('pointerdown',function(e){
+   mode='spin'; lastAng=ang(e); svg.setPointerCapture(e.pointerId);
+ });
+ svg.addEventListener('pointermove',function(e){
+   if(mode==='spin'){
+     var a=ang(e); rot+=a-lastAng; lastAng=a; apply(); remember();
+   } else if(mode==='move'){
+     wx+=e.clientX-lastX; wy+=e.clientY-lastY;
+     lastX=e.clientX; lastY=e.clientY;
+     seat.style.left=wx+'px'; seat.style.top=wy+'px'; remember();
+   }
+ });
+ ['pointerup','pointercancel'].forEach(function(ev){
+   [svg,dotEl,veil].forEach(function(el){el.addEventListener(ev,function(){mode=null})});
+ });
  function ang(e){
    var r=svg.getBoundingClientRect();
    return Math.atan2(e.clientY-(r.top+r.height/2), e.clientX-(r.left+r.width/2))*180/Math.PI;
  }
- var last=null, drag=false;
- svg.style.touchAction='none';
- svg.addEventListener('pointerdown',function(e){drag=true;last=ang(e);svg.setPointerCapture(e.pointerId)});
- svg.addEventListener('pointermove',function(e){
-   if(!drag)return;
-   var a=ang(e); rot+=a-last; last=a; apply();
- });
- ['pointerup','pointercancel'].forEach(function(ev){
-   svg.addEventListener(ev,function(){drag=false});
- });
  apply();
 
  var pc=document.getElementById('pc');
@@ -160,10 +190,23 @@
  document.querySelectorAll('.bs').forEach(function(b){
    b.addEventListener('click',function(){
      document.querySelectorAll('.bs').forEach(function(x){x.classList.remove('onq')});
-     b.classList.add('onq');
-     ground(b.dataset.bg);
+     b.classList.add('onq'); ground(b.dataset.bg);
    });
  });
+ var sizes=[1,1.3,1.65];
+ document.querySelectorAll('.sz').forEach(function(s){
+   s.addEventListener('click',function(){
+     document.querySelectorAll('.sz').forEach(function(x){x.classList.remove('onq')});
+     s.classList.add('onq');
+     scale=sizes[parseInt(s.dataset.i)]; 
+     seat.style.transform='translate(-50%,-50%) scale('+scale+')';
+     remember();
+   });
+ });
+ var si=sizes.indexOf(scale);
+ if(si>0){var el=document.querySelectorAll('.sz')[si];
+   document.querySelectorAll('.sz').forEach(function(x){x.classList.remove('onq')});
+   el.classList.add('onq');}
 </script>
 </body>
 </html>
