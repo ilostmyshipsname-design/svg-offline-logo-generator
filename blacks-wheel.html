@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Wheel of Blacks</title>
+<style>
+ html,body{margin:0;height:100%;overflow:hidden;background:#8a8f96;
+   font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+ .ab{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+   width:70vmin;height:70vmin;background:#f2f0ec;border-radius:4px;
+   box-shadow:0 2px 12px rgba(0,0,0,.18)}
+ .seat{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:5}
+ .path{cursor:pointer;stroke:transparent;stroke-width:1;transition:stroke .12s ease}
+ .path:active{stroke:#f2f0ec}
+</style>
+</head>
+<body>
+
+<div class="ab"></div>
+<div class="seat"><svg id="wheel" width="264" height="264" viewBox="0 0 264 264"></svg></div>
+
+<script>
+ var blacks=['#0d0c0b','#1a1613','#262019','#332a20','#3a332a','#332b25','#262019','#1a1613',
+             '#0d0c0e','#171a20','#23242e','#2c2f3a','#33343c','#2c2f3a','#23242e','#171a20'];
+ var svg=document.getElementById('wheel'), cx=132, cy=132, r0=58, r1=126, N=blacks.length;
+ function pt(r,a){return [cx+r*Math.cos(a), cy+r*Math.sin(a)]}
+ function wedge(a0,a1){
+   var p1=pt(r1,a0),p2=pt(r1,a1),p3=pt(r0,a1),p4=pt(r0,a0);
+   var la=(a1-a0)>Math.PI?1:0;
+   return 'M'+p1[0].toFixed(2)+' '+p1[1].toFixed(2)+
+     ' A'+r1+' '+r1+' 0 '+la+' 1 '+p2[0].toFixed(2)+' '+p2[1].toFixed(2)+
+     ' L'+p3[0].toFixed(2)+' '+p3[1].toFixed(2)+
+     ' A'+r0+' '+r0+' 0 '+la+' 0 '+p4[0].toFixed(2)+' '+p4[1].toFixed(2)+' Z';
+ }
+ var dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+ var sel=document.createElementNS('http://www.w3.org/2000/svg','circle');
+ blacks.forEach(function(b,i){
+   var a0=-Math.PI/2+i*2*Math.PI/N, a1=-Math.PI/2+(i+1)*2*Math.PI/N;
+   var w=document.createElementNS('http://www.w3.org/2000/svg','path');
+   w.setAttribute('d',wedge(a0+0.012,a1-0.012));
+   w.setAttribute('fill',b); w.setAttribute('class','path');
+   w.addEventListener('click',function(){
+     dot.setAttribute('fill',b);
+     sel.setAttribute('cx',cx); sel.setAttribute('cy',cy);
+     sel.setAttribute('fill',b);
+     sel.setAttribute('r','0');
+     requestAnimationFrame(function(){sel.setAttribute('r','14')});
+   });
+   svg.appendChild(w);
+ });
+ sel.setAttribute('cx',cx); sel.setAttribute('cy',cy); sel.setAttribute('r','0');
+ sel.setAttribute('fill','transparent'); sel.setAttribute('opacity','0.25');
+ svg.appendChild(sel);
+ var veil=document.createElementNS('http://www.w3.org/2000/svg','circle');
+ veil.setAttribute('cx',cx); veil.setAttribute('cy',cy); veil.setAttribute('r','34');
+ veil.setAttribute('fill','#f2f0ec');
+ svg.insertBefore(veil,svg.children[blacks.length]);
+ dot.setAttribute('cx',cx); dot.setAttribute('cy',cy); dot.setAttribute('r','30');
+ dot.setAttribute('fill','#0d0c0b');
+ svg.appendChild(dot);
+ var ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+ ring.setAttribute('cx',cx); ring.setAttribute('cy',cy); ring.setAttribute('r','30');
+ ring.setAttribute('fill','none'); ring.setAttribute('stroke','#46433f');
+ ring.setAttribute('stroke-width','2'); svg.appendChild(ring);
+</script>
+</body>
+</html>
