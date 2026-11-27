@@ -61,15 +61,15 @@
  }catch(e){}
 
  function fit(x,y){
-   var exc=r1*s-60;
+   var exc=r1*s-28;
    return {x:Math.max(-exc,Math.min(innerWidth+exc,x)),
            y:Math.max(-exc,Math.min(innerHeight+exc,y))};
  }
  function pin(){try{localStorage.setItem(KEY,JSON.stringify(
    {x:R.x,y:R.y,s:s,rot:Math.round(rot)}))}catch(e){}}
- var PX=null, PY=null;
+ var PX=null, PY=null, ss=0.6;
  function apply(){
-   svg.style.transform='translate('+(PX-CX)+'px,'+(PY-CY)+'px) scale('+s+')';
+   svg.style.transform='translate('+(PX-CX)+'px,'+(PY-CY)+'px) scale('+ss+')';
    var tx=Math.max(24,Math.min(innerWidth-24,PX));
    var ty=PY+r1*s+16;
    if(ty>innerHeight-40) ty=PY-r1*s-42;
@@ -77,6 +77,7 @@
  }
  function place(){
    if(PX===null){PX=R.x; PY=R.y;}
+   ss=s;
    apply();
  }
  function look(){
@@ -96,11 +97,14 @@
      }
    }
    if(PX!==null){
+     var moved=false;
      var dx=R.x-PX, dy=R.y-PY;
      if(Math.abs(dx)+Math.abs(dy)>0.5){
-       PX+=dx*0.30; PY+=dy*0.30;
-       apply();
+       PX+=dx*0.30; PY+=dy*0.30; moved=true;
      }
+     var ds=s-ss;
+     if(Math.abs(ds)>0.001){ ss+=ds*0.30; moved=true; }
+     if(moved)apply();
    }
    requestAnimationFrame(spin);
  }
@@ -113,7 +117,7 @@
    pointers[e.pointerId]={x:e.clientX,y:e.clientY};
    if(Object.keys(pointers).length===2){
      drag=null;
-     pinch={d0:pDist(),s0:s};
+     pinch={d0:Math.max(pDist(),60),s0:s};
      svg.style.transition='none';
      return;
    }
