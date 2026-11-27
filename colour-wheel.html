@@ -7,10 +7,10 @@
 <style>
  html,body{margin:0;height:100%;overflow:hidden;background:#9aa0a5;
    font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
- svg{position:fixed;touch-action:none}
+ svg{position:fixed;left:0;top:0;touch-action:none}
  .petal{transform-box:view-box;transform-origin:150px 150px}
  #pet{transform-box:view-box;transform-origin:150px 150px;will-change:transform}
- #tab{position:fixed;width:44px;height:26px;background:#f2f0ec;border:1px solid #9a958d;
+ #tab{position:fixed;left:0;top:0;width:44px;height:26px;background:#f2f0ec;border:1px solid #9a958d;
    border-radius:8px;z-index:5;display:flex;align-items:center;justify-content:center;gap:4px;
    box-shadow:0 1px 4px rgba(0,0,0,.2);touch-action:none;cursor:grab}
  #tab i{width:4px;height:4px;border-radius:50%;background:#6d6a64;display:block}
@@ -69,19 +69,18 @@
    {x:R.x,y:R.y,s:s,rot:Math.round(rot)}))}catch(e){}}
  var PX=null, PY=null;
  function apply(){
-   svg.style.left=(PX-CX)+'px'; svg.style.top=(PY-CY)+'px';
-   svg.style.transform='scale('+s+')';
+   svg.style.transform='translate('+(PX-CX)+'px,'+(PY-CY)+'px) scale('+s+')';
    var tx=Math.max(24,Math.min(innerWidth-24,PX));
    var ty=PY+r1*s+16;
    if(ty>innerHeight-40) ty=PY-r1*s-42;
-   tab.style.left=(tx-22)+'px'; tab.style.top=ty+'px';
+   tab.style.transform='translate('+(tx-22)+'px,'+ty+'px)';
  }
  function place(){
    if(PX===null){PX=R.x; PY=R.y;}
    apply();
  }
  function look(){
-   svg.style.transition='left .5s ease, top .5s ease, transform .5s cubic-bezier(.34,1.45,.45,1)';
+   svg.style.transition='transform .5s cubic-bezier(.34,1.45,.45,1)';
    place();
    pin();
  }
@@ -92,14 +91,14 @@
    else{
      var diff=rot-shown;
      if(Math.abs(diff)>0.05){
-       shown+=diff*0.10;
+       shown+=diff*0.30;
        pet.style.transform='rotate('+shown.toFixed(2)+'deg)';
      }
    }
    if(PX!==null){
      var dx=R.x-PX, dy=R.y-PY;
      if(Math.abs(dx)+Math.abs(dy)>0.5){
-       PX+=dx*0.10; PY+=dy*0.10;
+       PX+=dx*0.30; PY+=dy*0.30;
        apply();
      }
    }
@@ -152,7 +151,7 @@
    if(pinch){
      if(Object.keys(pointers).length<2){
        pinch=null;
-       svg.style.transition='left .5s ease, top .5s ease, transform .5s cubic-bezier(.34,1.45,.45,1)';
+       svg.style.transition='transform .5s cubic-bezier(.34,1.45,.45,1)';
        pin();
      }
      return;
