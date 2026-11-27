@@ -86,6 +86,11 @@ function circles(list){
   });
   return s;
 }
+function spots(n,r,fn){
+  var s='';
+  for(var i=0;i<n;i++)s+=fn(r,i*360/n,i);
+  return s;
+}
 function wedge(rA,rB,a0,a1,col,op,extra){
   var large=(a1-a0)>180?1:0;
   return '<path d="M '+P(rA,a0)+' A '+rA+' '+rA+' 0 '+large+' 1 '+P(rA,a1)+
