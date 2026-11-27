@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>The five containers</title>
+<title>The five containers — empty and loaded</title>
 <style>
  html,body{margin:0;background:#e9e6e0;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y}
  .wrap{max-width:430px;margin:0 auto;padding:18px 12px 60px}
@@ -13,38 +13,63 @@
  .card h2{font-size:16px;color:#3c3a36;margin:0 0 4px}
  .card .desc{font-size:13px;color:#6d6a64;margin:0 0 10px}
  svg{display:block;margin:0 auto;touch-action:none;cursor:grab}
+ .lab{font-size:12px;color:#8a857c;text-align:center;margin:4px 0 2px;letter-spacing:.04em}
+ .pick{font-size:14px;color:#3c3a36;text-align:center;margin:6px 0 0;min-height:18px;font-weight:600}
+ .pick span{color:#8a857c;font-weight:400}
  .num{display:inline-block;background:#3c3a36;color:#f4f1ea;border-radius:50%;width:20px;height:20px;text-align:center;font-size:12px;line-height:20px;margin-right:6px}
 </style>
 </head>
 <body>
 <div class="wrap">
- <h1>The five containers</h1>
- <p class="sub">The wheel before any colours are pinned to it. Drag any of them round in a circle to feel them spin.</p>
+ <h1>The five containers — empty and loaded</h1>
+ <p class="sub">The same six colours pinned to every container, so you can compare. Drag a wheel to spin it. On the loaded ones, tap a colour to pick it.</p>
 
  <div class="card"><h2><span class="num">1</span>The Astrolabe</h2>
-  <p class="desc">Etched glass on blueprint blue. The + sockets fill like stained glass when colours are pinned.</p>
-  <svg class="cw" id="c1" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+  <p class="desc">Etched glass on blueprint blue. Sockets fill like stained glass.</p>
+  <svg class="cw" id="c1" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">EMPTY</div>
+  <svg class="cw" id="c1L" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">LOADED</div>
+  <div class="pick" id="p1"><span>tap a colour to pick it</span></div></div>
 
  <div class="card"><h2><span class="num">2</span>The Tray</h2>
-  <p class="desc">A wooden artist's tray with a brass rim. Indented wells waiting to be filled.</p>
-  <svg class="cw" id="c2" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+  <p class="desc">A wooden artist's tray with a brass rim. Wells hold paint dollops.</p>
+  <svg class="cw" id="c2" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">EMPTY</div>
+  <svg class="cw" id="c2L" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">LOADED</div>
+  <div class="pick" id="p2"><span>tap a colour to pick it</span></div></div>
 
  <div class="card"><h2><span class="num">3</span>The Shutter</h2>
-  <p class="desc">A camera-style iris. The blades open wider as more colours are pinned.</p>
-  <svg class="cw" id="c3" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+  <p class="desc">A camera-style iris. Blades open wider as colours are pinned.</p>
+  <svg class="cw" id="c3" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">EMPTY</div>
+  <svg class="cw" id="c3L" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">LOADED</div>
+  <div class="pick" id="p3"><span>tap a colour to pick it</span></div></div>
 
  <div class="card"><h2><span class="num">4</span>The Track Ring</h2>
   <p class="desc">An open rail. Colours clip on like charms on a bracelet.</p>
-  <svg class="cw" id="c4" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+  <svg class="cw" id="c4" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">EMPTY</div>
+  <svg class="cw" id="c4L" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">LOADED</div>
+  <div class="pick" id="p4"><span>tap a colour to pick it</span></div></div>
 
  <div class="card"><h2><span class="num">5</span>The Cardstock Wheel</h2>
   <p class="desc">Layered paper rings. Colours soak in like marker on card.</p>
-  <svg class="cw" id="c5" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+  <svg class="cw" id="c5" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">EMPTY</div>
+  <svg class="cw" id="c5L" width="300" height="300" viewBox="0 0 300 300"></svg>
+  <div class="lab">LOADED</div>
+  <div class="pick" id="p5"><span>tap a colour to pick it</span></div></div>
 </div>
 
 <script>
-var NS='http://www.w3.org/2000/svg';
+var PAL=[['#0d0c0b','ink black'],['#262019','sepia black'],['#c23b2e','pillar red'],['#d9a428','brass yellow'],['#2e7f8f','river teal'],['#5d8a4a','leaf green']];
 function P(r,a){a*=Math.PI/180;return (150+r*Math.cos(a)).toFixed(2)+','+(150+r*Math.sin(a)).toFixed(2)}
+function PX(r,a){a*=Math.PI/180;return (150+r*Math.cos(a)).toFixed(2)}
+function PY(r,a){a*=Math.PI/180;return (150+r*Math.sin(a)).toFixed(2)}
 function ticks(n,rA,rB,every,sw,col,op){
   var s='';
   for(var i=0;i<n;i++){
@@ -61,67 +86,81 @@ function circles(list){
   });
   return s;
 }
-function spots(n,r,fn){
-  var s='';
-  for(var i=0;i<n;i++)s+=fn(r,i*360/n,i);
-  return s;
+function wedge(rA,rB,a0,a1,col,op,extra){
+  var large=(a1-a0)>180?1:0;
+  return '<path d="M '+P(rA,a0)+' A '+rA+' '+rA+' 0 '+large+' 1 '+P(rA,a1)+
+         ' L '+P(rB,a1)+' A '+rB+' '+rB+' 0 '+large+' 0 '+P(rB,a0)+' Z" fill="'+col+'" opacity="'+(op===undefined?1:op)+'"'+(extra||'')+'/>';
 }
 
 /* 1 - Astrolabe */
-(function(){
-  var s='<defs><radialGradient id="glass" cx="42%" cy="38%" r="75%">'+
+function build1(id,cols){
+  var s='<defs><radialGradient id="glass'+id+'" cx="42%" cy="38%" r="75%">'+
     '<stop offset="0%" stop-color="#1a4a7c"/><stop offset="100%" stop-color="#0d2b4e"/></radialGradient></defs>'+
-    '<circle cx="150" cy="150" r="130" fill="url(#glass)" stroke="#274f7c" stroke-width="4"/>'+
+    '<circle cx="150" cy="150" r="130" fill="url(#glass'+id+')" stroke="#274f7c" stroke-width="4"/>'+
     circles([[124,'none','#7fb4d8',.8,null,.7],[52,'none','#7fb4d8',.8,null,.5]])+
     '<g class="rot">'+
     circles([[118,'none','#7fb4d8',.6,'2 4',.55],[96,'none','#7fb4d8',.6,null,.6],[70,'none','#7fb4d8',.6,'1 5',.45]])+
     ticks(72,112,124,6,.8,'#9ccdea',.7)+
-    [0,30,60,90,120,150].map(function(a){return '<line x1="'+P(118,a)+'" x2="'+P(118,a+180)+'" stroke="#9ccdea" stroke-width=".5" opacity=".22"/>'}).join('')+
-    spots(12,86,function(r,a){
-      return '<circle cx="'+P(r,a).split(',')[0]+'" cy="'+P(r,a).split(',')[1]+'" r="14" fill="rgba(255,255,255,.05)" stroke="#9ccdea" stroke-width=".8"/>'+
-      '<line x1="'+(150+r*Math.cos(a*Math.PI/180)-7)+'" y1="'+(150+r*Math.sin(a*Math.PI/180))+'" x2="'+(150+r*Math.cos(a*Math.PI/180)+7)+'" y2="'+(150+r*Math.sin(a*Math.PI/180))+'" stroke="#cfe6f5" stroke-width="1.2"/>'+
-      '<line x1="'+(150+r*Math.cos(a*Math.PI/180))+'" y1="'+(150+r*Math.sin(a*Math.PI/180)-7)+'" x2="'+(150+r*Math.cos(a*Math.PI/180))+'" y2="'+(150+r*Math.sin(a*Math.PI/180)+7)+'" stroke="#cfe6f5" stroke-width="1.2"/>';
-    })+
-    '</g>'+
+    [0,30,60,90,120,150].map(function(a){return '<line x1="'+P(118,a)+'" x2="'+P(118,a+180)+'" stroke="#9ccdea" stroke-width=".5" opacity=".22"/>'}).join('');
+  var n=cols?cols.length:0;
+  s+=spots(12,86,function(r,a,i){
+    var filled=cols&&i<n;
+    var base='<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="14" fill="'+(filled?cols[i][0]:'rgba(255,255,255,.05)')+
+      '" fill-opacity="'+(filled?.88:1)+'" stroke="#cfe6f5" stroke-width=".8" data-i="'+i+'"'+(filled?' data-name="'+cols[i][1]+'" data-stroke="#cfe6f5" data-sw=".8"':'')+'/>';
+    if(filled){
+      base+='<path d="M '+P(97,a-14)+' A 97 97 0 0 1 '+P(97,a+6)+'" fill="none" stroke="#ffffff" stroke-width="2.5" opacity=".3" pointer-events="none"/>';
+    } else {
+      base+='<line x1="'+(+PX(r,a)-7)+'" y1="'+PY(r,a)+'" x2="'+(+PX(r,a)+7)+'" y2="'+PY(r,a)+'" stroke="#cfe6f5" stroke-width="1.2"/>'+
+            '<line x1="'+PX(r,a)+'" y1="'+(+PY(r,a)-7)+'" x2="'+PX(r,a)+'" y2="'+(+PY(r,a)+7)+'" stroke="#cfe6f5" stroke-width="1.2"/>';
+    }
+    return base;
+  });
+  s+='</g>'+
     '<circle cx="150" cy="150" r="16" fill="rgba(255,255,255,.04)" stroke="#9ccdea" stroke-width=".8"/>'+
     '<line x1="143" y1="150" x2="157" y2="150" stroke="#9ccdea" stroke-width=".8"/>'+
     '<line x1="150" y1="143" x2="150" y2="157" stroke="#9ccdea" stroke-width=".8"/>'+
     '<ellipse cx="108" cy="96" rx="66" ry="40" fill="#ffffff" opacity=".06" transform="rotate(-24 108 96)"/>';
-  document.getElementById('c1').innerHTML=s;
-})();
+  document.getElementById(id).innerHTML=s;
+}
 
 /* 2 - Tray */
-(function(){
-  var s='<defs><radialGradient id="wood" cx="45%" cy="40%" r="80%">'+
+function build2(id,cols){
+  var s='<defs><radialGradient id="wood'+id+'" cx="45%" cy="40%" r="80%">'+
     '<stop offset="0%" stop-color="#96683c"/><stop offset="100%" stop-color="#6b4223"/></radialGradient>'+
-    '<linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">'+
+    '<linearGradient id="brass'+id+'" x1="0" y1="0" x2="1" y2="1">'+
     '<stop offset="0%" stop-color="#d9b23e"/><stop offset="100%" stop-color="#a97f1c"/></linearGradient></defs>'+
     '<g class="rot">'+
-    '<circle cx="150" cy="150" r="130" fill="url(#wood)"/>'+
+    '<circle cx="150" cy="150" r="130" fill="url(#wood'+id+')"/>'+
     [[46,-20,140],[74,10,170],[102,-30,120],[118,40,200]].map(function(g){
       return '<path d="M '+P(g[0],g[1])+' A '+g[0]+' '+g[0]+' 0 0 1 '+P(g[0],g[2])+'" fill="none" stroke="#5a371c" stroke-width="1.2" opacity=".35"/>';
     }).join('')+
-    '<circle cx="150" cy="150" r="127" fill="none" stroke="url(#brass)" stroke-width="7"/>'+
-    '<circle cx="150" cy="150" r="119" fill="none" stroke="#8a6516" stroke-width="1" opacity=".6"/>'+
-    spots(8,70,function(r,a){
-      var x=P(r,a).split(',')[0], y=P(r,a).split(',')[1];
-      return '<circle cx="'+x+'" cy="'+y+'" r="21" fill="#3c2410"/>'+
-      '<circle cx="'+x+'" cy="'+y+'" r="19" fill="#4a2d16"/>'+
-      '<circle cx="'+(+x-2)+'" cy="'+(+y-2.5)+'" r="17" fill="none" stroke="#a5794a" stroke-width="1.2" opacity=".45"/>';
-    })+
-    '<circle cx="150" cy="150" r="24" fill="none" stroke="url(#brass)" stroke-width="6"/>'+
+    '<circle cx="150" cy="150" r="127" fill="none" stroke="url(#brass'+id+')" stroke-width="7"/>'+
+    '<circle cx="150" cy="150" r="119" fill="none" stroke="#8a6516" stroke-width="1" opacity=".6"/>';
+  var n=cols?cols.length:0;
+  s+=spots(8,70,function(r,a,i){
+    var filled=cols&&i<n;
+    if(filled){
+      return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="21" fill="#3c2410"/>'+
+        '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="18" fill="'+cols[i][0]+'" stroke="#2a1808" stroke-width="1.5" data-i="'+i+'" data-name="'+cols[i][1]+'" data-stroke="#2a1808" data-sw="1.5"/>'+
+        '<ellipse cx="'+(+PX(r,a)-5)+'" cy="'+(+PY(r,a)-6)+'" rx="5" ry="3.4" fill="#ffffff" opacity=".35" transform="rotate(-20 '+PX(r,a)+' '+PY(r,a)+')" pointer-events="none"/>';
+    }
+    return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="21" fill="#3c2410"/>'+
+      '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="19" fill="#4a2d16"/>'+
+      '<circle cx="'+(+PX(r,a)-2)+'" cy="'+(+PY(r,a)-2.5)+'" r="17" fill="none" stroke="#a5794a" stroke-width="1.2" opacity=".45"/>';
+  });
+  s+='<circle cx="150" cy="150" r="24" fill="none" stroke="url(#brass'+id+')" stroke-width="6"/>'+
     ticks(24,21,27,3,.9,'#7a5a12',.9)+
     '</g>'+
     spots(4,112,function(r,a){
-      var x=P(r,a).split(',')[0], y=P(r,a).split(',')[1];
-      return '<circle cx="'+x+'" cy="'+y+'" r="5" fill="#b8901f" stroke="#6e5310" stroke-width="1"/>'+
-      '<line x1="'+(+x-3)+'" y1="'+(+y-1.5)+'" x2="'+(+x+3)+'" y2="'+(+y-1.5)+'" stroke="#6e5310" stroke-width="1"/>';
+      return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="5" fill="#b8901f" stroke="#6e5310" stroke-width="1"/>'+
+      '<line x1="'+(+PX(r,a)-3)+'" y1="'+(+PY(r,a)-1.5)+'" x2="'+(+PX(r,a)+3)+'" y2="'+(+PY(r,a)-1.5)+'" stroke="#6e5310" stroke-width="1"/>';
     });
-  document.getElementById('c2').innerHTML=s;
-})();
+  document.getElementById(id).innerHTML=s;
+}
 
 /* 3 - Shutter */
-(function(){
+function build3(id,cols){
+  var holeR=cols?30:24;
   var s='<circle cx="150" cy="150" r="130" fill="#262a31"/>'+
     ticks(90,124,130,5,.9,'#3c424c',.9)+
     ticks(60,108,116,5,.8,'#9aa2ae',.8)+
@@ -134,54 +173,86 @@ function spots(n,r,fn){
         b+='<path d="M '+P(102,a)+' A 102 102 0 0 1 '+P(102,a+50)+' L '+P(26,a+122)+' Z" fill="#4a515c" stroke="#6a7280" stroke-width="1"/>';
       }
       return b;
-    })()+
-    '</g>'+
-    '<circle cx="150" cy="150" r="24" fill="#14161a"/>'+
+    })();
+  if(cols){
+    var n=cols.length, step=360/n;
+    for(var i=0;i<n;i++){
+      var a=i*step-90;
+      s+=wedge(58,36,a+3,a+step-3,cols[i][0],.94,' data-i="'+i+'" data-name="'+cols[i][1]+'" data-stroke="none" data-sw="0"');
+    }
+  }
+  s+='</g>'+
+    '<circle cx="150" cy="150" r="'+holeR+'" fill="#14161a"/>'+
     spots(3,118,function(r,a){
-      return '<circle cx="'+P(r,a).split(',')[0]+'" cy="'+P(r,a).split(',')[1]+'" r="3" fill="#565e6a"/>';
+      return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="3" fill="#565e6a"/>';
     });
-  document.getElementById('c3').innerHTML=s;
-})();
+  document.getElementById(id).innerHTML=s;
+}
 
 /* 4 - Track Ring */
-(function(){
+function build4(id,cols){
   var s='<g class="rot">'+
-    ticks(12,118,126,3,1.2,'#c3c7cc',.9)+
-    spots(12,100,function(r,a,i){
-      var col=(i===0)?'#2f6bff':'#8d939a';
-      return '<rect x="'+(150+r*Math.cos(a*Math.PI/180)-5)+'" y="'+(150+r*Math.sin(a*Math.PI/180)-7)+
-             '" width="10" height="14" rx="2" fill="'+col+'" transform="rotate('+a+' '+P(r,a).split(',')[0]+' '+P(r,a).split(',')[1]+')"/>';
-    })+
-    '</g>'+
+    ticks(12,118,126,3,1.2,'#c3c7cc',.9);
+  var n=cols?cols.length:0;
+  s+=spots(12,100,function(r,a,i){
+    var charmIdx=i/2;
+    if(cols&&i%2===0&&charmIdx<n){
+      return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="13" fill="#f2f0ec" stroke="#9a958d" stroke-width="1.5" data-i="'+charmIdx+'" data-name="'+cols[charmIdx][1]+'" data-stroke="#9a958d" data-sw="1.5"/>'+
+        '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="8.5" fill="'+cols[charmIdx][0]+'"/>'+
+        '<circle cx="'+(+PX(r,a)-2.5)+'" cy="'+(+PY(r,a)-2.5)+'" r="2" fill="#ffffff" opacity=".5" pointer-events="none"/>';
+    }
+    var col=(i===0)?'#2f6bff':'#8d939a';
+    return '<rect x="'+(+PX(r,a)-5)+'" y="'+(+PY(r,a)-7)+'" width="10" height="14" rx="2" fill="'+col+'" transform="rotate('+a+' '+PX(r,a)+' '+PY(r,a)+')"/>';
+  });
+  s+='</g>'+
     '<circle cx="150" cy="150" r="100" fill="none" stroke="#b9bec4" stroke-width="12" opacity=".55"/>'+
     '<circle cx="150" cy="150" r="106" fill="none" stroke="#d7dade" stroke-width="1"/>'+
     '<circle cx="150" cy="150" r="94" fill="none" stroke="#d7dade" stroke-width="1"/>'+
     '<circle cx="150" cy="150" r="30" fill="#f2f0ec" stroke="#9a958d" stroke-width="2"/>'+
     '<circle cx="141" cy="150" r="2.5" fill="#6d6a64"/><circle cx="150" cy="150" r="2.5" fill="#6d6a64"/><circle cx="159" cy="150" r="2.5" fill="#6d6a64"/>';
-  document.getElementById('c4').innerHTML=s;
-})();
+  document.getElementById(id).innerHTML=s;
+}
 
 /* 5 - Cardstock Wheel */
-(function(){
-  var cols=['#cfd2cd','#b9c4ae','#d8a79a','#d9c6a5','#f4efe6'];
+function build5(id,cols){
+  var layerCols=['#cfd2cd','#b9c4ae','#d8a79a','#d9c6a5','#f4efe6'];
   var s='';
   for(var k=0;k<5;k++){
     var off=k*3-6, off2=k*2-4;
     s+='<circle cx="'+(150+off+2)+'" cy="'+(150+off2+3)+'" r="'+(130-k*14)+'" fill="rgba(0,0,0,.10)"/>';
-    s+='<circle cx="'+(150+off)+'" cy="'+(150+off2)+'" r="'+(130-k*14)+'" fill="'+cols[k]+'" stroke="rgba(0,0,0,.15)" stroke-width="1"/>';
+    s+='<circle cx="'+(150+off)+'" cy="'+(150+off2)+'" r="'+(130-k*14)+'" fill="'+layerCols[k]+'" stroke="rgba(0,0,0,.15)" stroke-width="1"/>';
   }
-  s+='<g class="rot">'+
-     circles([[120,'none','rgba(0,0,0,.16)',1,'1 5'],[92,'none','rgba(0,0,0,.16)',1,'1 5'],[64,'none','rgba(0,0,0,.16)',1,'1 5']])+
-     '</g>'+
-     '<circle cx="150" cy="150" r="28" fill="#f4efe6" stroke="#d9c6a5" stroke-width="1.5"/>'+
-     '<circle cx="150" cy="150" r="20" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1.5"/>';
-  document.getElementById('c5').innerHTML=s;
-})();
+  s+='<g class="rot">';
+  if(cols){
+    var n=cols.length, step=360/n;
+    for(var i=0;i<n;i++){
+      var a=i*step-90;
+      s+=wedge(112,80,a+4,a+step-4,cols[i][0],.85,' data-i="'+i+'" data-name="'+cols[i][1]+'" data-stroke="none" data-sw="0"');
+      s+='<path d="M '+P(112,a+5)+' A 112 112 0 0 1 '+P(112,a+step-5)+'" fill="none" stroke="#ffffff" stroke-width="1.5" opacity=".25" pointer-events="none"/>';
+    }
+  } else {
+    s+=circles([[120,'none','rgba(0,0,0,.16)',1,'1 5'],[92,'none','rgba(0,0,0,.16)',1,'1 5'],[64,'none','rgba(0,0,0,.16)',1,'1 5']]);
+  }
+  s+='</g>'+
+    '<circle cx="150" cy="150" r="28" fill="#f4efe6" stroke="#d9c6a5" stroke-width="1.5"/>'+
+    '<circle cx="150" cy="150" r="20" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1.5"/>';
+  document.getElementById(id).innerHTML=s;
+}
 
-/* shared spin: drag in a circle and the rotor turns, eased */
+/* build all ten wheels */
+var C=PAL;
+build1('c1',null);  build1('c1L',C);
+build2('c2',null);  build2('c2L',C);
+build3('c3',null);  build3('c3L',C);
+build4('c4',null);  build4('c4L',C);
+build5('c5',null);  build5('c5L',C);
+
+/* shared: drag to spin (eased), tap a colour to pick it */
 document.querySelectorAll('svg.cw').forEach(function(svg){
-  var rot=0, shown=0, drag=null;
+  var rot=0, shown=0, drag=null, picked=null;
   var g=svg.querySelector('.rot');
+  var card=svg.closest('.card');
+  var lab=card?card.querySelector('.pick'):null;
   function loop(){
     var d=rot-shown;
     if(Math.abs(d)>0.05){
@@ -191,13 +262,23 @@ document.querySelectorAll('svg.cw').forEach(function(svg){
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
+  function unpick(){
+    if(picked){
+      picked.setAttribute('stroke',picked.dataset.stroke);
+      picked.setAttribute('stroke-width',picked.dataset.sw);
+      picked=null;
+    }
+    if(lab)lab.innerHTML='<span>tap a colour to pick it</span>';
+  }
   svg.addEventListener('pointerdown',function(e){
     e.preventDefault();
-    drag={px:e.clientX,py:e.clientY};
+    drag={px:e.clientX,py:e.clientY,moved:false};
     try{svg.setPointerCapture(e.pointerId)}catch(_){}
   });
   svg.addEventListener('pointermove',function(e){
     if(!drag)return;
+    if(!drag.moved&&Math.abs(e.clientX-drag.px)+Math.abs(e.clientY-drag.py)>8)drag.moved=true;
+    if(!drag.moved)return;
     var b=svg.getBoundingClientRect(), cx=b.left+b.width/2, cy=b.top+b.height/2;
     var r1d=Math.hypot(e.clientX-cx,e.clientY-cy), r0d=Math.hypot(drag.px-cx,drag.py-cy);
     if(r1d>30&&r0d>30){
@@ -207,9 +288,22 @@ document.querySelectorAll('svg.cw').forEach(function(svg){
     }
     drag.px=e.clientX; drag.py=e.clientY;
   });
-  ['pointerup','pointercancel'].forEach(function(ev){
-    svg.addEventListener(ev,function(){drag=null});
-  });
+  function up(e){
+    if(drag&&!drag.moved){
+      var el=document.elementFromPoint(e.clientX,e.clientY);
+      var col=el?el.closest('[data-name]'):null;
+      if(col){
+        unpick();
+        picked=col;
+        col.setAttribute('stroke','#ffffff');
+        col.setAttribute('stroke-width','3');
+        if(lab)lab.textContent='picked: '+col.dataset.name;
+      } else { unpick(); }
+    }
+    drag=null;
+  }
+  svg.addEventListener('pointerup',up);
+  svg.addEventListener('pointercancel',function(){drag=null});
 });
 </script>
 </body>
