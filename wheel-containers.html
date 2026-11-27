@@ -21,7 +21,7 @@
 </head>
 <body>
 <div class="wrap">
- <h1>The five containers — empty and loaded</h1>
+ <h1>The five containers</h1>
  <p class="sub">The same six colours pinned to every container, so you can compare. Drag a wheel to spin it. On the loaded ones, tap a colour to pick it.</p>
 
  <div class="card"><h2><span class="num">1</span>The Astrolabe</h2>
@@ -32,32 +32,32 @@
   <div class="lab">LOADED</div>
   <div class="pick" id="p1"><span>tap a colour to pick it</span></div></div>
 
- <div class="card"><h2><span class="num">2</span>The Tray</h2>
-  <p class="desc">A wooden artist's tray with a brass rim. Wells hold paint dollops.</p>
+ <div class="card"><h2><span class="num">2</span>The Circular Origami Book</h2>
+  <p class="desc">Folded paper pages round a stitched spine. Colours sit on the page faces.</p>
   <svg class="cw" id="c2" width="300" height="300" viewBox="0 0 300 300"></svg>
   <div class="lab">EMPTY</div>
   <svg class="cw" id="c2L" width="300" height="300" viewBox="0 0 300 300"></svg>
   <div class="lab">LOADED</div>
   <div class="pick" id="p2"><span>tap a colour to pick it</span></div></div>
 
- <div class="card"><h2><span class="num">3</span>The Shutter</h2>
-  <p class="desc">A camera-style iris. Blades open wider as colours are pinned.</p>
+ <div class="card"><h2><span class="num">3</span>The Camera Iris</h2>
+  <p class="desc">A camera-style iris. The blades open wider as colours are pinned.</p>
   <svg class="cw" id="c3" width="300" height="300" viewBox="0 0 300 300"></svg>
   <div class="lab">EMPTY</div>
   <svg class="cw" id="c3L" width="300" height="300" viewBox="0 0 300 300"></svg>
   <div class="lab">LOADED</div>
   <div class="pick" id="p3"><span>tap a colour to pick it</span></div></div>
 
- <div class="card"><h2><span class="num">4</span>The Track Ring</h2>
-  <p class="desc">An open rail. Colours clip on like charms on a bracelet.</p>
+ <div class="card"><h2><span class="num">4</span>The Rotary Dial</h2>
+  <p class="desc">A vintage telephone dial. Ten finger holes; colours ring them like bakelite.</p>
   <svg class="cw" id="c4" width="300" height="300" viewBox="0 0 300 300"></svg>
   <div class="lab">EMPTY</div>
   <svg class="cw" id="c4L" width="300" height="300" viewBox="0 0 300 300"></svg>
   <div class="lab">LOADED</div>
   <div class="pick" id="p4"><span>tap a colour to pick it</span></div></div>
 
- <div class="card"><h2><span class="num">5</span>The Cardstock Wheel</h2>
-  <p class="desc">Layered paper rings. Colours soak in like marker on card.</p>
+ <div class="card"><h2><span class="num">5</span>The Skeleton Watch</h2>
+  <p class="desc">Exposed gears under a metal bezel. Colours ride the main gear's rim.</p>
   <svg class="cw" id="c5" width="300" height="300" viewBox="0 0 300 300"></svg>
   <div class="lab">EMPTY</div>
   <svg class="cw" id="c5L" width="300" height="300" viewBox="0 0 300 300"></svg>
@@ -96,6 +96,19 @@ function wedge(rA,rB,a0,a1,col,op,extra){
   return '<path d="M '+P(rA,a0)+' A '+rA+' '+rA+' 0 '+large+' 1 '+P(rA,a1)+
          ' L '+P(rB,a1)+' A '+rB+' '+rB+' 0 '+large+' 0 '+P(rB,a0)+' Z" fill="'+col+'" opacity="'+(op===undefined?1:op)+'"'+(extra||'')+'/>';
 }
+function arc(r,a0,a1,col,sw,op,extra){
+  return '<path d="M '+P(r,a0)+' A '+r+' '+r+' 0 0 1 '+P(r,a1)+'" fill="none" stroke="'+col+
+         '" stroke-width="'+sw+'" opacity="'+(op===undefined?1:op)+'"'+(extra||'')+'/>';
+}
+function gear(cx,cy,r,teeth){
+  var pts=[];
+  for(var i=0;i<teeth*2;i++){
+    var rr=(i%2===0)?r:r*0.9;
+    var a=i*Math.PI/teeth;
+    pts.push((cx+rr*Math.cos(a)).toFixed(1)+','+(cy+rr*Math.sin(a)).toFixed(1));
+  }
+  return pts.join(' ');
+}
 
 /* 1 - Astrolabe */
 function build1(id,cols){
@@ -111,7 +124,7 @@ function build1(id,cols){
   s+=spots(12,86,function(r,a,i){
     var filled=cols&&i<n;
     var base='<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="14" fill="'+(filled?cols[i][0]:'rgba(255,255,255,.05)')+
-      '" fill-opacity="'+(filled?.88:1)+'" stroke="#cfe6f5" stroke-width=".8" data-i="'+i+'"'+(filled?' data-name="'+cols[i][1]+'" data-stroke="#cfe6f5" data-sw=".8"':'')+'/>';
+      '" fill-opacity="'+(filled?.88:1)+'" stroke="#cfe6f5" stroke-width=".8"'+(filled?' data-name="'+cols[i][1]+'" data-stroke="#cfe6f5" data-sw=".8"':'')+'/>';
     if(filled){
       base+='<path d="M '+P(97,a-14)+' A 97 97 0 0 1 '+P(97,a+6)+'" fill="none" stroke="#ffffff" stroke-width="2.5" opacity=".3" pointer-events="none"/>';
     } else {
@@ -124,46 +137,35 @@ function build1(id,cols){
     '<circle cx="150" cy="150" r="16" fill="rgba(255,255,255,.04)" stroke="#9ccdea" stroke-width=".8"/>'+
     '<line x1="143" y1="150" x2="157" y2="150" stroke="#9ccdea" stroke-width=".8"/>'+
     '<line x1="150" y1="143" x2="150" y2="157" stroke="#9ccdea" stroke-width=".8"/>'+
-    '<ellipse cx="108" cy="96" rx="66" ry="40" fill="#ffffff" opacity=".06" transform="rotate(-24 108 96)"/>';
+    '<ellipse cx="108" cy="96" rx="66" ry="40" fill="#ffffff" opacity=".06" transform="rotate(-24 108 96)" pointer-events="none"/>';
   document.getElementById(id).innerHTML=s;
 }
 
-/* 2 - Tray */
+/* 2 - Circular Origami Book */
 function build2(id,cols){
-  var s='<defs><radialGradient id="wood'+id+'" cx="45%" cy="40%" r="80%">'+
-    '<stop offset="0%" stop-color="#96683c"/><stop offset="100%" stop-color="#6b4223"/></radialGradient>'+
-    '<linearGradient id="brass'+id+'" x1="0" y1="0" x2="1" y2="1">'+
-    '<stop offset="0%" stop-color="#d9b23e"/><stop offset="100%" stop-color="#a97f1c"/></linearGradient></defs>'+
-    '<g class="rot">'+
-    '<circle cx="150" cy="150" r="130" fill="url(#wood'+id+')"/>'+
-    [[46,-20,140],[74,10,170],[102,-30,120],[118,40,200]].map(function(g){
-      return '<path d="M '+P(g[0],g[1])+' A '+g[0]+' '+g[0]+' 0 0 1 '+P(g[0],g[2])+'" fill="none" stroke="#5a371c" stroke-width="1.2" opacity=".35"/>';
-    }).join('')+
-    '<circle cx="150" cy="150" r="127" fill="none" stroke="url(#brass'+id+')" stroke-width="7"/>'+
-    '<circle cx="150" cy="150" r="119" fill="none" stroke="#8a6516" stroke-width="1" opacity=".6"/>';
+  var s='<circle cx="150" cy="150" r="130" fill="#efe8da" stroke="#b8ab8f" stroke-width="2"/>'+
+    '<g class="rot">';
   var n=cols?cols.length:0;
-  s+=spots(8,70,function(r,a,i){
-    var filled=cols&&i<n;
-    if(filled){
-      return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="21" fill="#3c2410"/>'+
-        '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="18" fill="'+cols[i][0]+'" stroke="#2a1808" stroke-width="1.5" data-i="'+i+'" data-name="'+cols[i][1]+'" data-stroke="#2a1808" data-sw="1.5"/>'+
-        '<ellipse cx="'+(+PX(r,a)-5)+'" cy="'+(+PY(r,a)-6)+'" rx="5" ry="3.4" fill="#ffffff" opacity=".35" transform="rotate(-20 '+PX(r,a)+' '+PY(r,a)+')" pointer-events="none"/>';
+  for(var i=0;i<12;i++){
+    var a=i*30-90;
+    var tone=(i%2===0)?'#f6f2ea':'#e4d9c4';
+    s+=wedge(124,40,a+1.5,a+28.5,tone,1);
+    s+=wedge(124,40,a+1.5,a+6,'rgba(0,0,0,.10)',1);
+    s+='<line x1="'+P(40,a)+'" x2="'+P(124,a)+'" stroke="#b8ab8f" stroke-width=".8" opacity=".8"/>';
+    if(cols&&i<n){
+      s+=wedge(124,66,a+3.5,a+26.5,cols[i][0],.92,' data-name="'+cols[i][1]+'" data-stroke="none" data-sw="0"');
+      s+=arc(121,a+5,a+24,'#ffffff',1.5,.28,' pointer-events="none"');
     }
-    return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="21" fill="#3c2410"/>'+
-      '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="19" fill="#4a2d16"/>'+
-      '<circle cx="'+(+PX(r,a)-2)+'" cy="'+(+PY(r,a)-2.5)+'" r="17" fill="none" stroke="#a5794a" stroke-width="1.2" opacity=".45"/>';
-  });
-  s+='<circle cx="150" cy="150" r="24" fill="none" stroke="url(#brass'+id+')" stroke-width="6"/>'+
-    ticks(24,21,27,3,.9,'#7a5a12',.9)+
-    '</g>'+
-    spots(4,112,function(r,a){
-      return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="5" fill="#b8901f" stroke="#6e5310" stroke-width="1"/>'+
-      '<line x1="'+(+PX(r,a)-3)+'" y1="'+(+PY(r,a)-1.5)+'" x2="'+(+PX(r,a)+3)+'" y2="'+(+PY(r,a)-1.5)+'" stroke="#6e5310" stroke-width="1"/>';
-    });
+  }
+  s+='</g>'+
+    circles([[40,'none','#b8ab8f',1,'2 3',.9]])+
+    '<circle cx="150" cy="150" r="26" fill="#f6f2ea" stroke="#b8ab8f" stroke-width="2"/>'+
+    '<circle cx="150" cy="150" r="18" fill="none" stroke="#8d8272" stroke-width="1.5" stroke-dasharray="3 3"/>'+
+    '<circle cx="150" cy="150" r="4" fill="#8d8272"/>';
   document.getElementById(id).innerHTML=s;
 }
 
-/* 3 - Shutter */
+/* 3 - Camera Iris */
 function build3(id,cols){
   var holeR=cols?30:24;
   var s='<circle cx="150" cy="150" r="130" fill="#262a31"/>'+
@@ -183,7 +185,7 @@ function build3(id,cols){
     var n=cols.length, step=360/n;
     for(var i=0;i<n;i++){
       var a=i*step-90;
-      s+=wedge(58,36,a+3,a+step-3,cols[i][0],.94,' data-i="'+i+'" data-name="'+cols[i][1]+'" data-stroke="none" data-sw="0"');
+      s+=wedge(58,36,a+3,a+step-3,cols[i][0],.94,' data-name="'+cols[i][1]+'" data-stroke="none" data-sw="0"');
     }
   }
   s+='</g>'+
@@ -194,53 +196,69 @@ function build3(id,cols){
   document.getElementById(id).innerHTML=s;
 }
 
-/* 4 - Track Ring */
+/* 4 - Rotary Dial */
 function build4(id,cols){
-  var s='<g class="rot">'+
-    ticks(12,118,126,3,1.2,'#c3c7cc',.9);
+  var s='<defs><radialGradient id="metal'+id+'" cx="40%" cy="35%" r="80%">'+
+    '<stop offset="0%" stop-color="#3a3f46"/><stop offset="100%" stop-color="#22262b"/></radialGradient></defs>'+
+    '<circle cx="150" cy="150" r="130" fill="url(#metal'+id+')" stroke="#14171a" stroke-width="3"/>'+
+    '<circle cx="150" cy="150" r="107" fill="#2c3138"/>'+
+    '<circle cx="150" cy="150" r="84" fill="#191d22"/>'+
+    '<g class="rot">';
+  var nums=['1','2','3','4','5','6','7','8','9','0'];
   var n=cols?cols.length:0;
-  s+=spots(12,100,function(r,a,i){
-    var charmIdx=i/2;
-    if(cols&&i%2===0&&charmIdx<n){
-      return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="13" fill="#f2f0ec" stroke="#9a958d" stroke-width="1.5" data-i="'+charmIdx+'" data-name="'+cols[charmIdx][1]+'" data-stroke="#9a958d" data-sw="1.5"/>'+
-        '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="8.5" fill="'+cols[charmIdx][0]+'"/>'+
-        '<circle cx="'+(+PX(r,a)-2.5)+'" cy="'+(+PY(r,a)-2.5)+'" r="2" fill="#ffffff" opacity=".5" pointer-events="none"/>';
+  for(var i=0;i<10;i++){
+    var a=75+i*32;
+    if(cols&&i<n){
+      s+='<circle cx="'+PX(95,a)+'" cy="'+PY(95,a)+'" r="19.5" fill="none" stroke="'+cols[i][0]+'" stroke-width="5" opacity=".95" data-name="'+cols[i][1]+'" data-stroke="'+cols[i][0]+'" data-sw="5"/>';
     }
-    var col=(i===0)?'#2f6bff':'#8d939a';
-    return '<rect x="'+(+PX(r,a)-5)+'" y="'+(+PY(r,a)-7)+'" width="10" height="14" rx="2" fill="'+col+'" transform="rotate('+a+' '+PX(r,a)+' '+PY(r,a)+')"/>';
-  });
+    s+='<circle cx="'+PX(95,a)+'" cy="'+PY(95,a)+'" r="15" fill="#e9e6e0" stroke="#101317" stroke-width="2"/>';
+    var ta=a+16;
+    s+='<text x="'+PX(95,ta)+'" y="'+PY(95,ta)+'" font-size="12" fill="#cfd4da" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,sans-serif">'+nums[i]+'</text>';
+  }
   s+='</g>'+
-    '<circle cx="150" cy="150" r="100" fill="none" stroke="#b9bec4" stroke-width="12" opacity=".55"/>'+
-    '<circle cx="150" cy="150" r="106" fill="none" stroke="#d7dade" stroke-width="1"/>'+
-    '<circle cx="150" cy="150" r="94" fill="none" stroke="#d7dade" stroke-width="1"/>'+
-    '<circle cx="150" cy="150" r="30" fill="#f2f0ec" stroke="#9a958d" stroke-width="2"/>'+
-    '<circle cx="141" cy="150" r="2.5" fill="#6d6a64"/><circle cx="150" cy="150" r="2.5" fill="#6d6a64"/><circle cx="159" cy="150" r="2.5" fill="#6d6a64"/>';
+    '<g transform="rotate(130 150 150)"><rect x="144.5" y="26" width="11" height="46" rx="5.5" fill="#565e6a" stroke="#14171a" stroke-width="1.5"/></g>'+
+    '<circle cx="150" cy="150" r="52" fill="#2c3138" stroke="#454b55" stroke-width="1.5"/>'+
+    '<circle cx="150" cy="150" r="30" fill="#22262b" stroke="#14171a" stroke-width="1.5"/>'+
+    ticks(12,32,38,3,1,'#454b55',.9)+
+    '<circle cx="150" cy="150" r="6" fill="#14171a"/>';
   document.getElementById(id).innerHTML=s;
 }
 
-/* 5 - Cardstock Wheel */
-function build5(id,cols){
-  var layerCols=['#cfd2cd','#b9c4ae','#d8a79a','#d9c6a5','#f4efe6'];
-  var s='';
-  for(var k=0;k<5;k++){
-    var off=k*3-6, off2=k*2-4;
-    s+='<circle cx="'+(150+off+2)+'" cy="'+(150+off2+3)+'" r="'+(130-k*14)+'" fill="rgba(0,0,0,.10)"/>';
-    s+='<circle cx="'+(150+off)+'" cy="'+(150+off2)+'" r="'+(130-k*14)+'" fill="'+layerCols[k]+'" stroke="rgba(0,0,0,.15)" stroke-width="1"/>';
-  }
-  s+='<g class="rot">';
-  if(cols){
-    var n=cols.length, step=360/n;
-    for(var i=0;i<n;i++){
-      var a=i*step-90;
-      s+=wedge(112,80,a+4,a+step-4,cols[i][0],.85,' data-i="'+i+'" data-name="'+cols[i][1]+'" data-stroke="none" data-sw="0"');
-      s+='<path d="M '+P(112,a+5)+' A 112 112 0 0 1 '+P(112,a+step-5)+'" fill="none" stroke="#ffffff" stroke-width="1.5" opacity=".25" pointer-events="none"/>';
-    }
-  } else {
-    s+=circles([[120,'none','rgba(0,0,0,.16)',1,'1 5'],[92,'none','rgba(0,0,0,.16)',1,'1 5'],[64,'none','rgba(0,0,0,.16)',1,'1 5']]);
-  }
-  s+='</g>'+
-    '<circle cx="150" cy="150" r="28" fill="#f4efe6" stroke="#d9c6a5" stroke-width="1.5"/>'+
-    '<circle cx="150" cy="150" r="20" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1.5"/>';
+/* 5 - Skeleton Watch */
+function buildW(id,cols){
+  var s='<defs><radialGradient id="bez'+id+'" cx="40%" cy="35%" r="80%">'+
+    '<stop offset="0%" stop-color="#8d939c"/><stop offset="100%" stop-color="#5a6069"/></radialGradient></defs>'+
+    '<circle cx="150" cy="150" r="130" fill="url(#bez'+id+')" stroke="#3f444c" stroke-width="3"/>'+
+    '<circle cx="150" cy="150" r="118" fill="none" stroke="#d7dade" stroke-width="1" opacity=".6"/>'+
+    '<circle cx="150" cy="150" r="112" fill="#23262b"/>'+
+    '<g class="rot">'+
+    '<polygon points="'+gear(150,150,58,24)+'" fill="rgba(90,96,105,.25)" stroke="#9aa2ae" stroke-width="2"/>'+
+    (function(){var sp='';for(var i=0;i<5;i++){var a=i*72-90;sp+='<line x1="'+P(14,a)+'" x2="'+P(52,a)+'" stroke="#565e6a" stroke-width="7"/>'}return sp})()+
+    (function(){
+      if(!cols)return '';
+      var out='',step=360/cols.length;
+      for(var i=0;i<cols.length;i++){
+        var a=i*step-90;
+        out+=arc(58,a+6,a+step-6,cols[i][0],11,1,' data-name="'+cols[i][1]+'" data-stroke="'+cols[i][0]+'" data-sw="11"');
+      }
+      return out;
+    })()+
+    '<circle cx="150" cy="150" r="14" fill="#565e6a" stroke="#3f444c" stroke-width="1"/>'+
+    '<circle cx="150" cy="150" r="4" fill="#a02c3a"/>'+
+    '<polygon points="'+gear(212,110,38,16)+'" fill="rgba(90,96,105,.25)" stroke="#8d939c" stroke-width="1.8"/>'+
+    '<line x1="212" y1="110" x2="212" y2="80" stroke="#565e6a" stroke-width="5"/>'+
+    '<line x1="212" y1="110" x2="236" y2="125" stroke="#565e6a" stroke-width="5"/>'+
+    '<circle cx="212" cy="110" r="9" fill="#565e6a"/>'+
+    '<polygon points="'+gear(96,196,26,12)+'" fill="rgba(90,96,105,.25)" stroke="#8d939c" stroke-width="1.6"/>'+
+    '<line x1="96" y1="196" x2="112" y2="212" stroke="#565e6a" stroke-width="4"/>'+
+    '<circle cx="96" cy="196" r="7" fill="#565e6a"/>'+
+    '<circle cx="106" cy="102" r="20" fill="none" stroke="#7a8290" stroke-width="4"/>'+
+    '<line x1="106" y1="82" x2="106" y2="122" stroke="#7a8290" stroke-width="3"/>'+
+    '<circle cx="106" cy="102" r="3.5" fill="#2c5fa0"/>'+
+    '</g>'+
+    spots(5,124,function(r,a){
+      return '<circle cx="'+PX(r,a)+'" cy="'+PY(r,a)+'" r="2.5" fill="#454b55"/>';
+    });
   document.getElementById(id).innerHTML=s;
 }
 
@@ -250,7 +268,7 @@ build1('c1',null);  build1('c1L',C);
 build2('c2',null);  build2('c2L',C);
 build3('c3',null);  build3('c3L',C);
 build4('c4',null);  build4('c4L',C);
-build5('c5',null);  build5('c5L',C);
+buildW('c5',null);  buildW('c5L',C);
 
 /* shared: drag to spin (eased), tap a colour to pick it */
 document.querySelectorAll('svg.cw').forEach(function(svg){
