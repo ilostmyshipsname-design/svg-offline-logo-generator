@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Colour effects — the things the wheel pins</title>
+<style>
+ html,body{margin:0;background:#e9e6e0;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+ .wrap{max-width:430px;margin:0 auto;padding:18px 12px 60px}
+ h1{font-size:22px;color:#3c3a36;font-weight:600;margin:0}
+ p.sub{color:#6d6a64;font-size:14px;margin:6px 0 0}
+ h2{font-size:15px;color:#3c3a36;margin:26px 0 10px;border-bottom:1px solid #d8d3c8;padding-bottom:6px}
+ .row{display:flex;gap:14px;flex-wrap:wrap}
+ .tile{width:130px}
+ .tile .nm{font-size:12px;color:#6d6a64;text-align:center;margin-top:4px}
+ .tile .hx{font-size:10px;color:#a5a09a;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>Colour effects</h1>
+ <p class="sub">Not flat colours — every pinned thing is an <b>effect</b> that carries a colour. These are the tiles that would fill the wheel's slots. Shown here in two colours each, so you can see the effect travels.</p>
+ <div id="board"></div>
+</div>
+
+<script>
+var EFFECTS=[
+ {name:'marker bleed',  make:mbTile},
+ {name:'pastel grain',  make:pgTile},
+ {name:'metallic sheen',make:msTile},
+ {name:'watercolour wash',make:wcTile},
+ {name:'ink hatching',  make:ihTile}
+];
+var COLS=[['#c23b2e','pillar red'],['#2e7f8f','river teal'],['#0d0c0b','ink black']];
+
+var uid=0;
+function id(){return 'x'+(uid++)}
+
+function base(inner){
+  var u=id();
+  return {u:u, s:'<svg width="130" height="130" viewBox="0 0 100 100">'+
+    '<defs><clipPath id="cp'+u+'"><rect width="100" height="100" rx="12"/></clipPath></defs>'+
+    '<g clip-path="url(#cp'+u+')">'+inner+'</g>'+
+    '<rect width="100" height="100" rx="12" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="1"/></svg>'};
+}
+
+/* marker bleed: soft overlapping strokes that darken where they cross */
+function mbTile(col){
+  var u=id();
+  var inner='<defs><filter id="bl'+u+'" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter></defs>'+
+   '<rect width="100" height="100" fill="#f7f5f0"/>'+
+   '<g filter="url(#bl'+u+')" style="mix-blend-mode:multiply">'+
+   '<path d="M12 26 Q 42 12 88 26" stroke="'+col+'" stroke-width="13" fill="none" stroke-linecap="round" opacity=".82"/>'+
+   '<path d="M10 52 Q 52 68 90 48" stroke="'+col+'" stroke-width="13" fill="none" stroke-linecap="round" opacity=".82"/>'+
+   '<path d="M16 78 Q 50 88 86 74" stroke="'+col+'" stroke-width="13" fill="none" stroke-linecap="round" opacity=".82"/>'+
+   '</g>';
+  return base(inner);
+}
+
+/* pastel grain: pale chalky colour with fine tooth showing through */
+function pgTile(col){
+  var u=id();
+  var inner='<defs><filter id="gr'+u+'"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter></defs>'+
+   '<rect width="100" height="100" fill="'+col+'" opacity=".34"/>'+
+   '<rect width="100" height="100" filter="url(#gr'+u+')" opacity=".35"/>'+
+   '<rect width="100" height="100" fill="'+col+'" opacity=".18"/>';
+  return base(inner);
+}
+
+/* metallic sheen: angled anodized bands of the colour and silver */
+function msTile(col){
+  var u=id();
+  var inner='<defs><linearGradient id="ms'+u+'" x1="0" y1="0" x2="1" y2="1">'+
+   '<stop offset="0%" stop-color="#e6e7ea"/>'+
+   '<stop offset="20%" stop-color="'+col+'"/>'+
+   '<stop offset="38%" stop-color="#14161a"/>'+
+   '<stop offset="50%" stop-color="#dcdde1"/>'+
+   '<stop offset="64%" stop-color="'+col+'"/>'+
+   '<stop offset="84%" stop-color="#2a2d33"/>'+
+   '<stop offset="100%" stop-color="#c9cacd"/></linearGradient></defs>'+
+   '<rect width="100" height="100" fill="url(#ms'+u+')"/>';
+  return base(inner);
+}
+
+/* watercolour wash: pooled blob with soft bloomed edges */
+function wcTile(col){
+  var u=id();
+  var inner='<defs><filter id="wc'+u+'" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter></defs>'+
+   '<rect width="100" height="100" fill="#faf8f2"/>'+
+   '<path d="M22,30 C 34,12 72,10 84,28 C 96,46 88,76 66,85 C 44,94 16,82 15,58 C 14,47 17,39 22,30 Z" fill="'+col+'" opacity=".38"/>'+
+   '<g filter="url(#wc'+u+')">'+
+   '<path d="M18,34 C 30,16 68,15 80,32 C 90,48 84,72 64,80 C 44,88 20,76 19,56 Z" fill="'+col+'" opacity=".34"/>'+
+   '</g>'+
+   '<path d="M22,30 C 34,12 72,10 84,28" fill="none" stroke="'+col+'" stroke-width="1.4" opacity=".5"/>';
+  return base(inner);
+}
+
+/* ink hatching: fine parallel pen lines, cross-hatched in one corner */
+function ihTile(col){
+  var inner='<rect width="100" height="100" fill="#faf8f3"/>';
+  for(var y=12;y<=92;y+=5){
+    inner+='<line x1="10" y1="'+y+'" x2="90" y2="'+(y-3)+'" stroke="'+col+'" stroke-width="1.1" opacity=".85"/>';
+  }
+  for(var i=0;i<7;i++){
+    inner+='<line x1="'+(52+i*5)+'" y1="50" x2="'+(38+i*5)+'" y2="90" stroke="'+col+'" stroke-width="1" opacity=".5"/>';
+  }
+  return base(inner);
+}
+
+/* lay the board out */
+var html='';
+EFFECTS.forEach(function(e){
+  html+='<h2>'+e.name+'</h2><div class="row">';
+  COLS.forEach(function(c){
+    var t=e.make(c[0]);
+    html+='<div class="tile">'+t.s+'<div class="nm">'+e.name+'</div><div class="hx">'+c[1]+' '+c[0]+'</div></div>';
+  });
+  html+='</div>';
+});
+document.getElementById('board').innerHTML=html;
+</script>
+</body>
+</html>
