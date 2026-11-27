@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>The five containers</title>
+<style>
+ html,body{margin:0;background:#e9e6e0;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+ .wrap{max-width:430px;margin:0 auto;padding:18px 12px 60px}
+ h1{font-size:22px;color:#3c3a36;font-weight:600;margin:0}
+ p.sub{color:#6d6a64;font-size:14px;margin:6px 0 0}
+ .card{background:#f4f1ea;border:1px solid #d8d3c8;border-radius:14px;padding:14px;margin-top:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+ .card h2{font-size:16px;color:#3c3a36;margin:0 0 4px}
+ .card .desc{font-size:13px;color:#6d6a64;margin:0 0 10px}
+ svg{display:block;margin:0 auto;touch-action:none;cursor:grab}
+ .num{display:inline-block;background:#3c3a36;color:#f4f1ea;border-radius:50%;width:20px;height:20px;text-align:center;font-size:12px;line-height:20px;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>The five containers</h1>
+ <p class="sub">The wheel before any colours are pinned to it. Drag any of them round in a circle to feel them spin.</p>
+
+ <div class="card"><h2><span class="num">1</span>The Astrolabe</h2>
+  <p class="desc">Etched glass on blueprint blue. The + sockets fill like stained glass when colours are pinned.</p>
+  <svg class="cw" id="c1" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+
+ <div class="card"><h2><span class="num">2</span>The Tray</h2>
+  <p class="desc">A wooden artist's tray with a brass rim. Indented wells waiting to be filled.</p>
+  <svg class="cw" id="c2" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+
+ <div class="card"><h2><span class="num">3</span>The Shutter</h2>
+  <p class="desc">A camera-style iris. The blades open wider as more colours are pinned.</p>
+  <svg class="cw" id="c3" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+
+ <div class="card"><h2><span class="num">4</span>The Track Ring</h2>
+  <p class="desc">An open rail. Colours clip on like charms on a bracelet.</p>
+  <svg class="cw" id="c4" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+
+ <div class="card"><h2><span class="num">5</span>The Cardstock Wheel</h2>
+  <p class="desc">Layered paper rings. Colours soak in like marker on card.</p>
+  <svg class="cw" id="c5" width="300" height="300" viewBox="0 0 300 300"></svg></div>
+</div>
+
+<script>
+var NS='http://www.w3.org/2000/svg';
+function P(r,a){a*=Math.PI/180;return (150+r*Math.cos(a)).toFixed(2)+','+(150+r*Math.sin(a)).toFixed(2)}
+function ticks(n,rA,rB,every,sw,col,op){
+  var s='';
+  for(var i=0;i<n;i++){
+    var a=i*360/n, L=(i%every===0)?rA-6:rA;
+    s+='<line x1="'+P(L,a)+'" x2="'+P(rB,a)+'" stroke="'+col+'" stroke-width="'+sw+'" opacity="'+op+'"/>';
+  }
+  return s;
+}
+function circles(list){
+  var s='';
+  list.forEach(function(c){
+    s+='<circle cx="150" cy="150" r="'+c[0]+'" fill="'+(c[1]||'none')+'" stroke="'+(c[2]||'none')+
+       '" stroke-width="'+(c[3]||0)+'"'+(c[4]?' stroke-dasharray="'+c[4]+'"':'')+(c[5]!==undefined?' opacity="'+c[5]+'"':'')+'/>';
+  });
+  return s;
+}
+function spots(n,r,fn){
+  var s='';
+  for(var i=0;i<n;i++)s+=fn(r,i*360/n,i);
+  return s;
+}
+
+/* 1 - Astrolabe */
+(function(){
+  var s='<defs><radialGradient id="glass" cx="42%" cy="38%" r="75%">'+
+    '<stop offset="0%" stop-color="#1a4a7c"/><stop offset="100%" stop-color="#0d2b4e"/></radialGradient></defs>'+
+    '<circle cx="150" cy="150" r="130" fill="url(#glass)" stroke="#274f7c" stroke-width="4"/>'+
+    circles([[124,'none','#7fb4d8',.8,null,.7],[52,'none','#7fb4d8',.8,null,.5]])+
+    '<g class="rot">'+
+    circles([[118,'none','#7fb4d8',.6,'2 4',.55],[96,'none','#7fb4d8',.6,null,.6],[70,'none','#7fb4d8',.6,'1 5',.45]])+
+    ticks(72,112,124,6,.8,'#9ccdea',.7)+
+    [0,30,60,90,120,150].map(function(a){return '<line x1="'+P(118,a)+'" x2="'+P(118,a+180)+'" stroke="#9ccdea" stroke-width=".5" opacity=".22"/>'}).join('')+
+    spots(12,86,function(r,a){
+      return '<circle cx="'+P(r,a).split(',')[0]+'" cy="'+P(r,a).split(',')[1]+'" r="14" fill="rgba(255,255,255,.05)" stroke="#9ccdea" stroke-width=".8"/>'+
+      '<line x1="'+(150+r*Math.cos(a*Math.PI/180)-7)+'" y1="'+(150+r*Math.sin(a*Math.PI/180))+'" x2="'+(150+r*Math.cos(a*Math.PI/180)+7)+'" y2="'+(150+r*Math.sin(a*Math.PI/180))+'" stroke="#cfe6f5" stroke-width="1.2"/>'+
+      '<line x1="'+(150+r*Math.cos(a*Math.PI/180))+'" y1="'+(150+r*Math.sin(a*Math.PI/180)-7)+'" x2="'+(150+r*Math.cos(a*Math.PI/180))+'" y2="'+(150+r*Math.sin(a*Math.PI/180)+7)+'" stroke="#cfe6f5" stroke-width="1.2"/>';
+    })+
+    '</g>'+
+    '<circle cx="150" cy="150" r="16" fill="rgba(255,255,255,.04)" stroke="#9ccdea" stroke-width=".8"/>'+
+    '<line x1="143" y1="150" x2="157" y2="150" stroke="#9ccdea" stroke-width=".8"/>'+
+    '<line x1="150" y1="143" x2="150" y2="157" stroke="#9ccdea" stroke-width=".8"/>'+
+    '<ellipse cx="108" cy="96" rx="66" ry="40" fill="#ffffff" opacity=".06" transform="rotate(-24 108 96)"/>';
+  document.getElementById('c1').innerHTML=s;
+})();
+
+/* 2 - Tray */
+(function(){
+  var s='<defs><radialGradient id="wood" cx="45%" cy="40%" r="80%">'+
+    '<stop offset="0%" stop-color="#96683c"/><stop offset="100%" stop-color="#6b4223"/></radialGradient>'+
+    '<linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">'+
+    '<stop offset="0%" stop-color="#d9b23e"/><stop offset="100%" stop-color="#a97f1c"/></linearGradient></defs>'+
+    '<g class="rot">'+
+    '<circle cx="150" cy="150" r="130" fill="url(#wood)"/>'+
+    [[46,-20,140],[74,10,170],[102,-30,120],[118,40,200]].map(function(g){
+      return '<path d="M '+P(g[0],g[1])+' A '+g[0]+' '+g[0]+' 0 0 1 '+P(g[0],g[2])+'" fill="none" stroke="#5a371c" stroke-width="1.2" opacity=".35"/>';
+    }).join('')+
+    '<circle cx="150" cy="150" r="127" fill="none" stroke="url(#brass)" stroke-width="7"/>'+
+    '<circle cx="150" cy="150" r="119" fill="none" stroke="#8a6516" stroke-width="1" opacity=".6"/>'+
+    spots(8,70,function(r,a){
+      var x=P(r,a).split(',')[0], y=P(r,a).split(',')[1];
+      return '<circle cx="'+x+'" cy="'+y+'" r="21" fill="#3c2410"/>'+
+      '<circle cx="'+x+'" cy="'+y+'" r="19" fill="#4a2d16"/>'+
+      '<circle cx="'+(+x-2)+'" cy="'+(+y-2.5)+'" r="17" fill="none" stroke="#a5794a" stroke-width="1.2" opacity=".45"/>';
+    })+
+    '<circle cx="150" cy="150" r="24" fill="none" stroke="url(#brass)" stroke-width="6"/>'+
+    ticks(24,21,27,3,.9,'#7a5a12',.9)+
+    '</g>'+
+    spots(4,112,function(r,a){
+      var x=P(r,a).split(',')[0], y=P(r,a).split(',')[1];
+      return '<circle cx="'+x+'" cy="'+y+'" r="5" fill="#b8901f" stroke="#6e5310" stroke-width="1"/>'+
+      '<line x1="'+(+x-3)+'" y1="'+(+y-1.5)+'" x2="'+(+x+3)+'" y2="'+(+y-1.5)+'" stroke="#6e5310" stroke-width="1"/>';
+    });
+  document.getElementById('c2').innerHTML=s;
+})();
+
+/* 3 - Shutter */
+(function(){
+  var s='<circle cx="150" cy="150" r="130" fill="#262a31"/>'+
+    ticks(90,124,130,5,.9,'#3c424c',.9)+
+    ticks(60,108,116,5,.8,'#9aa2ae',.8)+
+    '<circle cx="150" cy="150" r="104" fill="#2e333b" stroke="#454b55" stroke-width="1.5"/>'+
+    '<g class="rot">'+
+    (function(){
+      var b='';
+      for(var i=0;i<8;i++){
+        var a=i*45;
+        b+='<path d="M '+P(102,a)+' A 102 102 0 0 1 '+P(102,a+50)+' L '+P(26,a+122)+' Z" fill="#4a515c" stroke="#6a7280" stroke-width="1"/>';
+      }
+      return b;
+    })()+
+    '</g>'+
+    '<circle cx="150" cy="150" r="24" fill="#14161a"/>'+
+    spots(3,118,function(r,a){
+      return '<circle cx="'+P(r,a).split(',')[0]+'" cy="'+P(r,a).split(',')[1]+'" r="3" fill="#565e6a"/>';
+    });
+  document.getElementById('c3').innerHTML=s;
+})();
+
+/* 4 - Track Ring */
+(function(){
+  var s='<g class="rot">'+
+    ticks(12,118,126,3,1.2,'#c3c7cc',.9)+
+    spots(12,100,function(r,a,i){
+      var col=(i===0)?'#2f6bff':'#8d939a';
+      return '<rect x="'+(150+r*Math.cos(a*Math.PI/180)-5)+'" y="'+(150+r*Math.sin(a*Math.PI/180)-7)+
+             '" width="10" height="14" rx="2" fill="'+col+'" transform="rotate('+a+' '+P(r,a).split(',')[0]+' '+P(r,a).split(',')[1]+')"/>';
+    })+
+    '</g>'+
+    '<circle cx="150" cy="150" r="100" fill="none" stroke="#b9bec4" stroke-width="12" opacity=".55"/>'+
+    '<circle cx="150" cy="150" r="106" fill="none" stroke="#d7dade" stroke-width="1"/>'+
+    '<circle cx="150" cy="150" r="94" fill="none" stroke="#d7dade" stroke-width="1"/>'+
+    '<circle cx="150" cy="150" r="30" fill="#f2f0ec" stroke="#9a958d" stroke-width="2"/>'+
+    '<circle cx="141" cy="150" r="2.5" fill="#6d6a64"/><circle cx="150" cy="150" r="2.5" fill="#6d6a64"/><circle cx="159" cy="150" r="2.5" fill="#6d6a64"/>';
+  document.getElementById('c4').innerHTML=s;
+})();
+
+/* 5 - Cardstock Wheel */
+(function(){
+  var cols=['#cfd2cd','#b9c4ae','#d8a79a','#d9c6a5','#f4efe6'];
+  var s='';
+  for(var k=0;k<5;k++){
+    var off=k*3-6, off2=k*2-4;
+    s+='<circle cx="'+(150+off+2)+'" cy="'+(150+off2+3)+'" r="'+(130-k*14)+'" fill="rgba(0,0,0,.10)"/>';
+    s+='<circle cx="'+(150+off)+'" cy="'+(150+off2)+'" r="'+(130-k*14)+'" fill="'+cols[k]+'" stroke="rgba(0,0,0,.15)" stroke-width="1"/>';
+  }
+  s+='<g class="rot">'+
+     circles([[120,'none','rgba(0,0,0,.16)',1,'1 5'],[92,'none','rgba(0,0,0,.16)',1,'1 5'],[64,'none','rgba(0,0,0,.16)',1,'1 5']])+
+     '</g>'+
+     '<circle cx="150" cy="150" r="28" fill="#f4efe6" stroke="#d9c6a5" stroke-width="1.5"/>'+
+     '<circle cx="150" cy="150" r="20" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1.5"/>';
+  document.getElementById('c5').innerHTML=s;
+})();
+
+/* shared spin: drag in a circle and the rotor turns, eased */
+document.querySelectorAll('svg.cw').forEach(function(svg){
+  var rot=0, shown=0, drag=null;
+  var g=svg.querySelector('.rot');
+  function loop(){
+    var d=rot-shown;
+    if(Math.abs(d)>0.05){
+      shown+=d*0.3;
+      if(g)g.setAttribute('transform','rotate('+shown.toFixed(2)+' 150 150)');
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+  svg.addEventListener('pointerdown',function(e){
+    e.preventDefault();
+    drag={px:e.clientX,py:e.clientY};
+    try{svg.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  svg.addEventListener('pointermove',function(e){
+    if(!drag)return;
+    var b=svg.getBoundingClientRect(), cx=b.left+b.width/2, cy=b.top+b.height/2;
+    var r1d=Math.hypot(e.clientX-cx,e.clientY-cy), r0d=Math.hypot(drag.px-cx,drag.py-cy);
+    if(r1d>30&&r0d>30){
+      var d=Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI-Math.atan2(drag.py-cy,drag.px-cx)*180/Math.PI;
+      if(d>180)d-=360; if(d<-180)d+=360;
+      rot+=d;
+    }
+    drag.px=e.clientX; drag.py=e.clientY;
+  });
+  ['pointerup','pointercancel'].forEach(function(ev){
+    svg.addEventListener(ev,function(){drag=null});
+  });
+});
+</script>
+</body>
+</html>
