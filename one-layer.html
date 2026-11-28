@@ -82,18 +82,12 @@ function E(x){return x.toFixed(1)}
  var svg=document.getElementById('v1');
  var lab=document.getElementById('p1');
  var s='';
- /* the layers beneath, peeking - this tray is one of many */
- s+='<rect x="34" y="516" width="352" height="14" rx="7" fill="#d9d3c6" stroke="#b8b2a5" stroke-width="1" pointer-events="none"/>';
- s+='<rect x="24" y="504" width="372" height="14" rx="7" fill="#e4dfd2" stroke="#b8b2a5" stroke-width="1" pointer-events="none"/>';
- /* the tray: the pencil layer pulled out of the container */
- s+='<rect x="12" y="40" width="396" height="470" rx="16" fill="#efe9db" stroke="#14171a" stroke-width="1.2"'+tag('the pencil layer - one layer of the container','#14171a','1.2')+'/>';
- s+='<rect x="26" y="26" width="86" height="28" rx="10" fill="#efe9db" stroke="#14171a" stroke-width="1.2" pointer-events="none"/>';
- s+='<text x="69" y="45" text-anchor="middle" font-size="13" font-family="system-ui,sans-serif" fill="#3c3a36" pointer-events="none">pencil</text>';
- /* twenty pencils: the pencil effect on every colour, names under */
+ /* the layer in digital space: no tray, no cabinet, no furniture -
+   just the pencil effect on every colour, arranged in open space */
  for(var i=0;i<20;i++){
-  var x=20+(i%4)*96, y=72+Math.floor(i/4)*90;
-  s+='<rect id="sw'+i+'" x="'+x+'" y="'+y+'" width="88" height="60" rx="10" fill="'+pen(i,0)+'" stroke="#14171a" stroke-width=".8"'+tag('pencil of '+COLS[i][1],'#14171a','.8')+'/>';
-  s+='<text x="'+(x+44)+'" y="'+(y+76)+'" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="#6d6a64" pointer-events="none">'+COLS[i][1]+'</text>';
+  var x=16+(i%4)*100, y=80+Math.floor(i/4)*92;
+  s+='<rect id="sw'+i+'" x="'+x+'" y="'+y+'" width="92" height="64" rx="10" fill="'+pen(i,0)+'" stroke="#14171a" stroke-width=".8"'+tag('pencil of '+COLS[i][1],'#14171a','.8')+'/>';
+  s+='<text x="'+(x+46)+'" y="'+(y+80)+'" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif" fill="#6d6a64" pointer-events="none">'+COLS[i][1]+'</text>';
  }
  svg.innerHTML=s;
  var moved=false, px=0, py=0;
