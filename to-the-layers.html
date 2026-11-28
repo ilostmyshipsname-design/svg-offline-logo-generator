@@ -1,0 +1,311 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>The way in</title>
+<style>
+ html,body{margin:0;background:#e9e6e0;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+ .wrap{max-width:none;margin:0 auto;padding:18px 16px 60px}
+ h1{font-size:26px;color:#3c3a36;font-weight:600;margin:0}
+ p.sub,.card .desc{font-size:15px;color:#6d6a64;margin:6px 0 0}
+ .card{background:#f4f1ea;border:1px solid #d8d3c8;border-radius:14px;padding:14px;margin-top:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+ .card h2{font-size:19px;color:#3c3a36;margin:0 0 4px}
+ svg.xv{width:100%;height:auto;display:block;margin:0 auto;touch-action:pan-y}
+ .tg{display:block;margin:12px auto 0;padding:12px 26px;font-size:15px;font-family:system-ui,sans-serif;border-radius:24px;border:1px solid #b8ab8f;background:#fffdf8;color:#3c3a36;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+ .cap{font-size:12px;color:#8a857c;text-align:center;margin:10px 0 0;line-height:1.5}
+ .pick{font-size:15px;color:#3c3a36;text-align:center;margin:6px 0 0;min-height:18px;font-weight:600}
+ .pick span{color:#8a857c;font-weight:400}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>The way in</h1>
+ <p class="sub">You asked how you get to the layer page, because I had just opened the container as if by magic. Here is the whole journey: the packed wheel sits on the paper. Tapping it is the only door. Its menu opens with the wheel as the face and the layers beneath. Stack it back, and you are on the paper again. Unpacking never happens on the paper &mdash; only in the menu, as you ruled.</p>
+
+ <div class="card"><h2>1 &middot; The journey: paper, door, menu, paper</h2>
+  <p class="desc">This is the paper with the packed wheel floating on it. Tap the wheel &mdash; the menu opens: same wheel, now the face of the container, layers unpacking beneath. Tap back to the paper and it folds away again.</p>
+  <svg class="xv" id="v1" viewBox="0 0 420 470"></svg>
+  <button class="tg" id="b1">back to the paper</button>
+  <p class="cap">one tap on the packed wheel is the door &mdash; no other way in, no other way out</p>
+  <div class="pick" id="p1"><span>tap the packed wheel to open its menu</span></div></div>
+
+ <div class="card"><h2>2 &middot; The three steps, side by side</h2>
+  <p class="desc">The journey in three pictures: on the paper (packed), in the menu (unpacking, choosing), back on the paper (it remembers what you chose).</p>
+  <svg class="xv" id="v2" viewBox="0 0 420 470"></svg>
+  <p class="cap">packed on the paper &middot; unpacked in its menu &middot; packed again, remembering</p>
+  <div class="pick" id="p2"><span>tap a picture to name it</span></div></div>
+</div>
+
+<script>
+/* THE WAY IN: owner asked "how would i get to this layer page, since you
+   have the container opened. you seem to have just opened the container".
+   THE DOOR LAW: the packed wheel on the paper IS the door \u2014 one tap on it
+   opens the container's menu (unpacking lives ONLY there, never on the
+   paper, per the unpacking law); one tap on back returns to the paper.
+   Effects per colour ported verbatim from layered-container.html (20 colours). */
+var COLS=[
+ ['#c23b2e','pillar red'],
+ ['#d9a428','brass yellow'],
+ ['#2e7f8f','river teal'],
+ ['#5d8a4a','leaf green'],
+ ['#0d0c0b','ink black'],
+ ['#7d3f6e','plum'],
+ ['#35558a','deep blue'],
+ ['#b0632e','burnt orange'],
+ ['#6b7a3a','moss'],
+ ['#4a4f57','slate'],
+ ['#b34a6b','rose'],
+ ['#d97f4a','apricot'],
+ ['#5a8fc2','sky'],
+ ['#cbb26a','sand'],
+ ['#7a7a3d','olive'],
+ ['#3f7f6f','sea'],
+ ['#6a4f9f','violet'],
+ ['#9a4a2a','rust'],
+ ['#2f5a45','pine'],
+ ['#5a4033','cocoa']
+];
+var TOOLN=['pencil','ink','watercolour','paint','marker','pastel','metallic','charcoal','spray','chalk'];
+var TOOLF=['pk','ih','wc','pt','mb','pg','ms','ch','sp','ck'];
+var TOOLC=[9,4,3,0,2,1,6,9,7,1];
+function pen(ci,t){return 'url(#'+TOOLF[t]+'c'+ci+')';}
+function fxDefsAll(){
+ var s='<linearGradient id="ms" x1="0" y1="0" x2="1" y2="1">'+
+    '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="38%" stop-color="#14161a"/>'+
+    '<stop offset="50%" stop-color="#dcdde1"/><stop offset="84%" stop-color="#2a2d33"/>'+
+    '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+ for(var i=0;i<COLS.length;i++){
+  var c=COLS[i][0], f='c'+i;
+  s+='<pattern id="pk'+f+'" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">'+
+     '<rect width="10" height="10" fill="#f7f5ee"/>'+
+     '<line x1="0" y1="2" x2="10" y2="2" stroke="'+c+'" stroke-width="2.4" stroke-dasharray="7 2" opacity=".5"/>'+
+     '<line x1="0" y1="6.5" x2="10" y2="6.5" stroke="'+c+'" stroke-width="1.3" stroke-dasharray="4 3" opacity=".32"/></pattern>';
+  s+='<pattern id="ih'+f+'" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">'+
+     '<rect width="8" height="8" fill="#faf8f3"/>'+
+     '<line x1="0" y1="4" x2="8" y2="3.4" stroke="'+c+'" stroke-width="1.1" opacity=".85"/></pattern>';
+  s+='<filter id="wcf'+f+'" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>';
+  s+='<pattern id="wc'+f+'" width="72" height="72" patternUnits="userSpaceOnUse">'+
+     '<rect width="72" height="72" fill="#faf8f2"/>'+
+     '<path d="M16,22 C 26,7 54,6 63,20 C 72,34 66,56 49,63 C 33,70 12,61 12,43 C 12,34 14,28 16,22 Z" fill="'+c+'" opacity=".38"/>'+
+     '<g filter="url(#wcf'+f+')">'+
+     '<path d="M13,25 C 23,11 51,10 60,23 C 67,34 63,53 47,59 C 32,65 15,56 14,40 Z" fill="'+c+'" opacity=".34"/>'+
+     '</g>'+
+     '<path d="M16,22 C 26,7 54,6 63,20" fill="none" stroke="'+c+'" stroke-width="1.2" opacity=".5"/></pattern>';
+  s+='<pattern id="pt'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f9f7f1"/>'+
+     '<path d="M4 22 Q 28 8 52 20 Q 54 34 30 40 Q 8 44 4 22 Z" fill="'+c+'" opacity=".92"/>'+
+     '<path d="M6 34 Q 26 42 48 32 Q 50 40 30 46 Q 10 48 6 34 Z" fill="'+c+'" opacity=".85"/>'+
+     '<path d="M4 22 Q 28 8 52 20" fill="none" stroke="#ffffff" stroke-width="1.4" opacity=".45"/></pattern>';
+  s+='<filter id="mbf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.4"/></filter>';
+  s+='<pattern id="mb'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f5f0"/>'+
+     '<g filter="url(#mbf'+f+')">'+
+     '<path d="M6 16 Q 30 6 54 18" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M4 36 Q 30 46 56 32" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M8 54 Q 32 58 54 48" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '</g></pattern>';
+  s+='<filter id="pgf'+f+'"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>';
+  s+='<pattern id="pg'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".34"/>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".35"/>'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".18"/></pattern>';
+  s+='<linearGradient id="ms'+f+'" x1="0" y1="0" x2="1" y2="1">'+
+     '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="20%" stop-color="'+c+'"/>'+
+     '<stop offset="38%" stop-color="#14161a"/><stop offset="50%" stop-color="#dcdde1"/>'+
+     '<stop offset="64%" stop-color="'+c+'"/><stop offset="84%" stop-color="#2a2d33"/>'+
+     '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+  s+='<filter id="chf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>';
+  s+='<pattern id="ch'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f3f2ee"/>'+
+     '<g filter="url(#chf'+f+')">'+
+     '<path d="M8 18 Q 28 8 48 20 Q 50 36 28 40 Q 6 38 8 18 Z" fill="'+c+'" opacity=".8"/>'+
+     '<path d="M10 44 Q 30 38 48 46" stroke="'+c+'" stroke-width="6" fill="none" stroke-linecap="round" opacity=".6"/>'+
+     '</g>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".22"/></pattern>';
+  s+='<pattern id="sp'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f6f1"/>'+
+     '<circle cx="14" cy="14" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="38" cy="10" r="2" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="30" cy="30" r="4" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="10" cy="40" r="2.5" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="46" cy="44" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="22" cy="50" r="1.6" fill="'+c+'" opacity=".6"/>'+
+     '<circle cx="50" cy="26" r="1.2" fill="'+c+'" opacity=".5"/>'+
+     '<circle cx="6" cy="26" r="1" fill="'+c+'" opacity=".5"/></pattern>';
+  s+='<pattern id="ck'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f8f7f2"/>'+
+     '<line x1="4" y1="20" x2="52" y2="16" stroke="'+c+'" stroke-width="7" stroke-dasharray="12 5 8 7" stroke-linecap="round" opacity=".75"/>'+
+     '<line x1="6" y1="40" x2="50" y2="44" stroke="'+c+'" stroke-width="6" stroke-dasharray="9 6 5 8" stroke-linecap="round" opacity=".6"/></pattern>';
+ }
+ return s;
+}
+(function(){
+ var d=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ d.setAttribute('width','0'); d.setAttribute('height','0'); d.setAttribute('style','position:absolute');
+ d.innerHTML='<defs>'+fxDefsAll()+'</defs>';
+ document.body.insertBefore(d,document.body.firstChild);
+})();
+
+function tag(name,edge,sw){return ' data-name="'+name+'" data-stroke="'+edge+'" data-sw="'+sw+'"'}
+function E(expr){return expr.toFixed(1)}
+
+/* 1 - THE JOURNEY: PAPER, DOOR, MENU, PAPER */
+(function(){
+ var svg=document.getElementById('v1');
+ var lab=document.getElementById('p1');
+ var btn=document.getElementById('b1');
+ var chosenC=0, chosenP=2;
+ var open=false;
+ var SLOT=[205,292,379];
+ var WX=280, WY=120, WS=0.4;          /* packed wheel spot on the paper */
+ function wedgePts(r0,r1,a0deg,a1deg){
+  var a0=a0deg*Math.PI/180, a1=a1deg*Math.PI/180;
+  return E(r1*Math.cos(a0))+','+E(r1*Math.sin(a0))+' '+
+         E(r1*Math.cos(a1))+','+E(r1*Math.sin(a1))+' '+
+         E(r0*Math.cos(a1))+','+E(r0*Math.sin(a1))+' '+
+         E(r0*Math.cos(a0))+','+E(r0*Math.sin(a0));
+ }
+ var s='';
+ /* THE PAPER */
+ s+='<g id="gPaper">';
+ s+='<rect x="50" y="30" width="320" height="330" rx="6" fill="#fbfaf6" stroke="#b8ab8f" stroke-width="1.2" pointer-events="none"'+tag('the paper \u00b7 the drawing lives here','#b8ab8f','1.2')+'/>';
+ s+='<path d="M110 90 L 210 70 L 230 150 L 130 170 Z" fill="'+pen(0,2)+'" stroke="none" pointer-events="none" opacity=".85"/>';
+ s+='<path d="M250 240 Q 300 200 330 260 Q 300 300 250 240 Z" fill="'+pen(3,7)+'" stroke="none" pointer-events="none" opacity=".85"/>';
+ s+='<text x="210" y="392" text-anchor="middle" font-size="13" font-family="system-ui,sans-serif" fill="#8a857c" pointer-events="none">the paper</text>';
+ s+='</g>';
+ /* THE CABINET (the menu) */
+ s+='<g id="gCab" opacity="0">';
+ s+='<rect x="40" y="8" width="340" height="440" rx="18" fill="#efece5" stroke="#14171a" stroke-width="1" opacity=".9" pointer-events="none"/>';
+ s+='<rect x="36" y="4" width="348" height="448" rx="21" fill="none" stroke="url(#ms)" stroke-width="7" pointer-events="none"'+tag('the container \u00b7 metallic','url(#ms)','7')+'/>';
+ s+='<text x="210" y="442" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="#8a857c" pointer-events="none">and there are more layers below</text>';
+ s+='</g>';
+ /* THE DRAWERS (menu only) */
+ s+='<g id="lC" opacity="0">';
+ s+='<rect x="-160" y="-46" width="320" height="92" rx="10" fill="#f2efe8" stroke="#14171a" stroke-width="1" pointer-events="none"/>';
+ for(var dc=0;dc<10;dc++){var ca0=dc*36+1,ca1=(dc+1)*36-1;
+  s+='<polygon id="cc'+dc+'" points="'+wedgePts(10,38,ca0,ca1)+'" fill="'+pen(10+dc,chosenP)+'" stroke="#14171a" stroke-width=".5"'+tag(COLS[10+dc][1],'#14171a','.5')+'/>';}
+ s+='<text x="30" y="-4" font-size="13" font-family="system-ui,sans-serif" fill="#3c3a36" pointer-events="none">the deeper colours</text>';
+ s+='<rect id="fC" x="-160" y="20" width="320" height="26" rx="6" fill="'+pen(chosenC,chosenP)+'" stroke="#14171a" stroke-width=".5"'+tag('the drawer face \u00b7 painted','#14171a','.5')+'/>';
+ s+='</g>';
+ s+='<g id="lB" opacity="0">';
+ s+='<rect x="-160" y="-46" width="320" height="92" rx="10" fill="#f2efe8" stroke="#14171a" stroke-width="1" pointer-events="none"/>';
+ for(var db=0;db<3;db++){var ba0=db*120+2,ba1=(db+1)*120-2;
+  s+='<polygon id="bw'+db+'" points="'+wedgePts(12,38,ba0,ba1)+'" fill="'+pen(chosenC,7+db)+'" stroke="#14171a" stroke-width=".5"'+tag(TOOLN[7+db]+' \u00b7 deeper effect','#14171a','.5')+'/>';}
+ s+='<text x="30" y="-4" font-size="13" font-family="system-ui,sans-serif" fill="#3c3a36" pointer-events="none">the deeper effects</text>';
+ s+='<rect id="fB" x="-160" y="20" width="320" height="26" rx="6" fill="'+pen(chosenC,chosenP)+'" stroke="#14171a" stroke-width=".5"'+tag('the drawer face \u00b7 painted','#14171a','.5')+'/>';
+ s+='</g>';
+ s+='<g id="lA" opacity="0">';
+ s+='<rect x="-160" y="-46" width="320" height="92" rx="10" fill="#f2efe8" stroke="#14171a" stroke-width="1" pointer-events="none"/>';
+ for(var da=0;da<10;da++){var aa0=da*36+1,aa1=(da+1)*36-1;
+  s+='<polygon id="ac'+da+'" points="'+wedgePts(10,38,aa0,aa1)+'" fill="'+pen(da,chosenP)+'" stroke="#14171a" stroke-width=".5"'+tag(COLS[da][1],'#14171a','.5')+'/>';}
+ s+='<text id="tA" x="30" y="-4" font-size="13" font-family="system-ui,sans-serif" fill="#3c3a36" pointer-events="none">the colours of watercolour</text>';
+ s+='<rect id="fA" x="-160" y="20" width="320" height="26" rx="6" fill="'+pen(chosenC,chosenP)+'" stroke="#14171a" stroke-width=".5"'+tag('the drawer face \u00b7 painted','#14171a','.5')+'/>';
+ s+='</g>';
+ /* THE WHEEL: packed it floats on the paper; open it is the face of the container */
+ s+='<g id="gWheel">';
+ for(var t=0;t<10;t++){
+  s+='<polygon id="ew'+t+'" points="'+wedgePts(16,70,t*36+1,(t+1)*36-1)+'" fill="'+pen(TOOLC[t],t)+'" stroke="#14171a" stroke-width=".5"'+tag(TOOLN[t]+' \u00b7 tap to choose','#14171a','.5')+'/>';
+ }
+ s+='<circle cx="0" cy="0" r="20" id="lens" fill="'+pen(chosenC,chosenP)+'" stroke="#14171a" stroke-width="2" pointer-events="none"'+tag('the lens \u00b7 the part','url(#ms)','2')+'/>';
+ s+='</g>';
+ svg.innerHTML=s;
+ var gPaper=document.getElementById('gPaper'), gCab=document.getElementById('gCab'), gWheel=document.getElementById('gWheel');
+ var lA=document.getElementById('lA'), lB=document.getElementById('lB'), lC=document.getElementById('lC');
+ var st={ paper:{o:1}, cab:{o:0}, wheel:{x:WX,y:WY,s:WS},
+          A:{y:80,o:0}, B:{y:80,o:0}, C:{y:80,o:0} };
+ var els={ paper:gPaper, cab:gCab, A:lA, B:lB, C:lC };
+ function frame(){
+  st.paper.o+=((open?0:1)-st.paper.o)*0.16;
+  gPaper.setAttribute('opacity',E(st.paper.o));
+  gPaper.setAttribute('pointer-events',st.paper.o>0.5?'auto':'none');
+  st.cab.o+=((open?1:0)-st.cab.o)*0.16;
+  gCab.setAttribute('opacity',E(st.cab.o));
+  var keys=['A','B','C'];
+  for(var k=0;k<3;k++){
+   var L=st[keys[k]], slot=SLOT[k];
+   L.y+=((open?slot:80)-L.y)*0.16; L.o+=((open?1:0)-L.o)*0.16;
+   els[keys[k]].setAttribute('transform','translate(210,'+E(L.y)+')');
+   els[keys[k]].setAttribute('opacity',E(L.o));
+   els[keys[k]].setAttribute('pointer-events',L.o>0.5?'auto':'none');
+  }
+  st.wheel.x+=((open?210:WX)-st.wheel.x)*0.16;
+  st.wheel.y+=((open?80:WY)-st.wheel.y)*0.16;
+  st.wheel.s+=((open?1:WS)-st.wheel.s)*0.16;
+  gWheel.setAttribute('transform','translate('+E(st.wheel.x)+','+E(st.wheel.y)+') scale('+E(st.wheel.s)+')');
+  requestAnimationFrame(frame);
+ }
+ frame();
+ function reink(){
+  for(var da=0;da<10;da++)document.getElementById('ac'+da).setAttribute('fill',pen(da,chosenP));
+  for(var db=0;db<3;db++)document.getElementById('bw'+db).setAttribute('fill',pen(chosenC,7+db));
+  for(var dc=0;dc<10;dc++)document.getElementById('cc'+dc).setAttribute('fill',pen(10+dc,chosenP));
+  document.getElementById('fA').setAttribute('fill',pen(chosenC,chosenP));
+  document.getElementById('fB').setAttribute('fill',pen(chosenC,chosenP));
+  document.getElementById('fC').setAttribute('fill',pen(chosenC,chosenP));
+  document.getElementById('lens').setAttribute('fill',pen(chosenC,chosenP));
+  document.getElementById('tA').textContent='the colours of '+TOOLN[chosenP];
+  lab.textContent='chosen: '+TOOLN[chosenP]+' \u00b7 '+COLS[chosenC][1];
+ }
+ function setLab(){
+  lab.innerHTML=open?'<span>the container\u2019s menu \u00b7 tap the button to go back to the paper</span>'
+                    :'<span>tap the packed wheel to open its menu</span>';
+  btn.textContent=open?'back to the paper':'open the menu';
+ }
+ var px=0, py=0;
+ svg.addEventListener('pointerdown',function(e){ px=e.clientX; py=e.clientY; });
+ svg.addEventListener('pointerup',function(e){
+  if(Math.abs(e.clientX-px)+Math.abs(e.clientY-py)>8)return;   /* moved: not a tap */
+  var el=document.elementFromPoint(e.clientX,e.clientY);
+  var col=el?el.closest('[data-name]'):null;
+  if(!col)return;
+  var id=col.id;
+  if(!open){                                   /* the door: the packed wheel */
+   if(id.indexOf('ew')===0||id==='lens'){ open=true; setLab(); }
+   return;
+  }
+  if(id.indexOf('ew')===0){ chosenP=+id.slice(2); reink(); }
+  else if(id.indexOf('bw')===0){ chosenP=7+ +id.slice(2); reink(); }
+  else if(id.indexOf('ac')===0){ chosenC=+id.slice(2); reink(); }
+  else if(id.indexOf('cc')===0){ chosenC=10+ +id.slice(2); reink(); }
+ });
+ btn.addEventListener('click',function(){ open=!open; setLab(); });
+})();
+
+/* 2 - THE THREE STEPS, SIDE BY SIDE */
+(function(){
+ var svg=document.getElementById('v2');
+ var lab=document.getElementById('p2');
+ var s='';
+ var snaps=[
+  {y:75,  name:'1 \u00b7 on the paper: the wheel is packed. tapping it is the only door.'},
+  {y:235, name:'2 \u00b7 its menu: the wheel is the face, the layers unpack beneath.'},
+  {y:395, name:'3 \u00b7 back on the paper: packed again, remembering what you chose.'}
+ ];
+ for(var i=0;i<3;i++){
+  s+='<g transform="translate(210,'+snaps[i].y+')">';
+  s+='<rect x="-200" y="-58" width="400" height="112" rx="10" fill="#f2efe8" stroke="#14171a" stroke-width="1" pointer-events="none"'+tag(snaps[i].name,'#14171a','1')+'/>';
+  if(i!==1){
+   /* the paper with the packed wheel */
+   s+='<rect x="-182" y="-44" width="130" height="88" rx="4" fill="#fbfaf6" stroke="#b8ab8f" stroke-width="1" pointer-events="none"/>';
+   s+='<circle id="pw'+i+'" cx="-117" cy="0" r="26" fill="#efece5" stroke="#14171a" stroke-width="1"'+tag('the packed wheel \u00b7 tap to open its menu','#14171a','1')+'/>';
+   s+='<circle cx="-117" cy="0" r="9" fill="'+pen(0,2)+'" stroke="#14171a" stroke-width=".5" pointer-events="none"/>';
+  } else {
+   /* the menu with the wheel as face and one drawer out */
+   s+='<rect x="-182" y="-48" width="130" height="96" rx="8" fill="#efece5" stroke="#14171a" stroke-width="1" pointer-events="none"/>';
+   s+='<circle id="mw" cx="-117" cy="-18" r="22" fill="'+pen(2,2)+'" stroke="#14171a" stroke-width="1"'+tag('the wheel \u00b7 the face of the container','#14171a','1')+'/>';
+   s+='<rect x="-176" y="8" width="118" height="30" rx="5" fill="'+pen(0,2)+'" stroke="#14171a" stroke-width=".5" pointer-events="none"'+tag('a drawer \u00b7 unpacked beneath the wheel','#14171a','.5')+'/>';
+  }
+  var words=snaps[i].name.split(' ');
+  s+='<text x="6" y="-12" font-size="13.5" font-family="system-ui,sans-serif" fill="#3c3a36" pointer-events="none">'+snaps[i].name+'</text>';
+  s+='</g>';
+ }
+ svg.innerHTML=s;
+ svg.addEventListener('pointerup',function(e){
+  var el=document.elementFromPoint(e.clientX,e.clientY);
+  var col=el?el.closest('[data-name]'):null;
+  if(col)lab.textContent=col.dataset.name;
+ });
+})();
+</script>
+</body>
+</html>
