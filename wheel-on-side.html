@@ -1,0 +1,249 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>The wheel on its side</title>
+<style>
+ html,body{margin:0;background:#ece9e2;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+ .wrap{max-width:none;margin:0;padding:0}
+ h1{font-size:22px;color:#3c3a36;font-weight:600;margin:10px 16px 0}
+ svg.xv{width:100vw;height:auto;display:block;margin:0;touch-action:pan-y}
+ .pick{font-size:15px;color:#3c3a36;text-align:center;margin:4px 16px 20px;min-height:18px;font-weight:600}
+ .pick span{color:#8a857c;font-weight:400}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>The wheel on its side</h1>
+ <svg class="xv" id="v1" viewBox="0 0 420 560"></svg>
+ <div class="pick" id="p1"><span>tap the wheel</span></div>
+</div>
+
+<script>
+/* THE WHEEL ON ITS SIDE (owner: "when we tap the wheel to go into the wheel menu,
+   the wheel will go on its side so you can see all the layers. which is why i told
+   you why only show the wheel the way we have seen it already").
+   The packed wheel face-on is the door (only shown as we have always seen it).
+   Tap it - it TIPS OVER onto its side, and lying on its side the wheel is its
+   layers: plates stacked along the axle (the owner's column sketch: a vertical
+   line with the layers as branches off it). Pull a plate out and the stack parts,
+   opening a gap; the gap holds that layer's colour-effects in open space.
+   No furniture - digital space. LAYER LAW: one layer = one effect on every colour.
+   Swatch crowd is the 10 main colours as a STAND-IN (any-colour law: the real
+   layer holds the person's own colours). Effects defs + pen() ported verbatim. */
+var COLS=[
+ ['#c23b2e','pillar red'],
+ ['#d9a428','brass yellow'],
+ ['#2e7f8f','river teal'],
+ ['#5d8a4a','leaf green'],
+ ['#0d0c0b','ink black'],
+ ['#7d3f6e','plum'],
+ ['#35558a','deep blue'],
+ ['#b0632e','burnt orange'],
+ ['#6b7a3a','moss'],
+ ['#4a4f57','slate']
+];
+var TOOLN=['pencil','ink','watercolour','paint','marker','pastel','metallic','charcoal','spray','chalk'];
+var TOOLF=['pk','ih','wc','pt','mb','pg','ms','ch','sp','ck'];
+var TOOLC=[9,4,3,0,2,1,6,9,7,1];
+function pen(ci,t){return 'url(#'+TOOLF[t]+'c'+ci+')';}
+function fxDefsAll(){
+ var s='';
+ for(var i=0;i<COLS.length;i++){
+  var c=COLS[i][0], f='c'+i;
+  s+='<pattern id="pk'+f+'" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">'+
+     '<rect width="10" height="10" fill="#f7f5ee"/>'+
+     '<line x1="0" y1="2" x2="10" y2="2" stroke="'+c+'" stroke-width="2.4" stroke-dasharray="7 2" opacity=".5"/>'+
+     '<line x1="0" y1="6.5" x2="10" y2="6.5" stroke="'+c+'" stroke-width="1.3" stroke-dasharray="4 3" opacity=".32"/></pattern>';
+  s+='<pattern id="ih'+f+'" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">'+
+     '<rect width="8" height="8" fill="#faf8f3"/>'+
+     '<line x1="0" y1="4" x2="8" y2="3.4" stroke="'+c+'" stroke-width="1.1" opacity=".85"/></pattern>';
+  s+='<filter id="wcf'+f+'" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>';
+  s+='<pattern id="wc'+f+'" width="72" height="72" patternUnits="userSpaceOnUse">'+
+     '<rect width="72" height="72" fill="#faf8f2"/>'+
+     '<path d="M16,22 C 26,7 54,6 63,20 C 72,34 66,56 49,63 C 33,70 12,61 12,43 C 12,34 14,28 16,22 Z" fill="'+c+'" opacity=".38"/>'+
+     '<g filter="url(#wcf'+f+')">'+
+     '<path d="M13,25 C 23,11 51,10 60,23 C 67,34 63,53 47,59 C 32,65 15,56 14,40 Z" fill="'+c+'" opacity=".34"/>'+
+     '</g>'+
+     '<path d="M16,22 C 26,7 54,6 63,20" fill="none" stroke="'+c+'" stroke-width="1.2" opacity=".5"/></pattern>';
+  s+='<pattern id="pt'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f9f7f1"/>'+
+     '<path d="M4 22 Q 28 8 52 20 Q 54 34 30 40 Q 8 44 4 22 Z" fill="'+c+'" opacity=".92"/>'+
+     '<path d="M6 34 Q 26 42 48 32 Q 50 40 30 46 Q 10 48 6 34 Z" fill="'+c+'" opacity=".85"/>'+
+     '<path d="M4 22 Q 28 8 52 20" fill="none" stroke="#ffffff" stroke-width="1.4" opacity=".45"/></pattern>';
+  s+='<filter id="mbf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.4"/></filter>';
+  s+='<pattern id="mb'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f5f0"/>'+
+     '<g filter="url(#mbf'+f+')">'+
+     '<path d="M6 16 Q 30 6 54 18" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M4 36 Q 30 46 56 32" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M8 54 Q 32 58 54 48" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '</g></pattern>';
+  s+='<filter id="pgf'+f+'"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>';
+  s+='<pattern id="pg'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".34"/>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".35"/>'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".18"/></pattern>';
+  s+='<linearGradient id="ms'+f+'" x1="0" y1="0" x2="1" y2="1">'+
+     '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="20%" stop-color="'+c+'"/>'+
+     '<stop offset="38%" stop-color="#14161a"/><stop offset="50%" stop-color="#dcdde1"/>'+
+     '<stop offset="64%" stop-color="'+c+'"/><stop offset="84%" stop-color="#2a2d33"/>'+
+     '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+  s+='<filter id="chf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>';
+  s+='<pattern id="ch'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f3f2ee"/>'+
+     '<g filter="url(#chf'+f+')">'+
+     '<path d="M8 18 Q 28 8 48 20 Q 50 36 28 40 Q 6 38 8 18 Z" fill="'+c+'" opacity=".8"/>'+
+     '<path d="M10 44 Q 30 38 48 46" stroke="'+c+'" stroke-width="6" fill="none" stroke-linecap="round" opacity=".6"/>'+
+     '</g>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".22"/></pattern>';
+  s+='<pattern id="sp'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f6f1"/>'+
+     '<circle cx="14" cy="14" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="38" cy="10" r="2" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="30" cy="30" r="4" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="10" cy="40" r="2.5" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="46" cy="44" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="22" cy="50" r="1.6" fill="'+c+'" opacity=".6"/>'+
+     '<circle cx="50" cy="26" r="1.2" fill="'+c+'" opacity=".5"/>'+
+     '<circle cx="6" cy="26" r="1" fill="'+c+'" opacity=".5"/></pattern>';
+  s+='<pattern id="ck'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f8f7f2"/>'+
+     '<line x1="4" y1="20" x2="52" y2="16" stroke="'+c+'" stroke-width="7" stroke-dasharray="12 5 8 7" stroke-linecap="round" opacity=".75"/>'+
+     '<line x1="6" y1="40" x2="50" y2="44" stroke="'+c+'" stroke-width="6" stroke-dasharray="9 6 5 8" stroke-linecap="round" opacity=".6"/></pattern>';
+ }
+ return s;
+}
+(function(){
+ var d=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ d.setAttribute('width','0'); d.setAttribute('height','0'); d.setAttribute('style','position:absolute');
+ d.innerHTML='<defs>'+fxDefsAll()+'</defs>';
+ document.body.insertBefore(d,document.body.firstChild);
+})();
+
+function tag(name,edge,sw){return ' data-name="'+name+'" data-stroke="'+edge+'" data-sw="'+sw+'"'}
+function E(x){return x.toFixed(1)}
+function wedge(r0,r1,a0,a1){
+ var rad=function(a){return a*Math.PI/180};
+ var x0=E(r1*Math.cos(rad(a0))), y0=E(r1*Math.sin(rad(a0)));
+ var x1=E(r1*Math.cos(rad(a1))), y1=E(r1*Math.sin(rad(a1)));
+ var x2=E(r0*Math.cos(rad(a1))), y2=E(r0*Math.sin(rad(a1)));
+ var x3=E(r0*Math.cos(rad(a0))), y3=E(r0*Math.sin(rad(a0)));
+ return 'M'+x0+' '+y0+' A'+r1+' '+r1+' 0 0 1 '+x1+' '+y1+' L'+x2+' '+y2+' A'+r0+' '+r0+' 0 0 0 '+x3+' '+y3+' Z';
+}
+
+/* the packed wheel, face-on, as we have always seen it - the door */
+function wheelFace(pref){
+ var s='<g id="'+pref+'wheel">';
+ for(var t=0;t<10;t++){
+  s+='<path d="'+wedge(16,50,t*36-90,t*36-54)+'" fill="'+pen(TOOLC[t],t)+'" stroke="#f5f3ec" stroke-width="1.2" data-wheel="1"'+tag(TOOLN[t]+' \u00b7 '+COLS[TOOLC[t]][1],'#f5f3ec','1.2')+'/>';
+ }
+ s+='<circle cx="0" cy="0" r="52" fill="none" stroke="#14171a" stroke-width="1" pointer-events="none"/>';
+ s+='<circle cx="0" cy="0" r="7" fill="#f1ede2" stroke="#14171a" stroke-width=".8" pointer-events="none"/>';
+ s+='</g>';
+ return s;
+}
+
+/* the wheel on its side: the axle and the stacked layer-plates */
+function stackSvg(pref){
+ var s='<g id="'+pref+'stack" opacity="0" pointer-events="none">';
+ /* the axle - the wheel's own, standing vertical now */
+ s+='<line id="'+pref+'axle" x1="250" y1="70" x2="250" y2="470" stroke="#14171a" stroke-width="2" pointer-events="none"/>';
+ /* back to the paper - a real, visible control */
+ s+='<rect id="'+pref+'back" x="16" y="16" width="132" height="30" rx="15" fill="#fffdf8" stroke="#14171a" stroke-width="1" data-act="back"'+tag('back to the paper','#14171a','1')+'/>';
+ s+='<text x="82" y="36" text-anchor="middle" font-size="12.5" font-family="system-ui,sans-serif" fill="#3c3a36" pointer-events="none">back to the paper</text>';
+ /* ten layer-plates, one effect each, stacked along the axle */
+ for(var k=0;k<10;k++){
+  var y=90+k*30;
+  s+='<g id="'+pref+'lp'+k+'">';
+  s+='<rect id="'+pref+'plate'+k+'" x="70" y="'+y+'" width="180" height="22" rx="8" fill="'+pen(TOOLC[k],k)+'" stroke="#14171a" stroke-width=".8" data-k="'+k+'"'+tag('the '+TOOLN[k]+' layer','#14171a','.8')+'/>';
+  s+='<text id="'+pref+'ln'+k+'" x="258" y="'+(y+15)+'" font-size="12" font-family="system-ui,sans-serif" fill="#3c3a36" pointer-events="none">'+TOOLN[k]+'</text>';
+  s+='</g>';
+  /* the layer's colour-effects, waiting in the gap when the plate pulls out */
+  s+='<g id="'+pref+'row'+k+'" opacity="0">';
+  for(var c=0;c<COLS.length;c++){
+   s+='<rect id="'+pref+'sw'+k+'_'+c+'" x="'+(40+c*30)+'" y="'+(y+28)+'" width="28" height="44" rx="6" fill="'+pen(c,k)+'" stroke="#14171a" stroke-width=".5" data-c="'+c+'" data-k="'+k+'"'+tag(TOOLN[k]+' of '+COLS[c][1],'#14171a','.5')+'/>';
+  }
+  s+='</g>';
+ }
+ s+='</g>';
+ return s;
+}
+
+(function(){
+ var svg=document.getElementById('v1');
+ var lab=document.getElementById('p1');
+ svg.innerHTML='<rect x="0" y="0" width="420" height="560" fill="#ece9e2" pointer-events="none"/>'+wheelFace('p')+stackSvg('p');
+ var g=function(id){return document.getElementById(id)};
+ var wheel=g('pwheel'), stack=g('pstack'), back=g('pback');
+ var plates=[], rows=[];
+ for(var k=0;k<10;k++){
+  plates.push({el:g('pplate'+k), grp:g('plp'+k), y:90+k*30, pull:0});
+  rows.push({el:g('prow'+k), o:0, dy:-10});
+ }
+ var st='paper', openK=-1;
+ var wo={sy:1,o:1}, so={o:0};
+
+ function frame(){
+  var on=st==='side';
+  /* the wheel tips over: it flattens and fades as the stack arrives */
+  wo.sy+=((on?0.06:1)-wo.sy)*0.12;
+  wo.o+=((on?0:1)-wo.o)*0.12;
+  wheel.setAttribute('transform','translate(210,300) scale(1,'+wo.sy.toFixed(3)+')');
+  wheel.setAttribute('opacity',E(wo.o));
+  wheel.setAttribute('pointer-events',wo.o>0.5?'auto':'none');
+  so.o+=((on?1:0)-so.o)*0.12;
+  stack.setAttribute('opacity',E(so.o));
+  stack.setAttribute('pointer-events',so.o>0.5?'auto':'none');
+  /* the pulled plate slides out; the plates below slide down and open the gap */
+  for(var k=0;k<10;k++){
+   var P=plates[k];
+   var ty=90+k*30+(openK>=0&&k>openK?70:0);
+   P.y+=(ty-P.y)*0.14;
+   var tx=openK===k?20:70;
+   P.pull+=(tx-P.pull)*0.14;
+   P.grp.setAttribute('transform','translate(0,'+E(P.y-(90+k*30))+')');
+   P.el.setAttribute('x',E(P.pull));
+   var R=rows[k];
+   R.o+=((openK===k?1:0)-R.o)*0.14;
+   R.dy+=(((openK===k)?0:-10)-R.dy)*0.14;
+   R.el.setAttribute('opacity',E(R.o));
+   R.el.setAttribute('transform','translate(0,'+E(R.dy)+')');
+   R.el.setAttribute('pointer-events',R.o>0.5?'auto':'none');
+  }
+  requestAnimationFrame(frame);
+ }
+ frame();
+
+ var moved=false, px=0, py=0;
+ svg.addEventListener('pointerdown',function(e){
+  px=e.clientX; py=e.clientY; moved=false;
+  try{svg.setPointerCapture(e.pointerId)}catch(_){}
+ });
+ svg.addEventListener('pointermove',function(e){
+  if(Math.abs(e.clientX-px)+Math.abs(e.clientY-py)>8)moved=true;
+ });
+ svg.addEventListener('pointerup',function(e){
+  if(moved)return;
+  var el=document.elementFromPoint(e.clientX,e.clientY);
+  var col=el?el.closest('[data-name]'):null;
+  if(!col)return;
+  if(col.dataset.act==='back'){ st='paper'; openK=-1; lab.innerHTML='<span>tap the wheel</span>'; return; }
+  if(col.dataset.c!==undefined){ lab.textContent=col.dataset.name; return; }
+  if(col.dataset.k!==undefined){
+   var k=+col.dataset.k;
+   openK=(openK===k)?-1:k;
+   lab.textContent=openK===k?('the '+TOOLN[k]+' layer \u00b7 pull it back to pack'):'the layers, stacked';
+   return;
+  }
+  if(col.dataset.wheel==='1'&&st==='paper'){
+   st='side';
+   lab.innerHTML='<span>tap a layer to pull it out</span>';
+   return;
+  }
+  lab.textContent=col.dataset.name;
+ });
+})();
+</script>
+</body>
+</html>
