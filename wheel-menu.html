@@ -19,12 +19,10 @@
 <body>
 <div class="wrap">
  <h1>The wheel menu</h1>
- <p class="sub">The door and the room behind it. The packed wheel sits on the paper; one tap on it opens its menu &mdash; and the screen becomes the inside of the container: the wheel stays as its face at the front, the colour menu fills the room, and the effects of whichever colour you choose come out below it, within reach. One tap on <strong>back to the paper</strong> carries you out again.</p>
+ <p class="sub">Tap the wheel. Choose a colour. Its effects come out.</p>
 
- <div class="card"><h2>Tap the wheel &mdash; the door opens into the menu</h2>
-  <p class="desc">Tap the packed wheel. Choose a colour. Its ten effects come out below. Tap any effect to name it. Then back to the paper.</p>
+ <div class="card"><h2>The door</h2>
   <svg class="xv" id="v1" viewBox="0 0 420 560"></svg>
-  <p class="cap">the wheel is the door &middot; the menu is the container opened &middot; nothing is unpacked on the paper, only in here</p>
   <div class="pick" id="p1"><span>tap the wheel to open its menu</span></div></div>
 </div>
 
@@ -178,7 +176,6 @@ function menuSvg(pref){
  s+='<rect id="'+pref+'back" x="24" y="20" width="132" height="32" rx="16" fill="#fffdf8" stroke="#14171a" stroke-width="1" data-act="back"'+tag('back to the paper','#14171a','1')+'/>';
  s+='<text x="90" y="41" text-anchor="middle" font-size="12.5" font-family="system-ui,sans-serif" fill="#3c3a36" pointer-events="none">back to the paper</text>';
  /* the wheel stands at the front as the face - not tappable as a door from inside */
- s+='<text x="210" y="178" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="#6d6a64" pointer-events="none">the colour menu \u2014 choose a colour, its effects come out below</text>';
  /* the colour menu: twenty colours, each painted with a colour effect, never a flat chip */
  for(var i=0;i<20;i++){
   var cx=58+(i%5)*76, cy=210+Math.floor(i/5)*66;
@@ -203,7 +200,6 @@ function menuSvg(pref){
  var lab=document.getElementById('p1');
  svg.innerHTML='<g id="mpaper">'+
   '<rect x="16" y="16" width="388" height="528" rx="14" fill="#fbfaf5" stroke="#d8d3c8" stroke-width="1.5"'+tag('the drawing paper','#d8d3c8','1.5')+'/>'+
-  '<text x="210" y="342" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="#8a857c" pointer-events="none">tap the wheel \u2014 it is the door</text>'+
   '</g>'+wheelSvg('m')+menuSvg('m');
  var g=function(id){return document.getElementById(id)};
  var wheel=g('mwheel'), paper=g('mpaper'), menu=g('mmenu'), ring=g('mring'), efh=g('mefh');
