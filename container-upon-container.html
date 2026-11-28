@@ -1,0 +1,328 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Container upon container</title>
+<style>
+ html,body{margin:0;background:#e9e6e0;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+ .wrap{max-width:none;margin:0 auto;padding:18px 16px 60px}
+ h1{font-size:26px;color:#3c3a36;font-weight:600;margin:0}
+ p.sub,.card .desc{font-size:15px;color:#6d6a64;margin:6px 0 0}
+ .card{background:#f4f1ea;border:1px solid #d8d3c8;border-radius:14px;padding:14px;margin-top:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+ .card h2{font-size:19px;color:#3c3a36;margin:0 0 4px}
+ svg.xv{width:100%;height:auto;display:block;margin:0 auto;touch-action:pan-y}
+ svg.xd{touch-action:none}   /* real drag canvas: the twist owns its drags */
+ .tg{display:block;margin:12px auto 0;padding:12px 26px;font-size:15px;font-family:system-ui,sans-serif;border-radius:24px;border:1px solid #b8ab8f;background:#fffdf8;color:#3c3a36;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+ .cap{font-size:12px;color:#8a857c;text-align:center;margin:10px 0 0;line-height:1.5}
+ .pick{font-size:15px;color:#3c3a36;text-align:center;margin:6px 0 0;min-height:18px;font-weight:600}
+ .pick span{color:#8a857c;font-weight:400}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>Container upon container</h1>
+ <p class="sub">A stack of containers: tin upon tin upon tin, each one holding its own layer. To see what's in a tin, you <strong>turn</strong> it &mdash; press its lid and drag it round, like unscrewing a jar. Turn it far enough and the lid swings aside and the tin's contents show. Then the tin beneath is ready to be turned. And the whole stack can pull apart into an exploded view, so you can see every container at once.</p>
+
+ <div class="card"><h2>1 &middot; The stack: turn each tin to see inside</h2>
+  <p class="desc">Three tins stacked. Press the top lid and drag it round &mdash; twist it like a jar &mdash; and it unscrews: the lid swings aside, and the tin's contents show. The next lid is then ready to turn. Tap any part to name it.</p>
+  <svg class="xv xd" id="v1" viewBox="0 0 420 470"></svg>
+  <p class="cap">container on container on container &mdash; the turn is how you look inside</p>
+  <div class="pick" id="p1"><span>press the top lid and drag it round to unscrew it</span></div></div>
+
+ <div class="card"><h2>2 &middot; The exploded view</h2>
+  <p class="desc">The same stack, pulled apart: every tin separated, every lid swung aside, every layer visible at once. Nothing hidden, nothing crammed &mdash; the space makes room for all three.</p>
+  <svg class="xv xd" id="v2" viewBox="0 0 420 560"></svg>
+  <button class="tg" id="b2">explode the stack</button>
+  <p class="cap">one stack, three layers &mdash; exploded so all of them can be seen together</p>
+  <div class="pick" id="p2"><span>tap any part to name it</span></div></div>
+</div>
+
+<script>
+/* CONTAINER UPON CONTAINER: owner's words verbatim:
+   "we can use a exploded view or container ontop of container ontop of
+   container, etc, where you use a turn mechanism to see whats in that
+   container".
+   THE TURN LAW: stacked containers are opened by TURNING \u2014 press the lid
+   and drag it round (twist, like a jar); turn far enough and the lid swings
+   aside, showing what's in that tin; the next tin's lid is then ready.
+   THE EXPLODED VIEW: the whole stack pulls apart so every container and
+   its contents are visible at once.
+   Drag/twist machinery and chase ported from unpacking.html and the wheel;
+   effects per colour ported verbatim from layered-container.html (20 colours). */
+var COLS=[
+ ['#c23b2e','pillar red'],
+ ['#d9a428','brass yellow'],
+ ['#2e7f8f','river teal'],
+ ['#5d8a4a','leaf green'],
+ ['#0d0c0b','ink black'],
+ ['#7d3f6e','plum'],
+ ['#35558a','deep blue'],
+ ['#b0632e','burnt orange'],
+ ['#6b7a3a','moss'],
+ ['#4a4f57','slate'],
+ ['#b34a6b','rose'],
+ ['#d97f4a','apricot'],
+ ['#5a8fc2','sky'],
+ ['#cbb26a','sand'],
+ ['#7a7a3d','olive'],
+ ['#3f7f6f','sea'],
+ ['#6a4f9f','violet'],
+ ['#9a4a2a','rust'],
+ ['#2f5a45','pine'],
+ ['#5a4033','cocoa']
+];
+var TOOLN=['pencil','ink','watercolour','paint','marker','pastel','metallic','charcoal','spray','chalk'];
+var TOOLF=['pk','ih','wc','pt','mb','pg','ms','ch','sp','ck'];
+function pen(ci,t){return 'url(#'+TOOLF[t]+'c'+ci+')';}
+function fxDefsAll(){
+ var s='<linearGradient id="ms" x1="0" y1="0" x2="1" y2="1">'+
+    '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="38%" stop-color="#14161a"/>'+
+    '<stop offset="50%" stop-color="#dcdde1"/><stop offset="84%" stop-color="#2a2d33"/>'+
+    '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+ for(var i=0;i<COLS.length;i++){
+  var c=COLS[i][0], f='c'+i;
+  s+='<pattern id="pk'+f+'" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">'+
+     '<rect width="10" height="10" fill="#f7f5ee"/>'+
+     '<line x1="0" y1="2" x2="10" y2="2" stroke="'+c+'" stroke-width="2.4" stroke-dasharray="7 2" opacity=".5"/>'+
+     '<line x1="0" y1="6.5" x2="10" y2="6.5" stroke="'+c+'" stroke-width="1.3" stroke-dasharray="4 3" opacity=".32"/></pattern>';
+  s+='<pattern id="ih'+f+'" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">'+
+     '<rect width="8" height="8" fill="#faf8f3"/>'+
+     '<line x1="0" y1="4" x2="8" y2="3.4" stroke="'+c+'" stroke-width="1.1" opacity=".85"/></pattern>';
+  s+='<filter id="wcf'+f+'" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>';
+  s+='<pattern id="wc'+f+'" width="72" height="72" patternUnits="userSpaceOnUse">'+
+     '<rect width="72" height="72" fill="#faf8f2"/>'+
+     '<path d="M16,22 C 26,7 54,6 63,20 C 72,34 66,56 49,63 C 33,70 12,61 12,43 C 12,34 14,28 16,22 Z" fill="'+c+'" opacity=".38"/>'+
+     '<g filter="url(#wcf'+f+')">'+
+     '<path d="M13,25 C 23,11 51,10 60,23 C 67,34 63,53 47,59 C 32,65 15,56 14,40 Z" fill="'+c+'" opacity=".34"/>'+
+     '</g>'+
+     '<path d="M16,22 C 26,7 54,6 63,20" fill="none" stroke="'+c+'" stroke-width="1.2" opacity=".5"/></pattern>';
+  s+='<pattern id="pt'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f9f7f1"/>'+
+     '<path d="M4 22 Q 28 8 52 20 Q 54 34 30 40 Q 8 44 4 22 Z" fill="'+c+'" opacity=".92"/>'+
+     '<path d="M6 34 Q 26 42 48 32 Q 50 40 30 46 Q 10 48 6 34 Z" fill="'+c+'" opacity=".85"/>'+
+     '<path d="M4 22 Q 28 8 52 20" fill="none" stroke="#ffffff" stroke-width="1.4" opacity=".45"/></pattern>';
+  s+='<filter id="mbf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.4"/></filter>';
+  s+='<pattern id="mb'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f5f0"/>'+
+     '<g filter="url(#mbf'+f+')">'+
+     '<path d="M6 16 Q 30 6 54 18" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M4 36 Q 30 46 56 32" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M8 54 Q 32 58 54 48" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '</g></pattern>';
+  s+='<filter id="pgf'+f+'"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>';
+  s+='<pattern id="pg'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".34"/>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".35"/>'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".18"/></pattern>';
+  s+='<linearGradient id="ms'+f+'" x1="0" y1="0" x2="1" y2="1">'+
+     '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="20%" stop-color="'+c+'"/>'+
+     '<stop offset="38%" stop-color="#14161a"/><stop offset="50%" stop-color="#dcdde1"/>'+
+     '<stop offset="64%" stop-color="'+c+'"/><stop offset="84%" stop-color="#2a2d33"/>'+
+     '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+  s+='<filter id="chf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>';
+  s+='<pattern id="ch'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f3f2ee"/>'+
+     '<g filter="url(#chf'+f+')">'+
+     '<path d="M8 18 Q 28 8 48 20 Q 50 36 28 40 Q 6 38 8 18 Z" fill="'+c+'" opacity=".8"/>'+
+     '<path d="M10 44 Q 30 38 48 46" stroke="'+c+'" stroke-width="6" fill="none" stroke-linecap="round" opacity=".6"/>'+
+     '</g>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".22"/></pattern>';
+  s+='<pattern id="sp'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f6f1"/>'+
+     '<circle cx="14" cy="14" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="38" cy="10" r="2" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="30" cy="30" r="4" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="10" cy="40" r="2.5" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="46" cy="44" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="22" cy="50" r="1.6" fill="'+c+'" opacity=".6"/>'+
+     '<circle cx="50" cy="26" r="1.2" fill="'+c+'" opacity=".5"/>'+
+     '<circle cx="6" cy="26" r="1" fill="'+c+'" opacity=".5"/></pattern>';
+  s+='<pattern id="ck'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f8f7f2"/>'+
+     '<line x1="4" y1="20" x2="52" y2="16" stroke="'+c+'" stroke-width="7" stroke-dasharray="12 5 8 7" stroke-linecap="round" opacity=".75"/>'+
+     '<line x1="6" y1="40" x2="50" y2="44" stroke="'+c+'" stroke-width="6" stroke-dasharray="9 6 5 8" stroke-linecap="round" opacity=".6"/></pattern>';
+ }
+ return s;
+}
+(function(){
+ var d=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ d.setAttribute('width','0'); d.setAttribute('height','0'); d.setAttribute('style','position:absolute');
+ d.innerHTML='<defs>'+fxDefsAll()+'</defs>';
+ document.body.insertBefore(d,document.body.firstChild);
+})();
+
+function tag(name,edge,sw){return ' data-name="'+name+'" data-stroke="'+edge+'" data-sw="'+sw+'"'}
+function E(expr){return expr.toFixed(1)}
+function wedgePts(cx,cy,r0,r1,a0deg,a1deg){
+ var a0=a0deg*Math.PI/180, a1=a1deg*Math.PI/180;
+ return E(cx+r1*Math.cos(a0))+','+E(cy+r1*Math.sin(a0))+' '+
+        E(cx+r1*Math.cos(a1))+','+E(cy+r1*Math.sin(a1))+' '+
+        E(cx+r0*Math.cos(a1))+','+E(cy+r0*Math.sin(a1))+' '+
+        E(cx+r0*Math.cos(a0))+','+E(cy+r0*Math.sin(a0));
+}
+/* what each tin holds: tin 0 = the ten effects of pillar red,
+   tin 1 = the deeper effects, tin 2 = the deeper colours */
+var TINS=[
+ {name:'tin one \u00b7 the effects of pillar red', n:10, fill:function(i){return pen(0,i);},      nm:function(i){return TOOLN[i];}},
+ {name:'tin two \u00b7 the deeper effects',        n:3,  fill:function(i){return pen(0,7+i);},   nm:function(i){return TOOLN[7+i]+' \u00b7 deeper';}},
+ {name:'tin three \u00b7 the deeper colours',      n:10, fill:function(i){return pen(10+i,0);},  nm:function(i){return COLS[10+i][1];}}
+];
+var R=80;
+
+/* one tin: case + contents group (hidden until open) + lid group; RETURNS the markup */
+function tinSvg(pref,k,cy){
+ var s='';
+ s+='<g id="'+pref+'case'+k+'"><circle cx="210" cy="'+cy+'" r="'+R+'" fill="#eae6dc" stroke="#14171a" stroke-width="1.2"'+tag(TINS[k].name,'#14171a','1.2')+'/>';
+ var step=360/TINS[k].n;
+ for(var i=0;i<TINS[k].n;i++){
+  s+='<polygon id="'+pref+'w'+k+'_'+i+'" points="'+wedgePts(210,cy,14,R-10,i*step+1.2,(i+1)*step-1.2)+'" fill="'+TINS[k].fill(i)+'" stroke="#14171a" stroke-width=".5"'+tag(TINS[k].nm(i),'#14171a','.5')+'/>';
+ }
+ s+='<circle cx="210" cy="'+cy+'" r="13" fill="#eae6dc" stroke="#14171a" stroke-width="1" pointer-events="none"/></g>';
+ s+='<g id="'+pref+'con'+k+'" opacity="0" pointer-events="none"></g>';
+ s+='<g id="'+pref+'lid'+k+'"><circle cx="210" cy="'+cy+'" r="'+R+'" fill="'+pen(0,2)+'" stroke="#14171a" stroke-width="1.2"'+tag('the lid of '+TINS[k].name+' \u00b7 drag it round to unscrew','#14171a','1.2')+'/>';
+ for(var g=0;g<3;g++){
+  var ga=(-90+g*120)*Math.PI/180;
+  s+='<circle cx="'+(210+62*Math.cos(ga)).toFixed(1)+'" cy="'+(cy+62*Math.sin(ga)).toFixed(1)+'" r="5" fill="#fffdf8" stroke="#14171a" stroke-width=".6" pointer-events="none"/>';
+ }
+ s+='<text id="'+pref+'hint'+k+'" x="210" y="'+(cy+4)+'" text-anchor="middle" font-size="13" font-family="system-ui,sans-serif" fill="#3c3a36" opacity="0" pointer-events="none">turn me</text></g>';
+ return s;
+}
+
+/* move the contents' wedges INTO the contents group after build */
+function tinWire(pref){
+ var cons=[], lids=[], hints=[];
+ for(var k=0;k<3;k++){
+  var con=document.getElementById(pref+'con'+k);
+  var lid=document.getElementById(pref+'lid'+k);
+  for(var i=0;i<TINS[k].n;i++){
+   con.appendChild(document.getElementById(pref+'w'+k+'_'+i));
+  }
+  cons.push(con); lids.push(lid); hints.push(document.getElementById(pref+'hint'+k));
+ }
+ return {cons:cons,lids:lids,hints:hints};
+}
+
+/* 1 - THE STACK: twist each lid to see inside */
+(function(){
+ var svg=document.getElementById('v1');
+ var lab=document.getElementById('p1');
+ var CY=[105,195,285];
+ var s='';
+ for(var k=2;k>=0;k--) s+=tinSvg('a',k,CY[k]);
+ s+='<text x="210" y="455" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="#8a857c" pointer-events="none">and there are more containers beneath</text>';
+ svg.innerHTML=s;
+ var parts=tinWire('a');
+ var openK=0;                      /* how many tins are open; tin openK is next */
+ var twist=null, moved=false, px=0, py=0;
+ var pose=[];
+ for(var p=0;p<3;p++)pose.push({dx:0,dy:0,rot:0});
+ function angAt(x,y,k){ return Math.atan2(y-CY[k],x-210)*180/Math.PI; }
+ function frame(){
+  for(var k=0;k<3;k++){
+   var P=pose[k], isTwist=twist&&twist.k===k;
+   var t=isTwist?{dx:0,dy:0,rot:twist.rot}:(k<openK?{dx:-150,dy:-52,rot:78}:{dx:0,dy:0,rot:0});
+   var f=isTwist?0.35:0.14;
+   P.dx+=(t.dx-P.dx)*f; P.dy+=(t.dy-P.dy)*f; P.rot+=(t.rot-P.rot)*f;
+   parts.lids[k].setAttribute('transform','translate('+E(P.dx)+','+E(P.dy)+') rotate('+E(P.rot)+',210,'+CY[k]+')');
+   var o=k<openK?1:0, co=parseFloat(parts.cons[k].getAttribute('opacity')||'0');
+   co+=(o-co)*0.16;
+   parts.cons[k].setAttribute('opacity',E(co));
+   parts.cons[k].setAttribute('pointer-events',co>0.5?'auto':'none');
+   parts.hints[k].setAttribute('opacity',(k===openK&&!twist)?'1':'0');
+  }
+  requestAnimationFrame(frame);
+ }
+ frame();
+ function toSvg(e){
+  var r=svg.getBoundingClientRect();
+  return {x:(e.clientX-r.left)/r.width*420, y:(e.clientY-r.top)/r.height*470};
+ }
+ svg.addEventListener('pointerdown',function(e){
+  var m=toSvg(e); px=e.clientX; py=e.clientY; moved=false;
+  if(openK<3){
+   var el=document.elementFromPoint(e.clientX,e.clientY);
+   var col=el?el.closest('[data-name]'):null;
+   if(col&&col.id==='alid'+openK){
+    twist={k:openK, a0:angAt(m.x,m.y,openK), r0:pose[openK].rot};
+    try{svg.setPointerCapture(e.pointerId)}catch(_){}
+    e.preventDefault();
+   }
+  }
+ });
+ svg.addEventListener('pointermove',function(e){
+  if(Math.abs(e.clientX-px)+Math.abs(e.clientY-py)>8)moved=true;
+  if(!twist)return;
+  var m=toSvg(e);
+  var a=angAt(m.x,m.y,twist.k);
+  var da=a-twist.a0; da=((da+540)%360)-180;
+  twist.rot=twist.r0+da;
+  lab.textContent='turning\u2026 keep going to unscrew';
+ });
+ svg.addEventListener('pointerup',function(e){
+  if(twist){
+   if(Math.abs(twist.rot)>55){
+    openK=twist.k+1;
+    lab.textContent=TINS[twist.k].name.split(' \u00b7 ')[1]+' \u00b7 drag them out when you want them';
+   } else {
+    lab.textContent='turn it further to unscrew';
+   }
+   twist=null;
+  } else if(!moved){
+   var el=document.elementFromPoint(e.clientX,e.clientY);
+   var col=el?el.closest('[data-name]'):null;
+   if(col)lab.textContent=col.dataset.name;
+  }
+ });
+ svg.addEventListener('pointercancel',function(){twist=null});
+})();
+
+/* 2 - THE EXPLODED VIEW */
+(function(){
+ var svg=document.getElementById('v2');
+ var lab=document.getElementById('p2');
+ var btn=document.getElementById('b2');
+ var CYC=[130,130,130], CYX=[95,255,415];
+ var s='';
+ for(var k=2;k>=0;k--) s+=tinSvg('b',k,CYC[k]);
+ svg.innerHTML=s;
+ var parts=tinWire('b');
+ var open=false;
+ var st=[];
+ for(var p=0;p<3;p++)st.push({y:CYC[p],o:0,ldx:0,ldy:0,lrot:0});
+ function frame(){
+  for(var k=0;k<3;k++){
+   var S=st[k];
+   var ty=open?CYX[k]:CYC[k], to=open?1:0;
+   var ldx=open?-155:0, ldy=open?18:0, lrot=open?82:0;
+   S.y+=(ty-S.y)*0.14; S.o+=(to-S.o)*0.14;
+   S.ldx+=(ldx-S.ldx)*0.14; S.ldy+=(ldy-S.ldy)*0.14; S.lrot+=(lrot-S.lrot)*0.14;
+   parts.cons[k].setAttribute('transform','translate(0,'+E(S.y-CYC[k])+')');
+   parts.cons[k].setAttribute('opacity',E(S.o));
+   parts.cons[k].setAttribute('pointer-events',S.o>0.5?'auto':'none');
+   /* move case and wedges vertically with the tin */
+   document.getElementById('bcase'+k).setAttribute('transform','translate(0,'+E(S.y-CYC[k])+')');
+   parts.lids[k].setAttribute('transform','translate('+E(S.ldx)+','+E(S.ldy+(S.y-CYC[k]))+') rotate('+E(S.lrot)+',210,'+CYC[k]+')');
+   parts.hints[k].setAttribute('opacity','0');
+  }
+  requestAnimationFrame(frame);
+ }
+ frame();
+ var px=0, py=0, moved=false;
+ svg.addEventListener('pointerdown',function(e){ px=e.clientX; py=e.clientY; moved=false; });
+ svg.addEventListener('pointermove',function(e){
+  if(Math.abs(e.clientX-px)+Math.abs(e.clientY-py)>8)moved=true;
+ });
+ svg.addEventListener('pointerup',function(e){
+  if(moved)return;
+  var el=document.elementFromPoint(e.clientX,e.clientY);
+  var col=el?el.closest('[data-name]'):null;
+  if(col)lab.textContent=col.dataset.name;
+ });
+ btn.addEventListener('click',function(){
+  open=!open;
+  btn.textContent=open?'stack it back':'explode the stack';
+ });
+})();
+</script>
+</body>
+</html>
