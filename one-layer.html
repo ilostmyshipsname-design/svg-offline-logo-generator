@@ -5,10 +5,10 @@
 <title>One layer - the pencil layer</title>
 <style>
  html,body{margin:0;background:#e9e6e0;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y}
- .wrap{max-width:none;margin:0 auto;padding:18px 16px 60px}
- h1{font-size:26px;color:#3c3a36;font-weight:600;margin:0}
- p.sub{font-size:15px;color:#6d6a64;margin:6px 0 0}
- svg.xv{width:100%;height:auto;display:block;margin:14px auto 0;touch-action:pan-y}
+ .wrap{max-width:none;margin:0;padding:0}
+ h1{font-size:22px;color:#3c3a36;font-weight:600;margin:10px 16px 0}
+ p.sub{font-size:14px;color:#6d6a64;margin:2px 16px 0}
+ svg.xv{width:100vw;height:auto;display:block;margin:0;touch-action:pan-y}
  .pick{font-size:15px;color:#3c3a36;text-align:center;margin:6px 0 0;min-height:18px;font-weight:600}
  .pick span{color:#8a857c;font-weight:400}
 </style>
@@ -19,7 +19,7 @@
  <p class="sub">The pencil layer &mdash; the pencil effect on every colour.</p>
 
  <svg class="xv" id="v1" viewBox="0 0 420 560"></svg>
- <div class="pick" id="p1"><span></span></div>
+ <div class="pick" id="p1" style="margin:4px 16px 20px"><span></span></div>
 </div>
 
 <script>
