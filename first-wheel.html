@@ -20,36 +20,44 @@
 <body>
 <div class="wrap">
  <h1>The first wheel</h1>
- <p class="sub">What the app shows the first time it opens: the colour wheel, on screen, with the default colour effects. Notice &mdash; no default colour, no default pen. Each colour carries its effects <em>attached</em> to it. Tap a colour and its effects unfurl round the rim. Tap an effect to choose it. Tap the colour again and they fold back.</p>
+ <p class="sub">A colour effects wheel, not a colour wheel. When the app opens the first time, this is on the screen: the ten colour effects round the rim, each one holding its colours attached. Tap an effect and its colours unfurl round the rim. Tap a colour to choose that colour effect. Tap the effect again and they fold back. Colours on their own live in the colour menu; pens in the pen menu &mdash; this wheel is the colour effects.</p>
 
- <div class="card"><h2>1 &middot; The wheel as it arrives</h2>
-  <p class="desc">Five colours, quiet, in watercolour wash. Every one of them is already holding all ten of its effects underneath. Tap a colour to open what it carries.</p>
+ <div class="card"><h2>1 &middot; The colour effects wheel</h2>
+  <p class="desc">Ten effects, each in its own colour, quiet, as they arrive. Every one of them is already carrying all ten of its colours underneath. Tap an effect to open what it carries.</p>
   <svg class="xv" id="v1" viewBox="0 0 420 420"></svg>
-  <p class="cap">the colour of red, for instance, has many effects attached to it &mdash; tap red and they come out</p>
-  <div class="pick" id="p1"><span>tap a colour &middot; then tap one of its effects</span></div></div>
+  <p class="cap">not a wheel of colours &mdash; a wheel of colour effects. tap one and its colours come out</p>
+  <div class="pick" id="p1"><span>tap an effect &middot; then tap one of its colours</span></div></div>
 
- <div class="card"><h2>2 &middot; One colour, all of its effects</h2>
-  <p class="desc">Red alone, opened out flat, so you can see everything it is carrying: the same red as pencil, ink, watercolour, paint, marker, pastel, metallic, charcoal, spray and chalk.</p>
+ <div class="card"><h2>2 &middot; One effect, all of its colours</h2>
+  <p class="desc">Watercolour alone, opened out flat, so you can see everything it is carrying: watercolour in pillar red, brass yellow, river teal, leaf green, ink black, plum, deep blue, burnt orange, moss and slate.</p>
   <svg class="xv" id="v2" viewBox="0 0 420 150"></svg>
-  <p class="cap">not ten colours &mdash; one colour, ten effects. this is what lives inside each wedge</p>
+  <p class="cap">not ten effects &mdash; one effect, ten colours. this is what lives inside each wedge</p>
   <div class="pick" id="p2"><span>tap a band to name it</span></div></div>
 </div>
 
 <script>
-/* THE FIRST WHEEL: the first-open state of the app.
-   Colours carry their effects ATTACHED. Tap a colour and its ten effect
-   petals unfurl round the rim (bloom); tap a petal to choose that effect;
-   tap the colour again and the petals fold back.
+/* THE FIRST WHEEL: a COLOUR EFFECTS WHEEL (owner's correction:
+   "it should be a color effects wheel, not a color wheel").
+   The ten effects are the wedges; each effect carries its colours ATTACHED.
+   Tap an effect and its colour petals unfurl round the rim (bloom);
+   tap a petal to choose that colour effect; tap the effect again and
+   the petals fold back.
    Effects per colour ported verbatim from layered-container.html. */
 var COLS=[
  ['#c23b2e','pillar red'],
  ['#d9a428','brass yellow'],
  ['#2e7f8f','river teal'],
  ['#5d8a4a','leaf green'],
- ['#0d0c0b','ink black']
+ ['#0d0c0b','ink black'],
+ ['#7d3f6e','plum'],
+ ['#35558a','deep blue'],
+ ['#b0632e','burnt orange'],
+ ['#6b7a3a','moss'],
+ ['#4a4f57','slate']
 ];
 var TOOLN=['pencil','ink','watercolour','paint','marker','pastel','metallic','charcoal','spray','chalk'];
 var TOOLF=['pk','ih','wc','pt','mb','pg','ms','ch','sp','ck'];
+var TOOLC=[9,4,3,0,2,1,6,9,7,1];   /* default colour per effect; charcoal/spray/chalk extended from the 7-pen set */
 function pen(ci,t){return 'url(#'+TOOLF[t]+'c'+ci+')';}
 function fxDefsAll(){
  var s='<linearGradient id="ms" x1="0" y1="0" x2="1" y2="1">'+
@@ -131,16 +139,17 @@ function fxDefsAll(){
 function tag(name,edge,sw){return ' data-name="'+name+'" data-stroke="'+edge+'" data-sw="'+sw+'"'}
 function E(expr){return expr.toFixed(1)}
 
-/* 1 - THE WHEEL AS IT ARRIVES */
+/* 1 - THE COLOUR EFFECTS WHEEL */
 (function(){
  var svg=document.getElementById('v1');
  var CX=210, CY=205;
  var R0=44, R1=118, BLOOM=68;
  var lab=document.getElementById('p1');
- var SECC=360/5, PETN=10, STEP=SECC/PETN;   /* five colour sectors, ten petals each */
- var openCi=-1;                              /* which colour's effects are out */
+ var SECC=360/10, PETN=10, STEP=SECC/PETN;   /* ten effect sectors, ten colour petals each */
+ var openEt=-1;                              /* which effect's colours are out */
  var chosenC=0, chosenP=2;                   /* what the lens shows */
- var bloom=[0,0,0,0,0];
+ var bloom=[];
+ for(var b=0;b<10;b++)bloom.push(0);
  function wedgePts(r0,r1,a0deg,a1deg){
   var a0=a0deg*Math.PI/180, a1=a1deg*Math.PI/180;
   return E(CX+r1*Math.cos(a0))+','+E(CY+r1*Math.sin(a0))+' '+
@@ -148,43 +157,43 @@ function E(expr){return expr.toFixed(1)}
          E(CX+r0*Math.cos(a1))+','+E(CY+r0*Math.sin(a1))+' '+
          E(CX+r0*Math.cos(a0))+','+E(CY+r0*Math.sin(a0));
  }
- function petalPts(ci,j,rout){
+ function petalPts(t,ci,rout){
   var rin=R1-2;
-  var a0=(ci*SECC+j*STEP+0.6)*Math.PI/180, a1=(ci*SECC+(j+1)*STEP-0.6)*Math.PI/180;
+  var a0=(t*SECC+ci*STEP+0.3)*Math.PI/180, a1=(t*SECC+(ci+1)*STEP-0.3)*Math.PI/180;
   return E(CX+rout*Math.cos(a0))+','+E(CY+rout*Math.sin(a0))+' '+
          E(CX+rout*Math.cos(a1))+','+E(CY+rout*Math.sin(a1))+' '+
          E(CX+rin*Math.cos(a1))+','+E(CY+rin*Math.sin(a1))+' '+
          E(CX+rin*Math.cos(a0))+','+E(CY+rin*Math.sin(a0));
  }
  var s='';
- /* the petals, colour by colour: hidden until their colour is tapped */
- for(var ci=0;ci<5;ci++){
-  for(var j=0;j<PETN;j++){
-   s+='<polygon id="pt'+ci+'_'+j+'" points="'+petalPts(ci,j,R1)+'" fill="'+pen(ci,j)+'" fill-opacity="0" pointer-events="none" stroke="#14171a" stroke-width=".5"'+tag(COLS[ci][1]+' \u00b7 '+TOOLN[j],'#14171a','.5')+'/>';
+ /* the colour petals, effect by effect: hidden until their effect is tapped */
+ for(var t=0;t<10;t++){
+  for(var ci=0;ci<PETN;ci++){
+   s+='<polygon id="pt'+t+'_'+ci+'" points="'+petalPts(t,ci,R1)+'" fill="'+pen(ci,t)+'" fill-opacity="0" pointer-events="none" stroke="#14171a" stroke-width=".5"'+tag(TOOLN[t]+' \u00b7 '+COLS[ci][1],'#14171a','.5')+'/>';
   }
  }
  /* the rim the petals rest against */
  s+='<circle cx="'+CX+'" cy="'+CY+'" r="'+(R1+2)+'" fill="none" stroke="#14171a" stroke-width="1" opacity=".35" pointer-events="none"/>';
- /* the five colour wedges, in watercolour wash */
- for(var c2=0;c2<5;c2++){
-  s+='<polygon id="cw'+c2+'" points="'+wedgePts(R0,R1,c2*SECC+1.5,(c2+1)*SECC-1.5)+'" fill="'+pen(c2,2)+'" stroke="#14171a" stroke-width=".5"'+tag(COLS[c2][1]+' \u00b7 tap to open its effects','#14171a','.5')+'/>';
+ /* the ten effect wedges, each in its own colour */
+ for(var t2=0;t2<10;t2++){
+  s+='<polygon id="ew'+t2+'" points="'+wedgePts(R0,R1,t2*SECC+1,(t2+1)*SECC-1)+'" fill="'+pen(TOOLC[t2],t2)+'" stroke="#14171a" stroke-width=".5"'+tag(TOOLN[t2]+' \u00b7 tap to open its colours','#14171a','.5')+'/>';
  }
  /* the lens: the chosen colour effect */
  s+='<circle id="lens" cx="'+CX+'" cy="'+CY+'" r="32" fill="'+pen(chosenC,chosenP)+'" stroke="#14171a" stroke-width="2" pointer-events="none"'+tag('the lens \u00b7 the part','url(#ms)','2')+'/>';
  svg.innerHTML=s;
  /* live refs to the petals for the per-frame recomputation */
  var petals=[];
- for(var c3=0;c3<5;c3++){ petals.push([]); for(var j2=0;j2<PETN;j2++) petals[c3].push(document.getElementById('pt'+c3+'_'+j2)); }
+ for(var t3=0;t3<10;t3++){ petals.push([]); for(var c3=0;c3<PETN;c3++) petals[t3].push(document.getElementById('pt'+t3+'_'+c3)); }
  function frame(){
-  for(var ci=0;ci<5;ci++){
-   var target=(openCi===ci)?1:0;
-   bloom[ci]+=(target-bloom[ci])*0.2;
-   var rout=R1+BLOOM*bloom[ci];
-   for(var j=0;j<PETN;j++){
-    var p=petals[ci][j];
-    p.setAttribute('points',petalPts(ci,j,rout));
-    p.setAttribute('fill-opacity',(bloom[ci]*0.95).toFixed(2));
-    p.setAttribute('pointer-events',bloom[ci]>0.35?'auto':'none');
+  for(var t=0;t<10;t++){
+   var target=(openEt===t)?1:0;
+   bloom[t]+=(target-bloom[t])*0.2;
+   var rout=R1+BLOOM*bloom[t];
+   for(var ci=0;ci<PETN;ci++){
+    var p=petals[t][ci];
+    p.setAttribute('points',petalPts(t,ci,rout));
+    p.setAttribute('fill-opacity',(bloom[t]*0.95).toFixed(2));
+    p.setAttribute('pointer-events',bloom[t]>0.35?'auto':'none');
    }
   }
   requestAnimationFrame(frame);
@@ -198,32 +207,32 @@ function E(expr){return expr.toFixed(1)}
   var col=el?el.closest('[data-name]'):null;
   if(!col)return;
   var id=col.id;
-  if(id.indexOf('cw')===0){                       /* a colour: open or fold its effects */
-   var c=+id.slice(2);
-   openCi=(openCi===c)?-1:c;
-   lab.textContent=openCi<0?'tap a colour to open its effects':COLS[c][1]+' \u00b7 tap an effect to choose it';
-  } else if(id.indexOf('pt')===0){                /* an effect petal: choose it */
+  if(id.indexOf('ew')===0){                       /* an effect: open or fold its colours */
+   var t=+id.slice(2);
+   openEt=(openEt===t)?-1:t;
+   lab.textContent=openEt<0?'tap an effect to open its colours':TOOLN[t]+' \u00b7 tap a colour to choose it';
+  } else if(id.indexOf('pt')===0){                /* a colour petal: choose that colour effect */
    var parts=id.slice(2).split('_');
-   chosenC=+parts[0]; chosenP=+parts[1];
+   chosenP=+parts[0]; chosenC=+parts[1];
    document.getElementById('lens').setAttribute('fill',pen(chosenC,chosenP));
-   lab.textContent='chosen: '+COLS[chosenC][1]+' \u00b7 '+TOOLN[chosenP];
+   lab.textContent='chosen: '+TOOLN[chosenP]+' \u00b7 '+COLS[chosenC][1];
   }
  });
 })();
 
-/* 2 - ONE COLOUR, ALL OF ITS EFFECTS */
+/* 2 - ONE EFFECT, ALL OF ITS COLOURS */
 (function(){
  var svg=document.getElementById('v2');
  var lab=document.getElementById('p2');
  var s='';
- for(var t=0;t<TOOLN.length;t++){
-  s+='<rect id="rb'+t+'" x="'+(12+t*40)+'" y="18" width="36" height="110" rx="4" fill="'+pen(0,t)+'" stroke="#14171a" stroke-width=".5"'+tag(TOOLN[t],'#14171a','.5')+'/>';
+ for(var ci=0;ci<COLS.length;ci++){
+  s+='<rect id="rb'+ci+'" x="'+(12+ci*40)+'" y="18" width="36" height="110" rx="4" fill="'+pen(ci,2)+'" stroke="#14171a" stroke-width=".5"'+tag(COLS[ci][1],'#14171a','.5')+'/>';
  }
  svg.innerHTML=s;
  svg.addEventListener('pointerup',function(e){
   var el=document.elementFromPoint(e.clientX,e.clientY);
   var col=el?el.closest('[data-name]'):null;
-  if(col)lab.textContent=col.dataset.name+' \u00b7 pillar red';
+  if(col)lab.textContent=col.dataset.name+' \u00b7 watercolour';
  });
 })();
 </script>
