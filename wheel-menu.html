@@ -178,7 +178,7 @@ function menuSvg(pref){
  /* the wheel stands at the front as the face - not tappable as a door from inside */
  /* the colour menu: twenty colours, each painted with a colour effect, never a flat chip */
  for(var i=0;i<20;i++){
-  var cx=58+(i%5)*76, cy=210+Math.floor(i/5)*66;
+  var cx=58+(i%5)*76, cy=140+Math.floor(i/5)*78;
   s+='<circle id="'+pref+'d'+i+'" cx="'+cx+'" cy="'+cy+'" r="20" fill="'+pen(i,3)+'" stroke="#14171a" stroke-width=".8" data-i="'+i+'"'+tag(COLS[i][1],'#14171a','.8')+'/>';
  }
  s+='<circle id="'+pref+'ring" cx="0" cy="0" r="25" fill="none" stroke="#14171a" stroke-width="2" opacity="0" pointer-events="none"/>';
@@ -208,7 +208,7 @@ function menuSvg(pref){
  for(var t=0;t<10;t++)efs.push(g('mef'+t));
 
  var st='paper', chosen=-1;
- var wp={x:210,y:260,s:1}, pop={v:1}, mop={v:0};
+ var wp={x:210,y:260,s:1}, pop={v:1}, mop={v:0}, wop={v:1};
  var rp={x:210,y:260,o:0};
  var ep=[];
  for(var t=0;t<10;t++)ep.push({o:0,dy:14});
@@ -216,6 +216,9 @@ function menuSvg(pref){
   var on=st==='menu';
   wp.x+=(210-wp.x)*0.14; wp.y+=((on?110:260)-wp.y)*0.14; wp.s+=((on?1.08:1)-wp.s)*0.14;
   wheel.setAttribute('transform','translate('+E(wp.x)+','+E(wp.y)+') scale('+wp.s.toFixed(3)+')');
+  wop.v+=((on?0:1)-wop.v)*0.14;
+  wheel.setAttribute('opacity',E(wop.v));
+  wheel.setAttribute('pointer-events',wop.v>0.5?'auto':'none');
   pop.v+=((on?0:1)-pop.v)*0.14;
   paper.setAttribute('opacity',E(pop.v));
   paper.setAttribute('pointer-events',pop.v>0.5?'auto':'none');
