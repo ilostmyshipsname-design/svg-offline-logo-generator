@@ -1,0 +1,358 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>The jar tower</title>
+<style>
+ html,body{margin:0;background:#e9e6e0;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+ .wrap{max-width:none;margin:0 auto;padding:18px 16px 60px}
+ h1{font-size:26px;color:#3c3a36;font-weight:600;margin:0}
+ p.sub,.card .desc{font-size:15px;color:#6d6a64;margin:6px 0 0}
+ .card{background:#f4f1ea;border:1px solid #d8d3c8;border-radius:14px;padding:14px;margin-top:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+ .card h2{font-size:19px;color:#3c3a36;margin:0 0 4px}
+ svg.xv{width:100%;height:auto;display:block;margin:0 auto;touch-action:pan-y}
+ svg.xd{touch-action:none}   /* real drag canvas: the twist owns its drags */
+ .tg{display:block;margin:12px auto 0;padding:12px 26px;font-size:15px;font-family:system-ui,sans-serif;border-radius:24px;border:1px solid #b8ab8f;background:#fffdf8;color:#3c3a36;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+ .cap{font-size:12px;color:#8a857c;text-align:center;margin:10px 0 0;line-height:1.5}
+ .pick{font-size:15px;color:#3c3a36;text-align:center;margin:6px 0 0;min-height:18px;font-weight:600}
+ .pick span{color:#8a857c;font-weight:400}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>The jar tower</h1>
+ <p class="sub">Like the stacking pots in your picture: round jars screwed one on top of the other into a tower, each tier with its own colour-coded lid, a handle to carry the whole thing. Each tier holds one layer. To see what's in a tier, you <strong>turn its lid</strong> &mdash; drag it sideways like unscrewing &mdash; and it swings off, its contents spilling out beside the tower where you can reach them. The next lid is then ready. And one button pulls the whole tower apart into an exploded view.</p>
+
+ <div class="card"><h2>1 &middot; The tower: turn a lid to see inside</h2>
+  <p class="desc">Three tiers, like the shopping pots. Press the top lid and drag it sideways &mdash; it unscrews, swings aside, and its layer spills out beside the tower where you can reach it. Tap any part to name it.</p>
+  <svg class="xv xd" id="v1" viewBox="0 0 420 540"></svg>
+  <p class="cap">container on container on container &mdash; turn the lid, the layer comes out to your hand</p>
+  <div class="pick" id="p1"><span>press the top lid and drag it sideways to unscrew</span></div></div>
+
+ <div class="card"><h2>2 &middot; The exploded view</h2>
+  <p class="desc">The same tower pulled apart: every tier separated, every lid off, every layer out beside its own pot. Nothing hidden, nothing crammed.</p>
+  <svg class="xv xd" id="v2" viewBox="0 0 420 560"></svg>
+  <button class="tg" id="b2">explode the tower</button>
+  <p class="cap">one tower, three layers &mdash; exploded so all of them can be seen and reached</p>
+  <div class="pick" id="p2"><span>tap any part to name it</span></div></div>
+</div>
+
+<script>
+/* THE JAR TOWER: owner sent a photo of stacking pots (three-tier screw-top
+   containers, colour-coded lids, carry handle) as the real-world answer to
+   "container ontop of container ontop of container, where you use a turn
+   mechanism to see whats in that container".
+   THE TOWER LAW: tiers screw together; you UNSCREW the exposed lid by
+   dragging it sideways (the turn mechanism); the tier's contents spill out
+   beside the tower, in reach; the next lid is then exposed. The whole tower
+   can explode apart so every layer is visible and reachable at once.
+   Twist/chase machinery ported from container-upon-container.html and
+   unpacking.html; effects per colour ported verbatim from
+   layered-container.html (20 colours). */
+var COLS=[
+ ['#c23b2e','pillar red'],
+ ['#d9a428','brass yellow'],
+ ['#2e7f8f','river teal'],
+ ['#5d8a4a','leaf green'],
+ ['#0d0c0b','ink black'],
+ ['#7d3f6e','plum'],
+ ['#35558a','deep blue'],
+ ['#b0632e','burnt orange'],
+ ['#6b7a3a','moss'],
+ ['#4a4f57','slate'],
+ ['#b34a6b','rose'],
+ ['#d97f4a','apricot'],
+ ['#5a8fc2','sky'],
+ ['#cbb26a','sand'],
+ ['#7a7a3d','olive'],
+ ['#3f7f6f','sea'],
+ ['#6a4f9f','violet'],
+ ['#9a4a2a','rust'],
+ ['#2f5a45','pine'],
+ ['#5a4033','cocoa']
+];
+var TOOLN=['pencil','ink','watercolour','paint','marker','pastel','metallic','charcoal','spray','chalk'];
+var TOOLF=['pk','ih','wc','pt','mb','pg','ms','ch','sp','ck'];
+function pen(ci,t){return 'url(#'+TOOLF[t]+'c'+ci+')';}
+function fxDefsAll(){
+ var s='<linearGradient id="ms" x1="0" y1="0" x2="1" y2="1">'+
+    '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="38%" stop-color="#14161a"/>'+
+    '<stop offset="50%" stop-color="#dcdde1"/><stop offset="84%" stop-color="#2a2d33"/>'+
+    '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+ for(var i=0;i<COLS.length;i++){
+  var c=COLS[i][0], f='c'+i;
+  s+='<pattern id="pk'+f+'" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">'+
+     '<rect width="10" height="10" fill="#f7f5ee"/>'+
+     '<line x1="0" y1="2" x2="10" y2="2" stroke="'+c+'" stroke-width="2.4" stroke-dasharray="7 2" opacity=".5"/>'+
+     '<line x1="0" y1="6.5" x2="10" y2="6.5" stroke="'+c+'" stroke-width="1.3" stroke-dasharray="4 3" opacity=".32"/></pattern>';
+  s+='<pattern id="ih'+f+'" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">'+
+     '<rect width="8" height="8" fill="#faf8f3"/>'+
+     '<line x1="0" y1="4" x2="8" y2="3.4" stroke="'+c+'" stroke-width="1.1" opacity=".85"/></pattern>';
+  s+='<filter id="wcf'+f+'" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>';
+  s+='<pattern id="wc'+f+'" width="72" height="72" patternUnits="userSpaceOnUse">'+
+     '<rect width="72" height="72" fill="#faf8f2"/>'+
+     '<path d="M16,22 C 26,7 54,6 63,20 C 72,34 66,56 49,63 C 33,70 12,61 12,43 C 12,34 14,28 16,22 Z" fill="'+c+'" opacity=".38"/>'+
+     '<g filter="url(#wcf'+f+')">'+
+     '<path d="M13,25 C 23,11 51,10 60,23 C 67,34 63,53 47,59 C 32,65 15,56 14,40 Z" fill="'+c+'" opacity=".34"/>'+
+     '</g>'+
+     '<path d="M16,22 C 26,7 54,6 63,20" fill="none" stroke="'+c+'" stroke-width="1.2" opacity=".5"/></pattern>';
+  s+='<pattern id="pt'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f9f7f1"/>'+
+     '<path d="M4 22 Q 28 8 52 20 Q 54 34 30 40 Q 8 44 4 22 Z" fill="'+c+'" opacity=".92"/>'+
+     '<path d="M6 34 Q 26 42 48 32 Q 50 40 30 46 Q 10 48 6 34 Z" fill="'+c+'" opacity=".85"/>'+
+     '<path d="M4 22 Q 28 8 52 20" fill="none" stroke="#ffffff" stroke-width="1.4" opacity=".45"/></pattern>';
+  s+='<filter id="mbf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.4"/></filter>';
+  s+='<pattern id="mb'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f5f0"/>'+
+     '<g filter="url(#mbf'+f+')">'+
+     '<path d="M6 16 Q 30 6 54 18" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M4 36 Q 30 46 56 32" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M8 54 Q 32 58 54 48" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '</g></pattern>';
+  s+='<filter id="pgf'+f+'"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>';
+  s+='<pattern id="pg'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".34"/>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".35"/>'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".18"/></pattern>';
+  s+='<linearGradient id="ms'+f+'" x1="0" y1="0" x2="1" y2="1">'+
+     '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="20%" stop-color="'+c+'"/>'+
+     '<stop offset="38%" stop-color="#14161a"/><stop offset="50%" stop-color="#dcdde1"/>'+
+     '<stop offset="64%" stop-color="'+c+'"/><stop offset="84%" stop-color="#2a2d33"/>'+
+     '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+  s+='<filter id="chf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>';
+  s+='<pattern id="ch'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f3f2ee"/>'+
+     '<g filter="url(#chf'+f+')">'+
+     '<path d="M8 18 Q 28 8 48 20 Q 50 36 28 40 Q 6 38 8 18 Z" fill="'+c+'" opacity=".8"/>'+
+     '<path d="M10 44 Q 30 38 48 46" stroke="'+c+'" stroke-width="6" fill="none" stroke-linecap="round" opacity=".6"/>'+
+     '</g>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".22"/></pattern>';
+  s+='<pattern id="sp'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f6f1"/>'+
+     '<circle cx="14" cy="14" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="38" cy="10" r="2" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="30" cy="30" r="4" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="10" cy="40" r="2.5" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="46" cy="44" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="22" cy="50" r="1.6" fill="'+c+'" opacity=".6"/>'+
+     '<circle cx="50" cy="26" r="1.2" fill="'+c+'" opacity=".5"/>'+
+     '<circle cx="6" cy="26" r="1" fill="'+c+'" opacity=".5"/></pattern>';
+  s+='<pattern id="ck'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f8f7f2"/>'+
+     '<line x1="4" y1="20" x2="52" y2="16" stroke="'+c+'" stroke-width="7" stroke-dasharray="12 5 8 7" stroke-linecap="round" opacity=".75"/>'+
+     '<line x1="6" y1="40" x2="50" y2="44" stroke="'+c+'" stroke-width="6" stroke-dasharray="9 6 5 8" stroke-linecap="round" opacity=".6"/></pattern>';
+ }
+ return s;
+}
+(function(){
+ var d=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ d.setAttribute('width','0'); d.setAttribute('height','0'); d.setAttribute('style','position:absolute');
+ d.innerHTML='<defs>'+fxDefsAll()+'</defs>';
+ document.body.insertBefore(d,document.body.firstChild);
+})();
+
+function tag(name,edge,sw){return ' data-name="'+name+'" data-stroke="'+edge+'" data-sw="'+sw+'"'}
+function E(expr){return expr.toFixed(1)}
+
+/* the tiers, like the photo: colour-coded lids, painted pots.
+   tier 0 = the ten effects of pillar red; tier 1 = the deeper effects;
+   tier 2 = the deeper colours */
+var TIERS=[
+ {name:'tier one \u00b7 the effects of pillar red', n:10, fill:function(i){return pen(0,i);},   nm:function(i){return TOOLN[i];}, lid:pen(12,6), pot:pen(0,2)},
+ {name:'tier two \u00b7 the deeper effects',        n:3,  fill:function(i){return pen(0,7+i);}, nm:function(i){return TOOLN[7+i];}, lid:pen(10,5), pot:pen(5,5)},
+ {name:'tier three \u00b7 the deeper colours',      n:10, fill:function(i){return pen(10+i,0);},nm:function(i){return COLS[10+i][1];}, lid:pen(13,2), pot:pen(15,2)}
+];
+var LY=[80,160,240];                 /* closed lid y positions */
+var PILLW=50, PILLH=20;
+/* spill spots for an opened tier: two columns of pills to the left of the tower.
+   each card passes its own band bases (absolute y) so the pills always sit
+   beside THEIR OWN tier */
+function spot(k,i,base){
+ return {x:24+(i%2)*56, y:base[k]+Math.floor(i/2)*(PILLH+7)};
+}
+/* build one tier; RETURNS markup. pot+lid at tower x 141..279 */
+function tierSvg(pref,k,ly){
+ var T=TIERS[k], s='';
+ /* lid (with grip tab) */
+ s+='<g id="'+pref+'lid'+k+'">';
+ s+='<rect x="195" y="'+(ly-10)+'" width="30" height="12" rx="5" fill="'+T.lid+'" stroke="#14171a" stroke-width=".8" pointer-events="none"/>';
+ s+='<rect x="141" y="'+ly+'" width="138" height="24" rx="10" fill="'+T.lid+'" stroke="#14171a" stroke-width="1"'+tag('the lid of '+T.name+' \u00b7 drag sideways to unscrew','#14171a','1')+'/>';
+ s+='</g>';
+ /* pot body */
+ s+='<rect id="'+pref+'pot'+k+'" x="145" y="'+(ly+24)+'" width="130" height="55" rx="12" fill="'+T.pot+'" stroke="#14171a" stroke-width="1"'+tag(T.name,'#14171a','1')+'/>';
+ /* contents pills (hidden until the tier is opened) */
+ for(var i=0;i<T.n;i++){
+  s+='<rect id="'+pref+'p'+k+'_'+i+'" x="0" y="0" width="'+PILLW+'" height="'+PILLH+'" rx="10" transform="translate(210,'+(ly+50)+')" fill="'+T.fill(i)+'" stroke="#14171a" stroke-width=".5" opacity="0"'+tag(T.nm(i),'#14171a','.5')+'/>';
+ }
+ return s;
+}
+function towerSvg(pref,baseY){
+ var s='';
+ /* the carry handle, like the photo: it arches over the TOP tier's lid,
+   anchored to it, so it never floats above the tower and it can travel
+   with the top tier when the tower explodes */
+ var hy=baseY+LY[0];
+ s+='<path id="'+pref+'handle" d="M180 '+(hy-2)+' Q 210 '+(hy-40)+' 240 '+(hy-2)+'" fill="none" stroke="url(#ms)" stroke-width="6" stroke-linecap="round"'+tag('the handle \u00b7 carry the whole tower','url(#ms)','6')+'/>';
+ /* tiers bottom-up, so the top tier draws last */
+ for(var k=2;k>=0;k--) s+=tierSvg(pref,k,baseY+LY[k]);
+ /* base plate */
+ s+='<rect x="133" y="'+(baseY+LY[2]+79)+'" width="154" height="14" rx="6" fill="#eae6dc" stroke="#14171a" stroke-width="1" pointer-events="none"'+tag('the base of the tower','#14171a','1')+'/>';
+ return s;
+}
+/* collect pill + lid refs after build */
+function towerWire(pref){
+ var pills=[], lids=[];
+ for(var k=0;k<3;k++){
+  lids.push(document.getElementById(pref+'lid'+k));
+  var row=[];
+  for(var i=0;i<TIERS[k].n;i++) row.push(document.getElementById(pref+'p'+k+'_'+i));
+  pills.push(row);
+ }
+ return {pills:pills,lids:lids,handle:document.getElementById(pref+'handle')};
+}
+
+/* 1 - THE TOWER: twist the exposed lid */
+(function(){
+ var svg=document.getElementById('v1');
+ var lab=document.getElementById('p1');
+ var BASE=50;                       /* the tower sits with headroom for the handle */
+ var SPOTA=[105,240,380];           /* pill spill bands, absolute y, one per tier */
+ svg.innerHTML=towerSvg('a',BASE)+'<text x="210" y="528" text-anchor="middle" font-size="12" font-family="system-ui,sans-serif" fill="#8a857c" pointer-events="none">and there are more tiers beneath</text>';
+ var W=towerWire('a');
+ var openK=0;                       /* tiers above are off; tier openK's lid is exposed */
+ var twist=null, moved=false, px=0, py=0;
+ var pst=[];
+ for(var k=0;k<3;k++){
+  var row=[];
+  for(var i=0;i<TIERS[k].n;i++)row.push({x:210,y:BASE+LY[k]+50,tx:210,ty:BASE+LY[k]+50,o:0});
+  pst.push(row);
+ }
+ var lpose=[];
+ for(var p=0;p<3;p++)lpose.push({tx:0,ty:0,rot:0});
+ function frame(){
+  for(var k=0;k<3;k++){
+   /* pills: visible + spilled once their tier is open */
+   for(var i=0;i<TIERS[k].n;i++){
+    var P=pst[k][i], sp=spot(k,i,SPOTA);
+    P.tx=(k<openK)?sp.x:210; P.ty=(k<openK)?sp.y:BASE+LY[k]+50;
+    P.o+=(((k<openK)?1:0)-P.o)*0.14;
+    P.x+=(P.tx-P.x)*0.14; P.y+=(P.ty-P.y)*0.14;
+    W.pills[k][i].setAttribute('transform','translate('+E(P.x)+','+E(P.y)+')');
+    W.pills[k][i].setAttribute('opacity',E(P.o));
+    W.pills[k][i].setAttribute('pointer-events',P.o>0.5?'auto':'none');
+   }
+   /* lid: twisted live, or swung aside once open */
+   var L=lpose[k], isT=twist&&twist.k===k;
+   var tdx=isT?Math.max(-30,Math.min(30,twist.dx*0.25)):(k<openK?130:0);
+   var tdy=isT?0:(k<openK?-70:0);
+   var tro=isT?Math.max(-12,Math.min(12,twist.dx*0.08)):(k<openK?12:0);
+   var f=isT?0.35:0.14;
+   L.tx+=(tdx-L.tx)*f; L.ty+=(tdy-L.ty)*f; L.rot+=(tro-L.rot)*f;
+   W.lids[k].setAttribute('transform','translate('+E(L.tx)+','+E(L.ty)+') rotate('+E(L.rot)+',210,'+(BASE+LY[k]+12)+')');
+  }
+  requestAnimationFrame(frame);
+ }
+ frame();
+ svg.addEventListener('pointerdown',function(e){
+  px=e.clientX; py=e.clientY; moved=false;
+  if(openK<3){
+   var el=document.elementFromPoint(e.clientX,e.clientY);
+   var col=el?el.closest('[data-name]'):null;
+   if(col&&col.id==='alid'+openK){
+    twist={k:openK,dx:0,x0:e.clientX};
+    try{svg.setPointerCapture(e.pointerId)}catch(_){}
+    e.preventDefault();
+   }
+  }
+ });
+ svg.addEventListener('pointermove',function(e){
+  if(Math.abs(e.clientX-px)+Math.abs(e.clientY-py)>8)moved=true;
+  if(!twist)return;
+  twist.dx=e.clientX-twist.x0;
+  lab.textContent='turning\u2026 keep dragging to unscrew';
+ });
+ svg.addEventListener('pointerup',function(e){
+  if(twist){
+   if(Math.abs(twist.dx)>70){
+    lab.textContent=TIERS[twist.k].name.split(' \u00b7 ')[1]+' \u00b7 out where you can reach them';
+    openK=twist.k+1;
+   } else {
+    lab.textContent='drag it further to unscrew';
+   }
+   twist=null;
+  } else if(!moved){
+   var el=document.elementFromPoint(e.clientX,e.clientY);
+   var col=el?el.closest('[data-name]'):null;
+   if(col)lab.textContent=col.dataset.name;
+  }
+ });
+ svg.addEventListener('pointercancel',function(){twist=null});
+})();
+
+/* 2 - THE EXPLODED VIEW */
+(function(){
+ var svg=document.getElementById('v2');
+ var lab=document.getElementById('p2');
+ var btn=document.getElementById('b2');
+ var BASE=150;                      /* the tower sits low, so the explosion has room below */
+ var EXPL=[60,220,380];             /* exploded LID positions, absolute y, one per tier */
+ var SPOTB=[55,215,375];            /* pill spill bands, absolute y, one per tier */
+ svg.innerHTML=towerSvg('b',BASE);
+ var W=towerWire('b');
+ var open=false;
+ /* each tier's own travel: from its closed spot to its exploded spot */
+ var DY=[];
+ for(var k=0;k<3;k++)DY.push(EXPL[k]-(BASE+LY[k]));
+ var pst=[],lpose=[],pdy=[];
+ for(var k=0;k<3;k++){
+  var row=[];
+  for(var i=0;i<TIERS[k].n;i++)row.push({x:210,y:BASE+LY[k]+50,tx:210,ty:BASE+LY[k]+50,o:0});
+  pst.push(row);
+  lpose.push({tx:0,ty:0,rot:0});
+  pdy.push(0);
+ }
+ var hdy=0;                         /* the handle travels with the top tier */
+ function frame(){
+  var f=0.14;
+  for(var k=0;k<3;k++){
+   /* pills spill into THEIR tier's band, so they follow their pot */
+   for(var i=0;i<TIERS[k].n;i++){
+    var P=pst[k][i], sp=spot(k,i,SPOTB);
+    P.tx=open?sp.x:210; P.ty=open?sp.y:BASE+LY[k]+50;
+    P.o+=((open?1:0)-P.o)*0.14;
+    P.x+=(P.tx-P.x)*0.14; P.y+=(P.ty-P.y)*0.14;
+    W.pills[k][i].setAttribute('transform','translate('+E(P.x)+','+E(P.y)+')');
+    W.pills[k][i].setAttribute('opacity',E(P.o));
+    W.pills[k][i].setAttribute('pointer-events',P.o>0.5?'auto':'none');
+   }
+   /* lid lifts off and rests beside its OWN pot, which has moved to EXPL[k] */
+   var L=lpose[k], tx=open?135:0, ty=open?DY[k]-10:0, ro=open?12:0;
+   L.tx+=(tx-L.tx)*f; L.ty+=(ty-L.ty)*f; L.rot+=(ro-L.rot)*f;
+   W.lids[k].setAttribute('transform','translate('+E(L.tx)+','+E(L.ty)+') rotate('+E(L.rot)+',210,'+(BASE+LY[k]+12)+')');
+   pdy[k]+=((open?DY[k]:0)-pdy[k])*f;
+   document.getElementById('bpot'+k).setAttribute('transform','translate(0,'+E(pdy[k])+')');
+  }
+  hdy+=((open?DY[0]:0)-hdy)*f;
+  W.handle.setAttribute('transform','translate(0,'+E(hdy)+')');
+  requestAnimationFrame(frame);
+ }
+ frame();
+ var px=0, py=0, moved=false;
+ svg.addEventListener('pointerdown',function(e){ px=e.clientX; py=e.clientY; moved=false; });
+ svg.addEventListener('pointermove',function(e){
+  if(Math.abs(e.clientX-px)+Math.abs(e.clientY-py)>8)moved=true;
+ });
+ svg.addEventListener('pointerup',function(e){
+  if(moved)return;
+  var el=document.elementFromPoint(e.clientX,e.clientY);
+  var col=el?el.closest('[data-name]'):null;
+  if(col)lab.textContent=col.dataset.name;
+ });
+ btn.addEventListener('click',function(){
+  open=!open;
+  btn.textContent=open?'stack it back':'explode the tower';
+ });
+})();
+</script>
+</body>
+</html>
