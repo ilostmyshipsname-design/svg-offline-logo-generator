@@ -1,0 +1,284 @@
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>The opened container</title>
+<style>
+ html,body{margin:0;background:#e9e6e0;font-family:system-ui,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y}
+ .wrap{max-width:430px;margin:0 auto;padding:18px 12px 60px}
+ h1{font-size:22px;color:#3c3a36;font-weight:600;margin:0}
+ p.sub{color:#6d6a64;font-size:14px;margin:6px 0 0}
+ .card{background:#f4f1ea;border:1px solid #d8d3c8;border-radius:14px;padding:14px;margin-top:18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+ .card h2{font-size:16px;color:#3c3a36;margin:0 0 4px}
+ .card .desc{font-size:13px;color:#6d6a64;margin:0 0 10px}
+ svg.xv{width:100%;height:auto;display:block;margin:0 auto;touch-action:pan-y}
+ .tg{display:block;margin:12px auto 0;padding:12px 26px;font-size:15px;font-family:system-ui,sans-serif;border-radius:24px;border:1px solid #b8ab8f;background:#fffdf8;color:#3c3a36;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+ .cap{font-size:12px;color:#8a857c;text-align:center;margin:10px 0 0;line-height:1.5}
+ .pick{font-size:14px;color:#3c3a36;text-align:center;margin:6px 0 0;min-height:18px;font-weight:600}
+ .pick span{color:#8a857c;font-weight:400}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <h1>The opened container</h1>
+ <p class="sub">You asked: why spend all the space on one circle, as if there is only one circle in the container? There isn't. The container is empty space &mdash; when it opens, it can hold as many circles as it wants. The wheel keeps its size, and what it carries comes out as its own circles beside it, the way a watch carries small dials beside the hands.</p>
+
+ <div class="card"><h2>1 &middot; The container opened &mdash; a space of circles</h2>
+  <p class="desc">Packed, it is one wheel. Open the container and the wheel steps aside &mdash; smaller, still whole &mdash; and its contents come out as their own circles: the colours of the chosen effect, the deeper effects, and one more circle if you ask for it. Tap any wedge to choose.</p>
+  <svg class="xv" id="v1" viewBox="0 0 420 420"></svg>
+  <button class="tg" id="b1">open the container</button>
+  <p class="cap">the wheel doesn't have to eat the space &mdash; the space holds as many circles as the container needs</p>
+  <div class="pick" id="p1"><span>tap an effect on the wheel &middot; open the container for its colours</span></div></div>
+
+ <div class="card"><h2>2 &middot; The old way, for comparison</h2>
+  <p class="desc">This is what I was doing: one circle, everything crammed onto it, its colours stretched to the very edge of the space. One circle spending all the room.</p>
+  <svg class="xv" id="v2" viewBox="0 0 420 420"></svg>
+  <p class="cap">all the space spent on one circle &mdash; nothing left for anything else to be a container too</p>
+  <div class="pick" id="p2"><span>tap any part to name it</span></div></div>
+</div>
+
+<script>
+/* THE OPENED CONTAINER: owner's question verbatim:
+   "why in a opened container are you trying to use up all available space
+   on one circle as if there is only one circle in the container".
+   Answer built: an opened container is a SPACE holding several circles.
+   Packed = one colour effects wheel. Open = the wheel steps aside (smaller,
+   still whole) and its contents come out as their own circles:
+   circle A = the colours of the chosen effect,
+   circle B = the deeper effects (charcoal, spray, chalk) in the chosen colour,
+   circle C (one more circle) = the deeper colours through the chosen effect.
+   Effects per colour ported verbatim from layered-container.html (20 colours). */
+var COLS=[
+ ['#c23b2e','pillar red'],
+ ['#d9a428','brass yellow'],
+ ['#2e7f8f','river teal'],
+ ['#5d8a4a','leaf green'],
+ ['#0d0c0b','ink black'],
+ ['#7d3f6e','plum'],
+ ['#35558a','deep blue'],
+ ['#b0632e','burnt orange'],
+ ['#6b7a3a','moss'],
+ ['#4a4f57','slate'],
+ ['#b34a6b','rose'],
+ ['#d97f4a','apricot'],
+ ['#5a8fc2','sky'],
+ ['#cbb26a','sand'],
+ ['#7a7a3d','olive'],
+ ['#3f7f6f','sea'],
+ ['#6a4f9f','violet'],
+ ['#9a4a2a','rust'],
+ ['#2f5a45','pine'],
+ ['#5a4033','cocoa']
+];
+var TOOLN=['pencil','ink','watercolour','paint','marker','pastel','metallic','charcoal','spray','chalk'];
+var TOOLF=['pk','ih','wc','pt','mb','pg','ms','ch','sp','ck'];
+var TOOLC=[9,4,3,0,2,1,6,9,7,1];
+function pen(ci,t){return 'url(#'+TOOLF[t]+'c'+ci+')';}
+function fxDefsAll(){
+ var s='<linearGradient id="ms" x1="0" y1="0" x2="1" y2="1">'+
+    '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="38%" stop-color="#14161a"/>'+
+    '<stop offset="50%" stop-color="#dcdde1"/><stop offset="84%" stop-color="#2a2d33"/>'+
+    '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+ for(var i=0;i<COLS.length;i++){
+  var c=COLS[i][0], f='c'+i;
+  s+='<pattern id="pk'+f+'" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">'+
+     '<rect width="10" height="10" fill="#f7f5ee"/>'+
+     '<line x1="0" y1="2" x2="10" y2="2" stroke="'+c+'" stroke-width="2.4" stroke-dasharray="7 2" opacity=".5"/>'+
+     '<line x1="0" y1="6.5" x2="10" y2="6.5" stroke="'+c+'" stroke-width="1.3" stroke-dasharray="4 3" opacity=".32"/></pattern>';
+  s+='<pattern id="ih'+f+'" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">'+
+     '<rect width="8" height="8" fill="#faf8f3"/>'+
+     '<line x1="0" y1="4" x2="8" y2="3.4" stroke="'+c+'" stroke-width="1.1" opacity=".85"/></pattern>';
+  s+='<filter id="wcf'+f+'" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>';
+  s+='<pattern id="wc'+f+'" width="72" height="72" patternUnits="userSpaceOnUse">'+
+     '<rect width="72" height="72" fill="#faf8f2"/>'+
+     '<path d="M16,22 C 26,7 54,6 63,20 C 72,34 66,56 49,63 C 33,70 12,61 12,43 C 12,34 14,28 16,22 Z" fill="'+c+'" opacity=".38"/>'+
+     '<g filter="url(#wcf'+f+')">'+
+     '<path d="M13,25 C 23,11 51,10 60,23 C 67,34 63,53 47,59 C 32,65 15,56 14,40 Z" fill="'+c+'" opacity=".34"/>'+
+     '</g>'+
+     '<path d="M16,22 C 26,7 54,6 63,20" fill="none" stroke="'+c+'" stroke-width="1.2" opacity=".5"/></pattern>';
+  s+='<pattern id="pt'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f9f7f1"/>'+
+     '<path d="M4 22 Q 28 8 52 20 Q 54 34 30 40 Q 8 44 4 22 Z" fill="'+c+'" opacity=".92"/>'+
+     '<path d="M6 34 Q 26 42 48 32 Q 50 40 30 46 Q 10 48 6 34 Z" fill="'+c+'" opacity=".85"/>'+
+     '<path d="M4 22 Q 28 8 52 20" fill="none" stroke="#ffffff" stroke-width="1.4" opacity=".45"/></pattern>';
+  s+='<filter id="mbf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.4"/></filter>';
+  s+='<pattern id="mb'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f5f0"/>'+
+     '<g filter="url(#mbf'+f+')">'+
+     '<path d="M6 16 Q 30 6 54 18" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M4 36 Q 30 46 56 32" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '<path d="M8 54 Q 32 58 54 48" stroke="'+c+'" stroke-width="9" fill="none" stroke-linecap="round" opacity=".55"/>'+
+     '</g></pattern>';
+  s+='<filter id="pgf'+f+'"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>';
+  s+='<pattern id="pg'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".34"/>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".35"/>'+
+     '<rect width="56" height="56" fill="'+c+'" opacity=".18"/></pattern>';
+  s+='<linearGradient id="ms'+f+'" x1="0" y1="0" x2="1" y2="1">'+
+     '<stop offset="0%" stop-color="#e6e7ea"/><stop offset="20%" stop-color="'+c+'"/>'+
+     '<stop offset="38%" stop-color="#14161a"/><stop offset="50%" stop-color="#dcdde1"/>'+
+     '<stop offset="64%" stop-color="'+c+'"/><stop offset="84%" stop-color="#2a2d33"/>'+
+     '<stop offset="100%" stop-color="#c9cacd"/></linearGradient>';
+  s+='<filter id="chf'+f+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>';
+  s+='<pattern id="ch'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f3f2ee"/>'+
+     '<g filter="url(#chf'+f+')">'+
+     '<path d="M8 18 Q 28 8 48 20 Q 50 36 28 40 Q 6 38 8 18 Z" fill="'+c+'" opacity=".8"/>'+
+     '<path d="M10 44 Q 30 38 48 46" stroke="'+c+'" stroke-width="6" fill="none" stroke-linecap="round" opacity=".6"/>'+
+     '</g>'+
+     '<rect width="56" height="56" filter="url(#pgf'+f+')" opacity=".22"/></pattern>';
+  s+='<pattern id="sp'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f7f6f1"/>'+
+     '<circle cx="14" cy="14" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="38" cy="10" r="2" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="30" cy="30" r="4" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="10" cy="40" r="2.5" fill="'+c+'" opacity=".7"/>'+
+     '<circle cx="46" cy="44" r="3" fill="'+c+'" opacity=".8"/>'+
+     '<circle cx="22" cy="50" r="1.6" fill="'+c+'" opacity=".6"/>'+
+     '<circle cx="50" cy="26" r="1.2" fill="'+c+'" opacity=".5"/>'+
+     '<circle cx="6" cy="26" r="1" fill="'+c+'" opacity=".5"/></pattern>';
+  s+='<pattern id="ck'+f+'" width="56" height="56" patternUnits="userSpaceOnUse">'+
+     '<rect width="56" height="56" fill="#f8f7f2"/>'+
+     '<line x1="4" y1="20" x2="52" y2="16" stroke="'+c+'" stroke-width="7" stroke-dasharray="12 5 8 7" stroke-linecap="round" opacity=".75"/>'+
+     '<line x1="6" y1="40" x2="50" y2="44" stroke="'+c+'" stroke-width="6" stroke-dasharray="9 6 5 8" stroke-linecap="round" opacity=".6"/></pattern>';
+ }
+ return s;
+}
+(function(){
+ var d=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ d.setAttribute('width','0'); d.setAttribute('height','0'); d.setAttribute('style','position:absolute');
+ d.innerHTML='<defs>'+fxDefsAll()+'</defs>';
+ document.body.insertBefore(d,document.body.firstChild);
+})();
+
+function tag(name,edge,sw){return ' data-name="'+name+'" data-stroke="'+edge+'" data-sw="'+sw+'"'}
+function E(expr){return expr.toFixed(1)}
+
+/* 1 - THE CONTAINER OPENED: A SPACE OF CIRCLES */
+(function(){
+ var svg=document.getElementById('v1');
+ var lab=document.getElementById('p1');
+ var btn=document.getElementById('b1');
+ var chosenC=0, chosenP=2;         /* the chosen colour effect */
+ var state=0;                      /* 0 packed, 1 open, 2 one more circle */
+ function wedgePts(r0,r1,a0deg,a1deg){
+  var a0=a0deg*Math.PI/180, a1=a1deg*Math.PI/180;
+  return E(r1*Math.cos(a0))+','+E(r1*Math.sin(a0))+' '+
+         E(r1*Math.cos(a1))+','+E(r1*Math.sin(a1))+' '+
+         E(r0*Math.cos(a1))+','+E(r0*Math.sin(a1))+' '+
+         E(r0*Math.cos(a0))+','+E(r0*Math.sin(a0));
+ }
+ var s='';
+ /* circle C: the deeper colours (drawn first: underneath) */
+ s+='<g id="gC">';
+ for(var dc=0;dc<10;dc++){
+  s+='<polygon id="cc'+dc+'" points="'+wedgePts(10,48,dc*36+1,(dc+1)*36-1)+'" fill="'+pen(10+dc,chosenP)+'" stroke="#14171a" stroke-width=".5"'+tag(COLS[10+dc][1],'#14171a','.5')+'/>';
+ }
+ s+='<circle cx="0" cy="0" r="49" fill="none" stroke="#14171a" stroke-width="1" opacity=".35" pointer-events="none"/></g>';
+ /* circle B: the deeper effects */
+ s+='<g id="gB">';
+ for(var db=0;db<3;db++){
+  s+='<polygon id="bw'+db+'" points="'+wedgePts(12,48,db*120+1.5,(db+1)*120-1.5)+'" fill="'+pen(chosenC,7+db)+'" stroke="#14171a" stroke-width=".5"'+tag(TOOLN[7+db]+' \u00b7 deeper effect','#14171a','.5')+'/>';
+ }
+ s+='<circle cx="0" cy="0" r="49" fill="none" stroke="#14171a" stroke-width="1" opacity=".35" pointer-events="none"/></g>';
+ /* circle A: the colours of the chosen effect */
+ s+='<g id="gA">';
+ for(var da=0;da<10;da++){
+  s+='<polygon id="ac'+da+'" points="'+wedgePts(12,48,da*36+1,(da+1)*36-1)+'" fill="'+pen(da,chosenP)+'" stroke="#14171a" stroke-width=".5"'+tag(COLS[da][1],'#14171a','.5')+'/>';
+ }
+ s+='<circle cx="0" cy="0" r="49" fill="none" stroke="#14171a" stroke-width="1" opacity=".35" pointer-events="none"/></g>';
+ /* the main wheel: the colour effects wheel, whole at any size */
+ s+='<g id="gM">';
+ for(var t=0;t<10;t++){
+  s+='<polygon id="ew'+t+'" points="'+wedgePts(20,90,t*36+1,(t+1)*36-1)+'" fill="'+pen(TOOLC[t],t)+'" stroke="#14171a" stroke-width=".5"'+tag(TOOLN[t]+' \u00b7 tap to choose','#14171a','.5')+'/>';
+ }
+ s+='<circle cx="0" cy="0" r="22" id="lens" fill="'+pen(chosenC,chosenP)+'" stroke="#14171a" stroke-width="2" pointer-events="none"'+tag('the lens \u00b7 the part','url(#ms)','2')+'/>';
+ s+='</g>';
+ svg.innerHTML=s;
+ var gM=document.getElementById('gM'), gA=document.getElementById('gA'),
+     gB=document.getElementById('gB'), gC=document.getElementById('gC');
+ var cur={ M:{x:210,y:210,s:1,o:1},
+           A:{x:210,y:210,s:0,o:0},
+           B:{x:210,y:210,s:0,o:0},
+           C:{x:210,y:210,s:0,o:0} };
+ var els={M:gM,A:gA,B:gB,C:gC};
+ function targets(){
+  if(state===0)return {M:[210,210,1,1],A:[210,210,0,0],B:[210,210,0,0],C:[210,210,0,0]};
+  if(state===1)return {M:[112,210,0.78,1],A:[310,92,1,1],B:[310,210,1,1],C:[310,210,0,0]};
+  return {M:[112,210,0.78,1],A:[310,92,1,1],B:[310,210,1,1],C:[310,328,1,1]};
+ }
+ function frame(){
+  var tg=targets();
+  for(var k in cur){
+   var c=cur[k], t=tg[k];
+   c.x+=(t[0]-c.x)*0.16; c.y+=(t[1]-c.y)*0.16; c.s+=(t[2]-c.s)*0.16; c.o+=(t[3]-c.o)*0.16;
+   els[k].setAttribute('transform','translate('+E(c.x)+','+E(c.y)+') scale('+E(c.s)+')');
+   els[k].setAttribute('opacity',E(c.o));
+   if(k!=='M')els[k].setAttribute('pointer-events',c.o>0.5?'auto':'none');
+  }
+  requestAnimationFrame(frame);
+ }
+ frame();
+ function reink(){
+  for(var da=0;da<10;da++)document.getElementById('ac'+da).setAttribute('fill',pen(da,chosenP));
+  for(var db=0;db<3;db++)document.getElementById('bw'+db).setAttribute('fill',pen(chosenC,7+db));
+  for(var dc=0;dc<10;dc++)document.getElementById('cc'+dc).setAttribute('fill',pen(10+dc,chosenP));
+  document.getElementById('lens').setAttribute('fill',pen(chosenC,chosenP));
+  lab.textContent='chosen: '+TOOLN[chosenP]+' \u00b7 '+COLS[chosenC][1];
+ }
+ var px=0, py=0;
+ svg.addEventListener('pointerdown',function(e){ px=e.clientX; py=e.clientY; });
+ svg.addEventListener('pointerup',function(e){
+  if(Math.abs(e.clientX-px)+Math.abs(e.clientY-py)>8)return;   /* moved: not a tap */
+  var el=document.elementFromPoint(e.clientX,e.clientY);
+  var col=el?el.closest('[data-name]'):null;
+  if(!col)return;
+  var id=col.id;
+  if(id.indexOf('ew')===0){ chosenP=+id.slice(2); reink(); }
+  else if(id.indexOf('bw')===0){ chosenP=7+ +id.slice(2); reink(); }
+  else if(id.indexOf('ac')===0){ chosenC=+id.slice(2); reink(); }
+  else if(id.indexOf('cc')===0){ chosenC=10+ +id.slice(2); reink(); }
+ });
+ btn.addEventListener('click',function(){
+  state=(state+1)%3;
+  btn.textContent=state===0?'open the container':(state===1?'one more circle':'stack it back');
+ });
+})();
+
+/* 2 - THE OLD WAY: EVERYTHING SPENT ON ONE CIRCLE */
+(function(){
+ var svg=document.getElementById('v2');
+ var lab=document.getElementById('p2');
+ var CX=210, CY=210, R0=40, R1=100;
+ function wedgePts(r0,r1,a0deg,a1deg){
+  var a0=a0deg*Math.PI/180, a1=a1deg*Math.PI/180;
+  return E(CX+r1*Math.cos(a0))+','+E(CY+r1*Math.sin(a0))+' '+
+         E(CX+r1*Math.cos(a1))+','+E(CY+r1*Math.sin(a1))+' '+
+         E(CX+r0*Math.cos(a1))+','+E(CY+r0*Math.sin(a1))+' '+
+         E(CX+r0*Math.cos(a0))+','+E(CY+r0*Math.sin(a0));
+ }
+ var s='';
+ /* the colours of one effect, stretched to the very edge of the space */
+ for(var ci=0;ci<10;ci++){
+  var a0=(ci*36+0.5)*Math.PI/180, a1=((ci+1)*36-0.5)*Math.PI/180;
+  s+='<polygon id="xp'+ci+'" points="'+
+     E(CX+200*Math.cos(a0))+','+E(CY+200*Math.sin(a0))+' '+
+     E(CX+200*Math.cos(a1))+','+E(CY+200*Math.sin(a1))+' '+
+     E(CX+98*Math.cos(a1))+','+E(CY+98*Math.sin(a1))+' '+
+     E(CX+98*Math.cos(a0))+','+E(CY+98*Math.sin(a0))+
+     '" fill="'+pen(ci,2)+'" stroke="#14171a" stroke-width=".5"'+tag(COLS[ci][1],'#14171a','.5')+'/>';
+ }
+ for(var t=0;t<10;t++){
+  s+='<polygon id="xw'+t+'" points="'+wedgePts(R0,R1,t*36+1,(t+1)*36-1)+'" fill="'+pen(TOOLC[t],t)+'" stroke="#14171a" stroke-width=".5"'+tag(TOOLN[t],'#14171a','.5')+'/>';
+ }
+ s+='<circle id="xlens" cx="'+CX+'" cy="'+CY+'" r="24" fill="'+pen(0,2)+'" stroke="#14171a" stroke-width="2" pointer-events="none"'+tag('the lens \u00b7 the part','url(#ms)','2')+'/>';
+ svg.innerHTML=s;
+ svg.addEventListener('pointerup',function(e){
+  var el=document.elementFromPoint(e.clientX,e.clientY);
+  var col=el?el.closest('[data-name]'):null;
+  if(col)lab.textContent=col.dataset.name;
+ });
+})();
+</script>
+</body>
+</html>
